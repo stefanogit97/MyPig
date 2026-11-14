@@ -94,6 +94,27 @@
       outline-offset: 2px;
     }
 
+    .riga-saldo {
+      display: grid;
+      grid-template-columns: minmax(110px, 1fr) minmax(105px, .75fr) minmax(110px, .75fr) auto;
+      align-items: end;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #e1e9e5;
+      border-radius: 10px;
+    }
+
+    .riga-saldo label { min-width: 0; }
+    .riga-saldo .stato-cambio-saldo, .riga-saldo .campo-cambio-saldo {
+      grid-column: 1 / -1;
+    }
+    .riga-saldo .stato-cambio-saldo {
+      margin: 0;
+      color: #49615b;
+      font-size: .85rem;
+    }
+    .riga-saldo .campo-cambio-saldo[hidden] { display: none; }
+
     button.rimuovi-posizione, button.aggiungi-posizione {
       width: auto;
       min-height: 44px;
@@ -124,7 +145,7 @@
     .nota-metriche { margin: 0 0 12px; color: #49615b; font-size: .9rem; }
 
     label { display: block; font-weight: 600; }
-    input {
+    input, select {
       width: 100%;
       min-height: 44px;
       margin-top: 6px;
@@ -134,12 +155,19 @@
       font: inherit;
     }
 
-    input:focus, button:focus-visible {
+    input:focus, select:focus, button:focus-visible {
       outline: 3px solid #9ed5c6;
       outline-offset: 2px;
     }
 
     .hint { margin: 0 0 16px; color: #49615b; font-size: .94rem; }
+    .informazione-cambio {
+      align-self: end;
+      margin: 0;
+      color: #49615b;
+      font-size: .88rem;
+    }
+    #campo-tasso-manuale[hidden] { display: none; }
     button {
       width: 100%;
       min-height: 46px;
@@ -193,6 +221,8 @@
       .fields { grid-template-columns: 1fr; gap: 12px; }
       .riga-posizione { grid-template-columns: 1fr 1fr; }
       .riga-posizione button { grid-column: 1 / -1; }
+      .riga-saldo { grid-template-columns: 1fr 1fr; }
+      .riga-saldo button { grid-column: 1 / -1; }
       .metriche-patrimonio { grid-template-columns: 1fr; }
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
@@ -261,58 +291,72 @@
   <main>
     <section class="card" aria-labelledby="titolo-form">
       <h2 id="titolo-form">Inserisci un mese</h2>
-      <p class="hint">Inserisci i valori al primo del mese e stipendio e spese del mese precedente. Il patrimonio è calcolato sommando ETF, azioni, obbligazioni, liquidità e conto deposito. Il risparmio è stipendio meno spese e viene mostrato a parte, senza sommarlo di nuovo.</p>
+      <p class="hint">Inserisci stipendio e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.</p>
       <form id="form-mese">
         <div class="fields">
           <label for="mese">Mese del rilevamento
             <input id="mese" name="mese" type="month" required>
           </label>
-          <label for="liquidita">Liquidità corrente (€)
-            <input id="liquidita" name="liquidita" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          <label for="valuta">Valuta di stipendio e spese
+            <select id="valuta" name="valuta"></select>
           </label>
-          <label for="contoDeposito">Conto deposito (€)
-            <input id="contoDeposito" name="contoDeposito" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          <p id="informazione-cambio" class="informazione-cambio" role="status" aria-live="polite">Per EUR il cambio è 1:1.</p>
+          <label id="campo-tasso-manuale" for="tasso-manuale" hidden>Euro per un'unità di valuta
+            <input id="tasso-manuale" name="tasso-manuale" type="number" min="0.000001" step="0.000001" inputmode="decimal" placeholder="Es. 0,92">
           </label>
-          <label for="stipendio">Stipendio ricevuto (€)
+          <label for="stipendio"><span id="etichetta-stipendio">Stipendio ricevuto (EUR)</span>
             <input id="stipendio" name="stipendio" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
           </label>
-          <label for="cibo">Cibo (€)
+          <label for="cibo"><span id="etichetta-cibo">Cibo (EUR)</span>
             <input id="cibo" name="cibo" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="macchina">Macchina (€)
+          <label for="macchina"><span id="etichetta-macchina">Macchina (EUR)</span>
             <input id="macchina" name="macchina" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="affitto">Affitto (€)
+          <label for="affitto"><span id="etichetta-affitto">Affitto (EUR)</span>
             <input id="affitto" name="affitto" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="elettricita">Elettricità (€)
+          <label for="elettricita"><span id="etichetta-elettricita">Elettricità (EUR)</span>
             <input id="elettricita" name="elettricita" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="gas">Gas (€)
+          <label for="gas"><span id="etichetta-gas">Gas (EUR)</span>
             <input id="gas" name="gas" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="tasse">Tasse (€)
+          <label for="tasse"><span id="etichetta-tasse">Tasse (EUR)</span>
             <input id="tasse" name="tasse" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="salute">Salute (€)
+          <label for="salute"><span id="etichetta-salute">Salute (EUR)</span>
             <input id="salute" name="salute" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="sport">Sport (€)
+          <label for="sport"><span id="etichetta-sport">Sport (EUR)</span>
             <input id="sport" name="sport" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="divertimenti">Divertimenti (€)
+          <label for="divertimenti"><span id="etichetta-divertimenti">Divertimenti (EUR)</span>
             <input id="divertimenti" name="divertimenti" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="ristoranti">Ristoranti (€)
+          <label for="ristoranti"><span id="etichetta-ristoranti">Ristoranti (EUR)</span>
             <input id="ristoranti" name="ristoranti" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="bar">Bar (€)
+          <label for="bar"><span id="etichetta-bar">Bar (EUR)</span>
             <input id="bar" name="bar" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="altreSpese">Altre spese (€)
+          <label for="altreSpese"><span id="etichetta-altreSpese">Altre spese (EUR)</span>
             <input id="altreSpese" name="altreSpese" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
         </div>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-liquidita">
+          <h3 id="titolo-liquidita">Liquidità corrente</h3>
+          <p class="hint">Aggiungi ogni conto o saldo liquido; puoi usare una valuta diversa per ciascuna riga.</p>
+          <div id="righe-liquidita" class="righe-posizioni"></div>
+          <button id="aggiungi-liquidita" class="aggiungi-posizione" type="button">Aggiungi liquidità</button>
+        </section>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-conti-deposito">
+          <h3 id="titolo-conti-deposito">Conti deposito</h3>
+          <p class="hint">Aggiungi ogni conto deposito e scegli la valuta del saldo.</p>
+          <div id="righe-conti-deposito" class="righe-posizioni"></div>
+          <button id="aggiungi-conto-deposito" class="aggiungi-posizione" type="button">Aggiungi conto deposito</button>
+        </section>
+        <h3 class="titolo-investimenti" id="titolo-investimenti">Investimenti</h3>
         <section class="investimenti-gruppo" aria-labelledby="titolo-etf">
           <h3 id="titolo-etf">ETF</h3>
           <p class="hint">Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.</p>
@@ -410,6 +454,29 @@
       { valore: "VNGA40", etichetta: "VNGA40" },
       { valore: "Altro ETF", etichetta: "Altro ETF" }
     ];
+    const VALUTE = [
+      ["EUR", "Euro"], ["USD", "Dollaro statunitense"], ["GBP", "Sterlina britannica"],
+      ["CHF", "Franco svizzero"], ["JPY", "Yen giapponese"], ["CAD", "Dollaro canadese"],
+      ["AUD", "Dollaro australiano"], ["NZD", "Dollaro neozelandese"], ["CNY", "Yuan cinese"],
+      ["INR", "Rupia indiana"], ["SGD", "Dollaro di Singapore"], ["HKD", "Dollaro di Hong Kong"],
+      ["PLN", "Zloty polacco"], ["SEK", "Corona svedese"], ["NOK", "Corona norvegese"],
+      ["DKK", "Corona danese"], ["CZK", "Corona ceca"], ["HUF", "Fiorino ungherese"],
+      ["RON", "Leu rumeno"], ["BGN", "Lev bulgaro"], ["TRY", "Lira turca"],
+      ["BRL", "Real brasiliano"], ["MXN", "Peso messicano"], ["ZAR", "Rand sudafricano"],
+      ["KRW", "Won sudcoreano"], ["IDR", "Rupia indonesiana"], ["ILS", "Shekel israeliano"],
+      ["ISK", "Corona islandese"], ["MYR", "Ringgit malese"], ["PHP", "Peso filippino"],
+      ["THB", "Baht thailandese"], ["AED", "Dirham degli Emirati"], ["SAR", "Riyal saudita"],
+      ["ARS", "Peso argentino"], ["CLP", "Peso cileno"], ["COP", "Peso colombiano"],
+      ["PEN", "Sol peruviano"], ["TWD", "Dollaro taiwanese"], ["UAH", "Grivnia ucraina"],
+      ["RUB", "Rublo russo"], ["KZT", "Tenge kazako"], ["MAD", "Dirham marocchino"],
+      ["EGP", "Sterlina egiziana"], ["VND", "Dong vietnamita"], ["PKR", "Rupia pakistana"],
+      ["NGN", "Naira nigeriana"]
+    ];
+    const NOMI_CATEGORIE = {
+      cibo: "Cibo", macchina: "Macchina", affitto: "Affitto", elettricita: "Elettricità",
+      gas: "Gas", tasse: "Tasse", salute: "Salute", sport: "Sport",
+      divertimenti: "Divertimenti", ristoranti: "Ristoranti", bar: "Bar", altreSpese: "Altre spese"
+    };
     const form = document.getElementById("form-mese");
     const messaggio = document.getElementById("messaggio");
     const backupMessaggio = document.getElementById("backup-messaggio");
@@ -422,6 +489,95 @@
       year: "numeric",
       timeZone: "UTC"
     });
+    const selettoreValuta = document.getElementById("valuta");
+    const informazioneCambio = document.getElementById("informazione-cambio");
+    const campoTassoManuale = document.getElementById("campo-tasso-manuale");
+    const inputTassoManuale = document.getElementById("tasso-manuale");
+    let richiestaCambio = 0;
+    let salvataggioInCorso = false;
+
+    VALUTE.forEach(([codice, nome]) => {
+      const opzione = document.createElement("option");
+      opzione.value = codice;
+      opzione.textContent = codice + " — " + nome;
+      selettoreValuta.append(opzione);
+    });
+
+    function aggiornaEtichetteValuta() {
+      const codice = selettoreValuta.value;
+      document.getElementById("etichetta-stipendio").textContent = "Stipendio ricevuto (" + codice + ")";
+      CATEGORIE.forEach((categoria) => {
+        document.getElementById("etichetta-" + categoria).textContent =
+          NOMI_CATEGORIE[categoria] + " (" + codice + ")";
+      });
+    }
+
+    async function ottieniTassoCambio(valuta) {
+      if (valuta === "EUR") return { tasso: 1, data: "", fonte: "Frankfurter" };
+      const indirizzo = "https://api.frankfurter.dev/v1/latest?base=" +
+        encodeURIComponent(valuta) + "&symbols=EUR";
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      try {
+        const risposta = await fetch(indirizzo, { cache: "no-store", signal: controller.signal });
+        if (!risposta.ok) {
+          throw new Error("Il servizio cambi ha risposto con errore " + risposta.status + ".");
+        }
+        const risultato = await risposta.json();
+        const tasso = risultato.rates && risultato.rates.EUR;
+        if (risultato.base !== valuta || typeof risultato.date !== "string" ||
+            !Number.isFinite(tasso) || tasso <= 0) {
+          throw new Error("Il servizio cambi ha restituito dati non validi.");
+        }
+        return { tasso, data: risultato.date, fonte: "Frankfurter" };
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    }
+
+    function mostraTassoCambio(tasso, data, fonte) {
+      const valuta = selettoreValuta.value;
+      inputTassoManuale.value = "";
+      inputTassoManuale.required = false;
+      campoTassoManuale.hidden = true;
+      if (valuta === "EUR") {
+        informazioneCambio.textContent = "Per EUR il cambio è 1:1.";
+        return;
+      }
+      const dataTasso = data ? " (dato del " + data + ")" : "";
+      const origine = fonte === "manuale" ? "Tasso inserito manualmente" : "Ultimo tasso Frankfurter";
+      informazioneCambio.textContent = "1 " + valuta + " = " +
+        tasso.toLocaleString("it-IT", { maximumFractionDigits: 6 }) +
+        " EUR — " + origine + dataTasso + ".";
+    }
+
+    async function aggiornaTassoCambio() {
+      const valuta = selettoreValuta.value;
+      const richiesta = ++richiestaCambio;
+      aggiornaEtichetteValuta();
+      inputTassoManuale.value = "";
+      inputTassoManuale.required = false;
+      campoTassoManuale.hidden = true;
+      if (valuta === "EUR") {
+        informazioneCambio.textContent = "Per EUR il cambio è 1:1.";
+        return;
+      }
+
+      informazioneCambio.textContent = "Recupero il cambio più recente per " + valuta + "…";
+      try {
+        const cambio = await ottieniTassoCambio(valuta);
+        if (richiesta !== richiestaCambio || selettoreValuta.value !== valuta) return;
+        mostraTassoCambio(cambio.tasso, cambio.data, cambio.fonte);
+      } catch (errore) {
+        if (richiesta !== richiestaCambio || selettoreValuta.value !== valuta) return;
+        informazioneCambio.textContent = "Cambio online non disponibile (" + errore.message +
+          "). Inserisci manualmente il valore in euro di 1 " + valuta + ".";
+        campoTassoManuale.hidden = false;
+        inputTassoManuale.required = true;
+      }
+    }
+
+    selettoreValuta.addEventListener("change", aggiornaTassoCambio);
 
     function normalizzaRecord(record) {
       if (!record || typeof record.mese !== "string" ||
@@ -439,19 +595,54 @@
         pulito[categoria] = valore === undefined ? 0 : valore;
       });
 
+      const valuta = record.valuta || "EUR";
+      const tassoCambio = record.tassoCambio === undefined ? 1 : record.tassoCambio;
+      if (!VALUTE.some(([codice]) => codice === valuta) ||
+          !Number.isFinite(tassoCambio) || tassoCambio <= 0) {
+        throw new Error("La valuta o il tasso di cambio di un record non è valido.");
+      }
+      const valoriOriginali = record.valoriOriginali || {};
+      pulito.valuta = valuta;
+      pulito.tassoCambio = tassoCambio;
+      pulito.tassoCambioData = typeof record.tassoCambioData === "string"
+        ? record.tassoCambioData
+        : "";
+      pulito.tassoCambioFonte = record.tassoCambioFonte === "manuale" ? "manuale" : "Frankfurter";
+      pulito.stipendioOriginale = valoriOriginali.stipendio !== undefined
+        ? valoriOriginali.stipendio
+        : record.stipendioOriginale !== undefined
+          ? record.stipendioOriginale
+          : record.stipendio;
+      pulito.speseOriginali = {};
+      if (!Number.isFinite(pulito.stipendioOriginale) || pulito.stipendioOriginale < 0) {
+        throw new Error("Lo stipendio originale contiene un importo non valido.");
+      }
+      CATEGORIE.forEach((categoria) => {
+        const valore = valoriOriginali.spese && valoriOriginali.spese[categoria] !== undefined
+          ? valoriOriginali.spese[categoria]
+          : pulito[categoria];
+        if (!Number.isFinite(valore) || valore < 0) {
+          throw new Error("Una spesa originale contiene un importo non valido.");
+        }
+        pulito.speseOriginali[categoria] = valore;
+      });
+
       if (Array.isArray(record.posizioniEtf) ||
           Array.isArray(record.posizioniAzionarie) ||
-          Array.isArray(record.posizioniObbligazionarie)) {
+          Array.isArray(record.posizioniObbligazionarie) ||
+          Array.isArray(record.posizioniLiquidita) ||
+          Array.isArray(record.contiDeposito)) {
         pulito.posizioniEtf = normalizzaPosizioni(record.posizioniEtf || []);
         pulito.posizioniAzionarie = normalizzaPosizioni(record.posizioniAzionarie || []);
         pulito.posizioniObbligazionarie = normalizzaPosizioni(record.posizioniObbligazionarie || []);
-        ["liquidita", "contoDeposito"].forEach((componente) => {
-          const valore = record[componente];
-          if (valore !== undefined && (!Number.isFinite(valore) || valore < 0)) {
-            throw new Error("Un investimento o un saldo contiene un importo non valido.");
-          }
-          pulito[componente] = valore === undefined ? 0 : valore;
-        });
+        pulito.posizioniLiquidita = Array.isArray(record.posizioniLiquidita)
+          ? normalizzaSaldi(record.posizioniLiquidita)
+          : [creaSaldoStorico(record.liquidita, "Liquidità corrente")];
+        pulito.contiDeposito = Array.isArray(record.contiDeposito)
+          ? normalizzaSaldi(record.contiDeposito)
+          : [creaSaldoStorico(record.contoDeposito, "Conto deposito")];
+        pulito.liquidita = totaleSaldi(pulito.posizioniLiquidita);
+        pulito.contoDeposito = totaleSaldi(pulito.contiDeposito);
         pulito.patrimonio = totaleComponenti(pulito);
       } else {
         const vecchieVoci = ["vwce", "sp500", "nasdaq", "azioni", "obbligazioni", "liquidita", "contoDeposito"];
@@ -489,12 +680,15 @@
               valore: vecchieObbligazioni
             });
           }
-          ["liquidita", "contoDeposito"].forEach((componente) => {
+          [["liquidita", "Liquidità corrente"], ["contoDeposito", "Conto deposito"]]
+            .forEach(([componente, nome]) => {
             const valore = record[componente] === undefined ? 0 : record[componente];
             if (!Number.isFinite(valore) || valore < 0) {
               throw new Error("Un vecchio valore di patrimonio non è valido.");
             }
             pulito[componente] = valore;
+            const chiavePosizioni = componente === "liquidita" ? "posizioniLiquidita" : "contiDeposito";
+            pulito[chiavePosizioni] = [creaSaldoStorico(valore, nome)];
           });
           pulito.patrimonio = totaleComponenti(pulito);
         } else if (Number.isFinite(record.patrimonio)) {
@@ -518,6 +712,50 @@
         }
         return { nome: posizione.nome.trim(), valore: posizione.valore };
       });
+    }
+
+    function creaSaldoStorico(importo, nome) {
+      const valore = importo === undefined ? 0 : importo;
+      if (!Number.isFinite(valore) || valore < 0) {
+        throw new Error("Un saldo storico contiene un importo non valido.");
+      }
+      return {
+        nome,
+        valuta: "EUR",
+        importoOriginale: valore,
+        tassoCambio: 1,
+        tassoCambioData: "",
+        tassoCambioFonte: "Frankfurter",
+        valore
+      };
+    }
+
+    function normalizzaSaldi(posizioni) {
+      if (!Array.isArray(posizioni)) {
+        throw new Error("Le righe dei saldi non hanno un formato valido.");
+      }
+      return posizioni.map((posizione) => {
+        if (!posizione || typeof posizione.nome !== "string" ||
+            !posizione.nome.trim() || !VALUTE.some(([codice]) => codice === posizione.valuta) ||
+            !Number.isFinite(posizione.importoOriginale) || posizione.importoOriginale < 0 ||
+            !Number.isFinite(posizione.tassoCambio) || posizione.tassoCambio <= 0 ||
+            !Number.isFinite(posizione.valore) || posizione.valore < 0) {
+          throw new Error("Un saldo contiene nome, valuta o importo non valido.");
+        }
+        return {
+          nome: posizione.nome.trim(),
+          valuta: posizione.valuta,
+          importoOriginale: posizione.importoOriginale,
+          tassoCambio: posizione.tassoCambio,
+          tassoCambioData: typeof posizione.tassoCambioData === "string" ? posizione.tassoCambioData : "",
+          tassoCambioFonte: posizione.tassoCambioFonte === "manuale" ? "manuale" : "Frankfurter",
+          valore: posizione.valore
+        };
+      });
+    }
+
+    function totaleSaldi(posizioni) {
+      return (posizioni || []).reduce((totale, posizione) => totale + posizione.valore, 0);
     }
 
     function normalizzaDati(input) {
@@ -559,8 +797,12 @@
 
     function totaleComponenti(record) {
       return totaleInvestimenti(record) +
-        (record.liquidita || 0) +
-        (record.contoDeposito || 0);
+        (Array.isArray(record.posizioniLiquidita)
+          ? totaleSaldi(record.posizioniLiquidita)
+          : record.liquidita || 0) +
+        (Array.isArray(record.contiDeposito)
+          ? totaleSaldi(record.contiDeposito)
+          : record.contoDeposito || 0);
     }
 
     function totaleInvestimenti(record) {
@@ -740,6 +982,217 @@
       });
     }
 
+    function etichettaCambio(tasso, valuta, data, fonte) {
+      const descrizione = fonte === "manuale" ? "Cambio manuale" : "Ultimo tasso Frankfurter";
+      return "1 " + valuta + " = " +
+        tasso.toLocaleString("it-IT", { maximumFractionDigits: 6 }) +
+        " EUR — " + descrizione + (data ? " (dato del " + data + ")" : "") + ".";
+    }
+
+    function creaRigaSaldo(tipo, saldo = {}) {
+      const riga = document.createElement("div");
+      riga.className = "riga-saldo";
+      riga.dataset.tipo = tipo;
+      const nomeDefault = tipo === "liquidita" ? "Conto corrente" : "Conto deposito";
+
+      const etichettaNome = document.createElement("label");
+      etichettaNome.textContent = "Nome";
+      const inputNome = document.createElement("input");
+      inputNome.className = "nome-saldo";
+      inputNome.type = "text";
+      inputNome.maxLength = 40;
+      inputNome.required = true;
+      inputNome.value = saldo.nome || nomeDefault;
+      inputNome.placeholder = tipo === "liquidita" ? "Es. conto corrente" : "Es. conto deposito";
+      inputNome.setAttribute("aria-label", "Nome del saldo");
+      etichettaNome.append(inputNome);
+
+      const etichettaValuta = document.createElement("label");
+      etichettaValuta.textContent = "Valuta";
+      const selezioneValuta = document.createElement("select");
+      selezioneValuta.className = "valuta-saldo";
+      selezioneValuta.required = true;
+      VALUTE.forEach(([codice, nome]) => {
+        const opzione = document.createElement("option");
+        opzione.value = codice;
+        opzione.textContent = codice + " — " + nome;
+        selezioneValuta.append(opzione);
+      });
+      selezioneValuta.value = saldo.valuta || "EUR";
+      selezioneValuta.setAttribute("aria-label", "Valuta del saldo");
+      etichettaValuta.append(selezioneValuta);
+
+      const etichettaImporto = document.createElement("label");
+      const testoImporto = document.createElement("span");
+      testoImporto.textContent = "Importo (" + selezioneValuta.value + ")";
+      const inputImporto = document.createElement("input");
+      inputImporto.className = "importo-saldo";
+      inputImporto.type = "number";
+      inputImporto.min = "0";
+      inputImporto.step = "0.01";
+      inputImporto.required = true;
+      inputImporto.inputMode = "decimal";
+      inputImporto.value = saldo.importoOriginale === undefined ? "0" : String(saldo.importoOriginale);
+      inputImporto.setAttribute("aria-label", "Importo del saldo");
+      etichettaImporto.append(testoImporto, inputImporto);
+
+      const statoCambio = document.createElement("p");
+      statoCambio.className = "stato-cambio-saldo";
+      statoCambio.setAttribute("role", "status");
+      statoCambio.setAttribute("aria-live", "polite");
+      const etichettaTasso = document.createElement("label");
+      etichettaTasso.className = "campo-cambio-saldo";
+      etichettaTasso.hidden = true;
+      const testoTasso = document.createElement("span");
+      testoTasso.textContent = "Euro per 1 " + selezioneValuta.value;
+      const inputTasso = document.createElement("input");
+      inputTasso.className = "tasso-manuale-saldo";
+      inputTasso.type = "number";
+      inputTasso.min = "0.000001";
+      inputTasso.step = "0.000001";
+      inputTasso.inputMode = "decimal";
+      inputTasso.placeholder = "Es. 0,92";
+      inputTasso.setAttribute("aria-label", "Tasso di cambio manuale");
+      etichettaTasso.append(testoTasso, inputTasso);
+
+      const pulsanteRimuovi = document.createElement("button");
+      pulsanteRimuovi.type = "button";
+      pulsanteRimuovi.className = "rimuovi-posizione azione azione-elimina";
+      pulsanteRimuovi.textContent = "Rimuovi";
+      pulsanteRimuovi.setAttribute("aria-label", "Rimuovi saldo");
+      pulsanteRimuovi.addEventListener("click", () => riga.remove());
+
+      let numeroRichiesta = 0;
+      selezioneValuta.addEventListener("change", async () => {
+        const valuta = selezioneValuta.value;
+        const numeroCorrente = ++numeroRichiesta;
+        testoImporto.textContent = "Importo (" + valuta + ")";
+        testoTasso.textContent = "Euro per 1 " + valuta;
+        inputTasso.value = "";
+        inputTasso.required = false;
+        etichettaTasso.hidden = true;
+        if (valuta === "EUR") {
+          statoCambio.textContent = "Per EUR il cambio è 1:1.";
+          return;
+        }
+        statoCambio.textContent = "Recupero il cambio più recente per " + valuta + "…";
+        try {
+          const cambio = await ottieniTassoCambio(valuta);
+          if (numeroCorrente === numeroRichiesta && selezioneValuta.value === valuta) {
+            statoCambio.textContent = etichettaCambio(cambio.tasso, valuta, cambio.data, cambio.fonte);
+          }
+        } catch (errore) {
+          if (numeroCorrente !== numeroRichiesta || selezioneValuta.value !== valuta) return;
+          statoCambio.textContent = "Cambio online non disponibile (" + errore.message +
+            "). Inserisci il tasso manualmente.";
+          etichettaTasso.hidden = false;
+          inputTasso.required = true;
+        }
+      });
+
+      if (selezioneValuta.value === "EUR") {
+        statoCambio.textContent = "Per EUR il cambio è 1:1.";
+      } else {
+        statoCambio.textContent = etichettaCambio(
+          saldo.tassoCambio || 1,
+          selezioneValuta.value,
+          saldo.tassoCambioData || "",
+          saldo.tassoCambioFonte || "Frankfurter"
+        );
+      }
+      riga.append(etichettaNome, etichettaValuta, etichettaImporto, pulsanteRimuovi,
+        statoCambio, etichettaTasso);
+      return riga;
+    }
+
+    function mostraSaldi(containerId, tipo, saldi) {
+      const elementi = saldi === null ? [{
+        nome: tipo === "liquidita" ? "Conto corrente" : "Conto deposito",
+        valuta: "EUR",
+        importoOriginale: 0,
+        tassoCambio: 1,
+        valore: 0
+      }] : saldi;
+      document.getElementById(containerId).replaceChildren(
+        ...elementi.map((saldo) => creaRigaSaldo(tipo, saldo))
+      );
+    }
+
+    function leggiSaldi(containerId) {
+      return Array.from(document.querySelectorAll("#" + containerId + " .riga-saldo")).map((riga) => ({
+        nome: riga.querySelector(".nome-saldo").value.trim(),
+        valuta: riga.querySelector(".valuta-saldo").value,
+        importoOriginale: riga.querySelector(".importo-saldo").valueAsNumber,
+        tassoManuale: riga.querySelector(".tasso-manuale-saldo").valueAsNumber
+      }));
+    }
+
+    async function convertiSaldi(saldi, containerId) {
+      const cambiPerValuta = new Map();
+      const valute = Array.from(new Set(saldi.map((saldo) => saldo.valuta)))
+        .filter((valuta) => valuta !== "EUR");
+      await Promise.all(valute.map(async (valuta) => {
+        try {
+          cambiPerValuta.set(valuta, { cambio: await ottieniTassoCambio(valuta) });
+        } catch (errore) {
+          cambiPerValuta.set(valuta, { errore });
+        }
+      }));
+
+      const righe = Array.from(document.querySelectorAll("#" + containerId + " .riga-saldo"));
+      return saldi.map((saldo, indice) => {
+        const risultato = saldo.valuta === "EUR"
+          ? { cambio: { tasso: 1, data: "", fonte: "Frankfurter" } }
+          : cambiPerValuta.get(saldo.valuta);
+        let cambio = risultato.cambio;
+        if (!cambio) {
+          if (!Number.isFinite(saldo.tassoManuale) || saldo.tassoManuale <= 0) {
+            const riga = righe[indice];
+            const stato = riga.querySelector(".stato-cambio-saldo");
+            const etichetta = riga.querySelector(".campo-cambio-saldo");
+            const campo = riga.querySelector(".tasso-manuale-saldo");
+            stato.textContent = "Cambio online non disponibile (" + risultato.errore.message +
+              "). Inserisci manualmente quanti euro vale 1 " + saldo.valuta + ".";
+            etichetta.hidden = false;
+            campo.required = true;
+            campo.focus();
+            throw new Error("Tasso di cambio mancante per il saldo '" + saldo.nome + "'.");
+          }
+          cambio = {
+            tasso: saldo.tassoManuale,
+            data: new Date().toISOString().slice(0, 10),
+            fonte: "manuale"
+          };
+        }
+
+        const riga = righe[indice];
+        const stato = riga.querySelector(".stato-cambio-saldo");
+        const etichetta = riga.querySelector(".campo-cambio-saldo");
+        const campo = riga.querySelector(".tasso-manuale-saldo");
+        campo.required = false;
+        etichetta.hidden = true;
+        stato.textContent = cambio.tasso === 1 && saldo.valuta === "EUR"
+          ? "Per EUR il cambio è 1:1."
+          : etichettaCambio(cambio.tasso, saldo.valuta, cambio.data, cambio.fonte);
+        return {
+          nome: saldo.nome,
+          valuta: saldo.valuta,
+          importoOriginale: saldo.importoOriginale,
+          tassoCambio: cambio.tasso,
+          tassoCambioData: cambio.data,
+          tassoCambioFonte: cambio.fonte,
+          valore: Math.round((saldo.importoOriginale * cambio.tasso + Number.EPSILON) * 100) / 100
+        };
+      });
+    }
+
+    document.getElementById("aggiungi-liquidita").addEventListener("click", () => {
+      document.getElementById("righe-liquidita").append(creaRigaSaldo("liquidita"));
+    });
+    document.getElementById("aggiungi-conto-deposito").addEventListener("click", () => {
+      document.getElementById("righe-conti-deposito").append(creaRigaSaldo("deposito"));
+    });
+
     document.getElementById("aggiungi-etf").addEventListener("click", () => {
       document.getElementById("righe-etf").append(creaRigaPosizione("etf"));
     });
@@ -888,7 +1341,8 @@
           const primoCampoInvestimenti = document.querySelector("#righe-etf select") ||
             document.querySelector("#righe-azioni input") ||
             document.querySelector("#righe-obbligazioni input") ||
-            document.getElementById("liquidita");
+            document.querySelector("#righe-liquidita input") ||
+            document.querySelector("#righe-conti-deposito input");
           primoCampoInvestimenti.focus({ preventScroll: true });
           if (!record.legacyNonSuddiviso) {
             messaggio.textContent = "Dati di " + meseVisualizzato + " caricati. Modifica i campi e premi Salva mese.";
@@ -939,18 +1393,30 @@
 
     function caricaMeseSelezionato() {
       const record = dati.find((elemento) => elemento.mese === document.getElementById("mese").value);
-      document.getElementById("stipendio").value = record ? String(record.stipendio) : "0";
-      ["liquidita", "contoDeposito"].forEach((componente) => {
-        document.getElementById(componente).value = record && Number.isFinite(record[componente])
-          ? String(record[componente])
-          : "0";
-      });
+      selettoreValuta.value = record ? record.valuta : "EUR";
+      aggiornaEtichetteValuta();
+      inputTassoManuale.required = false;
+      campoTassoManuale.hidden = true;
+      if (record && record.valuta !== "EUR") {
+        mostraTassoCambio(record.tassoCambio, record.tassoCambioData, record.tassoCambioFonte);
+      } else {
+        informazioneCambio.textContent = "Per EUR il cambio è 1:1.";
+      }
+      document.getElementById("stipendio").value = record
+        ? String(record.stipendioOriginale)
+        : "0";
       CATEGORIE.forEach((categoria) => {
-        document.getElementById(categoria).value = record ? String(record[categoria]) : "0";
+        document.getElementById(categoria).value = record
+          ? String(record.speseOriginali[categoria])
+          : "0";
       });
       mostraPosizioni("righe-etf", "etf", record ? record.posizioniEtf || [] : []);
       mostraPosizioni("righe-azioni", "azione", record ? record.posizioniAzionarie || [] : []);
       mostraPosizioni("righe-obbligazioni", "obbligazione", record ? record.posizioniObbligazionarie || [] : []);
+      mostraSaldi("righe-liquidita", "liquidita",
+        record ? record.posizioniLiquidita || [] : null);
+      mostraSaldi("righe-conti-deposito", "deposito",
+        record ? record.contiDeposito || [] : null);
 
       messaggio.textContent = "";
       messaggio.className = "";
@@ -1018,56 +1484,114 @@
       }
     });
 
-    form.addEventListener("submit", (evento) => {
+    form.addEventListener("submit", async (evento) => {
       evento.preventDefault();
+      if (salvataggioInCorso) return;
       messaggio.textContent = "";
       messaggio.className = "";
 
       if (!form.reportValidity()) return;
 
-      const record = {
-        mese: document.getElementById("mese").value,
-        stipendio: document.getElementById("stipendio").valueAsNumber
-      };
-      record.liquidita = document.getElementById("liquidita").valueAsNumber;
-      record.contoDeposito = document.getElementById("contoDeposito").valueAsNumber;
-      record.posizioniEtf = leggiPosizioni("righe-etf", "etf");
-      record.posizioniAzionarie = leggiPosizioni("righe-azioni", "azione");
-      record.posizioniObbligazionarie = leggiPosizioni("righe-obbligazioni", "obbligazione");
-      CATEGORIE.forEach((categoria) => {
-        const campo = document.getElementById(categoria);
-        record[categoria] = campo.value === "" ? 0 : campo.valueAsNumber;
-      });
-      record.patrimonio = totaleComponenti(record);
-
-      if (!Number.isFinite(record.patrimonio) || !Number.isFinite(record.stipendio) ||
-          !Number.isFinite(record.liquidita) || record.liquidita < 0 ||
-          !Number.isFinite(record.contoDeposito) || record.contoDeposito < 0 ||
-          [...record.posizioniEtf, ...record.posizioniAzionarie, ...record.posizioniObbligazionarie]
-            .some((posizione) => !posizione.nome || !Number.isFinite(posizione.valore) || posizione.valore < 0) ||
-          CATEGORIE.some((categoria) => !Number.isFinite(record[categoria]) || record[categoria] < 0)) {
-        messaggio.textContent = "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.";
-        messaggio.className = "errore";
-        return;
-      }
-
-      const meseEsistente = dati.some((elemento) => elemento.mese === record.mese);
-      const nuoviDati = dati.filter((elemento) => elemento.mese !== record.mese);
-      nuoviDati.push(record);
-      nuoviDati.sort((a, b) => a.mese.localeCompare(b.mese));
-
+      salvataggioInCorso = true;
+      const pulsanteSalva = form.querySelector('button[type="submit"]');
+      pulsanteSalva.disabled = true;
       try {
+        const record = {
+          mese: document.getElementById("mese").value,
+          valuta: selettoreValuta.value,
+          stipendioOriginale: document.getElementById("stipendio").valueAsNumber,
+          valoriOriginali: {
+            stipendio: document.getElementById("stipendio").valueAsNumber,
+            spese: {}
+          }
+        };
+        const saldiLiquidita = leggiSaldi("righe-liquidita");
+        const saldiDeposito = leggiSaldi("righe-conti-deposito");
+        record.posizioniEtf = leggiPosizioni("righe-etf", "etf");
+        record.posizioniAzionarie = leggiPosizioni("righe-azioni", "azione");
+        record.posizioniObbligazionarie = leggiPosizioni("righe-obbligazioni", "obbligazione");
+        CATEGORIE.forEach((categoria) => {
+          const campo = document.getElementById(categoria);
+          record.valoriOriginali.spese[categoria] = campo.value === "" ? 0 : campo.valueAsNumber;
+        });
+        if (!Number.isFinite(record.stipendioOriginale) ||
+            [...saldiLiquidita, ...saldiDeposito].some((saldo) =>
+              !saldo.nome || !VALUTE.some(([codice]) => codice === saldo.valuta) ||
+              !Number.isFinite(saldo.importoOriginale) || saldo.importoOriginale < 0) ||
+            [...record.posizioniEtf, ...record.posizioniAzionarie, ...record.posizioniObbligazionarie]
+              .some((posizione) => !posizione.nome || !Number.isFinite(posizione.valore) || posizione.valore < 0) ||
+            CATEGORIE.some((categoria) =>
+              !Number.isFinite(record.valoriOriginali.spese[categoria]) ||
+              record.valoriOriginali.spese[categoria] < 0)) {
+          messaggio.textContent = "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.";
+          messaggio.className = "errore";
+          return;
+        }
+
+        let cambio;
+        try {
+          cambio = await ottieniTassoCambio(record.valuta);
+        } catch (errore) {
+          const tassoManuale = inputTassoManuale.valueAsNumber;
+          if (!Number.isFinite(tassoManuale) || tassoManuale <= 0) {
+            informazioneCambio.textContent = "Cambio online non disponibile (" + errore.message +
+              "). Inserisci manualmente quanti euro vale 1 " + record.valuta + " e premi di nuovo Salva mese.";
+            campoTassoManuale.hidden = false;
+            inputTassoManuale.required = true;
+            inputTassoManuale.focus();
+            return;
+          }
+          cambio = {
+            tasso: tassoManuale,
+            data: new Date().toISOString().slice(0, 10),
+            fonte: "manuale"
+          };
+        }
+
+        record.tassoCambio = cambio.tasso;
+        record.tassoCambioData = cambio.data;
+        record.tassoCambioFonte = cambio.fonte;
+        record.stipendio = Math.round((record.stipendioOriginale * cambio.tasso + Number.EPSILON) * 100) / 100;
+        record.speseOriginali = record.valoriOriginali.spese;
+        CATEGORIE.forEach((categoria) => {
+          record[categoria] = Math.round(
+            (record.valoriOriginali.spese[categoria] * cambio.tasso + Number.EPSILON) * 100
+          ) / 100;
+        });
+        [record.posizioniLiquidita, record.contiDeposito] = await Promise.all([
+          convertiSaldi(saldiLiquidita, "righe-liquidita"),
+          convertiSaldi(saldiDeposito, "righe-conti-deposito")
+        ]);
+        record.liquidita = totaleSaldi(record.posizioniLiquidita);
+        record.contoDeposito = totaleSaldi(record.contiDeposito);
+        record.patrimonio = totaleComponenti(record);
+
+        if (!Number.isFinite(record.patrimonio) || !Number.isFinite(record.stipendio) ||
+            CATEGORIE.some((categoria) => !Number.isFinite(record[categoria]))) {
+          messaggio.textContent = "La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.";
+          messaggio.className = "errore";
+          return;
+        }
+
+        const meseEsistente = dati.some((elemento) => elemento.mese === record.mese);
+        const nuoviDati = dati.filter((elemento) => elemento.mese !== record.mese);
+        nuoviDati.push(record);
+        nuoviDati.sort((a, b) => a.mese.localeCompare(b.mese));
         localStorage.setItem(CHIAVE, JSON.stringify(nuoviDati));
+
+        dati = nuoviDati;
+        aggiornaVista();
+        mostraTassoCambio(cambio.tasso, cambio.data, cambio.fonte);
+        messaggio.textContent = (meseEsistente ? "Mese aggiornato." : "Mese salvato.") +
+          " Stipendio, spese e risparmio sono stati convertiti in euro.";
+        messaggio.className = "successo";
       } catch (errore) {
         messaggio.textContent = "Impossibile salvare i dati in questo browser: " + errore.message;
         messaggio.className = "errore";
-        return;
+      } finally {
+        salvataggioInCorso = false;
+        pulsanteSalva.disabled = false;
       }
-
-      dati = nuoviDati;
-      aggiornaVista();
-      messaggio.textContent = meseEsistente ? "Mese aggiornato." : "Mese salvato.";
-      messaggio.className = "successo";
     });
 
     caricaMeseSelezionato();
