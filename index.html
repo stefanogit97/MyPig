@@ -283,8 +283,21 @@
     @page { size: landscape; margin: 12mm; }
     @media print {
       body { padding: 0 !important; background: #fff !important; }
-      body > header,
+      body > header {
+        display: block !important;
+        margin: 0 0 8px;
+      }
+      body > header .intro,
+      body > header .selettore-lingua,
       main > section:not([aria-labelledby="titolo-storico"]) { display: none !important; }
+      body > header .hero { justify-content: space-between; }
+      body > header h1 { margin: 0; font-size: 20pt; }
+      body > header .mascotte {
+        display: block !important;
+        flex: 0 0 58px;
+        width: 58px;
+        animation: none;
+      }
       main { max-width: none; margin: 0; padding: 0; }
       main > section[aria-labelledby="titolo-storico"] {
         display: block !important;
