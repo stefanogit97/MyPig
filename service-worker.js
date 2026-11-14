@@ -1,4 +1,4 @@
-const CACHE_NAME = "patrimonio-app-v27";
+const CACHE_NAME = "patrimonio-app-v28";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
