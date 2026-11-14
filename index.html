@@ -140,6 +140,9 @@
 
     .riepilogo-spese { min-height: 1.5em; color: #49615b; }
     .titolo-ripartizione { margin: 24px 0 12px; font-size: 1.05rem; }
+    .riepilogo-risparmio { margin: 0 0 12px; font-weight: 700; }
+    .grafico-risparmio-scroll { overflow-x: auto; }
+    #grafico-risparmio { display: block; height: auto; max-width: none; }
     .grafico-torta-contenitore {
       display: grid;
       grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
@@ -387,7 +390,7 @@
         </section>
         <section class="investimenti-gruppo" aria-labelledby="titolo-liquidita">
           <h3 id="titolo-liquidita">Liquidità corrente</h3>
-          <p class="hint">Aggiungi ogni conto o saldo liquido; puoi usare una valuta diversa per ciascuna riga.</p>
+          <p class="hint">Inserisci il saldo effettivo a fine mese, dopo aver ricevuto lo stipendio e pagato le spese. Il saldo è già incluso nel patrimonio: stipendio e spese non vengono aggiunti o sottratti una seconda volta. Puoi usare una valuta diversa per ciascun conto.</p>
           <div id="righe-liquidita" class="righe-posizioni"></div>
           <button id="aggiungi-liquidita" class="aggiungi-posizione" type="button">Aggiungi liquidità</button>
         </section>
@@ -470,6 +473,15 @@
       </div>
     </section>
 
+    <section class="card" aria-labelledby="titolo-risparmio-mensile">
+      <h2 id="titolo-risparmio-mensile">Risparmio mensile</h2>
+      <p class="nota-metriche">Calcolato come stipendio meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.</p>
+      <p id="risparmio-mese-selezionato" class="riepilogo-risparmio" aria-live="polite"></p>
+      <div class="grafico-risparmio-scroll">
+        <svg id="grafico-risparmio" viewBox="0 0 800 360" role="img" aria-label="Grafico a barre del risparmio mensile"></svg>
+      </div>
+    </section>
+
     <section class="card" aria-labelledby="titolo-backup">
       <h2 id="titolo-backup">Backup dei dati</h2>
       <p class="hint">Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.</p>
@@ -545,6 +557,19 @@
     const form = document.getElementById("form-mese");
     const messaggio = document.getElementById("messaggio");
     const backupMessaggio = document.getElementById("backup-messaggio");
+    form.addEventListener("focusin", (evento) => {
+      const campo = evento.target;
+      if (campo instanceof HTMLInputElement && campo.type === "number" &&
+          campo.value !== "" && campo.valueAsNumber === 0) {
+        campo.value = "";
+      }
+    });
+    form.addEventListener("focusout", (evento) => {
+      const campo = evento.target;
+      if (campo instanceof HTMLInputElement && campo.type === "number" && campo.value === "") {
+        campo.value = "0";
+      }
+    });
     const formatoEuro = new Intl.NumberFormat("it-IT", {
       style: "currency",
       currency: "EUR"
@@ -1743,6 +1768,101 @@
       });
     }
 
+    function disegnaGraficoRisparmio(recordSelezionato) {
+      const svg = document.getElementById("grafico-risparmio");
+      const riepilogo = document.getElementById("risparmio-mese-selezionato");
+      svg.replaceChildren();
+
+      if (recordSelezionato) {
+        riepilogo.textContent = "Risparmio di " + meseEtichetta(recordSelezionato) + ": " +
+          formatoEuro.format(risparmio(recordSelezionato)) + ".";
+      } else {
+        riepilogo.textContent = "Registra un mese per visualizzare il risparmio.";
+      }
+
+      if (dati.length === 0) {
+        svg.setAttribute("viewBox", "0 0 800 100");
+        svg.style.width = "800px";
+        svg.append(creaElemento("text", {
+          x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
+        }, "Aggiungi il primo mese per vedere il grafico."));
+        return;
+      }
+
+      const larghezzaPasso = 100;
+      const larghezza = Math.max(800, dati.length * larghezzaPasso + 96);
+      const altezza = 360;
+      const margine = { alto: 48, destra: 24, basso: 66, sinistra: 88 };
+      const areaAltezza = altezza - margine.alto - margine.basso;
+      const valori = dati.map(risparmio);
+      let minimo = Math.min(0, ...valori);
+      let massimo = Math.max(0, ...valori);
+      if (minimo === 0 && massimo === 0) {
+        minimo = -100;
+        massimo = 100;
+      } else {
+        const scarto = (massimo - minimo) * 0.12;
+        if (minimo < 0) minimo -= scarto;
+        if (massimo > 0) massimo += scarto;
+      }
+      const yPerValore = (valore) =>
+        margine.alto + areaAltezza * (massimo - valore) / (massimo - minimo);
+      const yZero = yPerValore(0);
+      svg.setAttribute("viewBox", "0 0 " + larghezza + " " + altezza);
+      svg.style.width = larghezza + "px";
+
+      for (let indice = 0; indice <= 4; indice += 1) {
+        const valore = massimo - (massimo - minimo) * indice / 4;
+        const y = yPerValore(valore);
+        svg.append(creaElemento("line", {
+          x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
+          stroke: valore === 0 ? "#879a93" : "#e1e9e5",
+          "stroke-width": valore === 0 ? "2" : "1"
+        }));
+        svg.append(creaElemento("text", {
+          x: margine.sinistra - 10, y: y + 4, "text-anchor": "end",
+          fill: "#49615b", "font-size": "12"
+        }, formatoEuro.format(valore)));
+      }
+
+      const spazio = (larghezza - margine.sinistra - margine.destra) / dati.length;
+      const larghezzaBarra = Math.min(58, spazio * 0.58);
+      dati.forEach((record, indice) => {
+        const valore = risparmio(record);
+        const centroX = margine.sinistra + spazio * (indice + .5);
+        const yValore = yPerValore(valore);
+        const yBarra = Math.min(yZero, yValore);
+        const altezzaBarra = Math.max(2, Math.abs(yZero - yValore));
+        const barra = creaElemento("rect", {
+          x: centroX - larghezzaBarra / 2,
+          y: yBarra,
+          width: larghezzaBarra,
+          height: altezzaBarra,
+          rx: "4",
+          fill: valore < 0 ? "#bd5a50" : "#176b5b"
+        });
+        barra.append(creaElemento("title", {}, meseEtichetta(record) +
+          ": " + formatoEuro.format(valore)));
+        svg.append(barra);
+        svg.append(creaElemento("text", {
+          x: centroX,
+          y: valore < 0 ? yBarra + altezzaBarra + 17 : yBarra - 7,
+          "text-anchor": "middle",
+          fill: valore < 0 ? "#a12121" : "#172b27",
+          "font-size": "12",
+          "font-weight": "600"
+        }, formatoEuro.format(valore)));
+        const [anno, meseNumero] = record.mese.split("-");
+        svg.append(creaElemento("text", {
+          x: centroX,
+          y: altezza - 22,
+          "text-anchor": "middle",
+          fill: "#49615b",
+          "font-size": "12"
+        }, formatoMese.format(new Date(Date.UTC(Number(anno), Number(meseNumero) - 1, 1)))));
+      });
+    }
+
     function aggiornaGraficiSpese() {
       aggiornaSelettoreMeseSpese();
       const mese = dati.find((record) =>
@@ -1754,6 +1874,7 @@
         disegnaConfrontoSpese(mese);
       }
       disegnaTortaSpese(mese);
+      disegnaGraficoRisparmio(mese);
     }
 
     document.getElementById("mese-grafico-spese").addEventListener("change", aggiornaGraficiSpese);
