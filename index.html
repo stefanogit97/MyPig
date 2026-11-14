@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b5b">
+  <meta name="description" content="Un riepilogo mensile del patrimonio, degli investimenti e delle spese.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Il mio patrimonio</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #172b27;
+      background: #f3f7f5;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 1.8rem; }
+    h2 { margin: 0 0 16px; font-size: 1.2rem; }
+    p { line-height: 1.5; }
+
+    .intro { margin: 0 0 20px; color: #49615b; }
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .mascotte { flex: 0 0 180px; width: 180px; }
+    .maialino { transform-box: fill-box; transform-origin: center bottom; animation: saltello 1.4s ease-out both; }
+    @keyframes saltello {
+      0% { transform: translateY(14px) scale(.92); }
+      55% { transform: translateY(-5px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .maialino { animation: none; }
+    }
+
+    .card {
+      margin: 16px 0;
+      padding: 20px;
+      border: 1px solid #dce8e3;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 2px 8px #18352b0b;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label { display: block; font-weight: 600; }
+    input {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 6px;
+      padding: 9px 10px;
+      border: 1px solid #aebfb8;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    input:focus, button:focus-visible {
+      outline: 3px solid #9ed5c6;
+      outline-offset: 2px;
+    }
+
+    .hint { margin: 0 0 16px; color: #49615b; font-size: .94rem; }
+    button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 18px;
+      border: 0;
+      border-radius: 8px;
+      background: #176b5b;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover { background: #105649; }
+    #messaggio { min-height: 1.5em; margin: 10px 0 0; }
+    #messaggio.errore { color: #a12121; }
+    #messaggio.successo { color: #176b5b; }
+    #grafico { display: block; width: 100%; height: auto; overflow: visible; }
+    .tabella-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #e1e9e5; text-align: left; }
+    th { color: #49615b; font-size: .9rem; }
+    td.numero, th.numero { text-align: right; white-space: nowrap; }
+    td.azioni { white-space: nowrap; }
+    button.azione {
+      width: auto;
+      min-height: 38px;
+      margin: 0 4px 0 0;
+      padding: 7px 10px;
+      font-size: .9rem;
+    }
+
+    button.azione-elimina { background: #a12121; }
+    button.azione-elimina:hover { background: #811919; }
+    .vuoto { color: #49615b; text-align: center; }
+    .nota-privacy { margin-bottom: 0; color: #49615b; font-size: .9rem; }
+    .backup-azioni {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .backup-azioni button { margin-top: 0; }
+    .backup-messaggio { min-height: 1.5em; margin-bottom: 0; }
+    .backup-messaggio.errore { color: #a12121; }
+    .backup-messaggio.successo { color: #176b5b; }
+
+    @media (max-width: 560px) {
+      body { padding: 18px 12px 32px; }
+      .card { padding: 16px; }
+      .fields { grid-template-columns: 1fr; gap: 12px; }
+      h1 { font-size: 1.55rem; }
+      .mascotte { flex-basis: 110px; width: 110px; }
+      .backup-azioni { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <div>
+        <h1>Il mio patrimonio</h1>
+        <p class="intro">Un riepilogo mensile semplice della tua situazione finanziaria.</p>
+      </div>
+      <svg class="mascotte" viewBox="0 0 190 205" role="img" aria-labelledby="titolo-mascotte descrizione-mascotte">
+        <title id="titolo-mascotte">Un maialino salvadanaio sorridente sopra una montagna di monete</title>
+        <desc id="descrizione-mascotte">Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.</desc>
+        <g fill="#e9b847" stroke="#ad7918" stroke-width="2">
+          <ellipse cx="37" cy="188" rx="31" ry="10"/>
+          <ellipse cx="76" cy="194" rx="33" ry="10"/>
+          <ellipse cx="116" cy="194" rx="33" ry="10"/>
+          <ellipse cx="154" cy="187" rx="31" ry="10"/>
+          <ellipse cx="55" cy="174" rx="32" ry="10"/>
+          <ellipse cx="96" cy="180" rx="34" ry="10"/>
+          <ellipse cx="137" cy="174" rx="32" ry="10"/>
+          <ellipse cx="75" cy="157" rx="32" ry="10"/>
+          <ellipse cx="117" cy="157" rx="32" ry="10"/>
+          <ellipse cx="96" cy="143" rx="31" ry="10"/>
+        </g>
+        <g fill="#fff2bd" stroke="#ad7918" stroke-width="1.5">
+          <ellipse cx="37" cy="185" rx="31" ry="6"/>
+          <ellipse cx="76" cy="191" rx="33" ry="6"/>
+          <ellipse cx="116" cy="191" rx="33" ry="6"/>
+          <ellipse cx="154" cy="184" rx="31" ry="6"/>
+          <ellipse cx="55" cy="171" rx="32" ry="6"/>
+          <ellipse cx="96" cy="177" rx="34" ry="6"/>
+          <ellipse cx="137" cy="171" rx="32" ry="6"/>
+          <ellipse cx="75" cy="154" rx="32" ry="6"/>
+          <ellipse cx="117" cy="154" rx="32" ry="6"/>
+          <ellipse cx="96" cy="140" rx="31" ry="6"/>
+        </g>
+        <g class="maialino">
+          <ellipse cx="93" cy="132" rx="62" ry="8" fill="#dce8e3"/>
+          <path d="M54 64 L47 39 Q46 33 53 37 L77 51 Z" fill="#f3a5a0" stroke="#9d5d60" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M112 52 L132 35 Q138 31 138 39 L134 68 Z" fill="#f3a5a0" stroke="#9d5d60" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M55 52 Q84 37 121 55 Q145 68 141 98 Q137 124 105 128 L68 124 Q43 118 39 93 Q36 68 55 52 Z" fill="#f6b6b0" stroke="#9d5d60" stroke-width="3"/>
+          <path d="M48 110 L45 127 Q44 133 53 133 L64 132 L68 120 Z" fill="#ec9894" stroke="#9d5d60" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M111 122 L115 133 L128 134 Q136 133 132 126 L127 114 Z" fill="#ec9894" stroke="#9d5d60" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M40 81 Q27 76 31 68 Q35 62 41 68" fill="none" stroke="#9d5d60" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="96" cy="78" rx="4" ry="6" fill="#49373a"/>
+          <ellipse cx="114" cy="78" rx="4" ry="6" fill="#49373a"/>
+          <path d="M93 89 Q103 84 113 89 L121 99 Q121 109 106 111 Q92 111 86 103 Z" fill="#ed8989" stroke="#9d5d60" stroke-width="2.5"/>
+          <ellipse cx="101" cy="99" rx="2.3" ry="3" fill="#9d5d60"/>
+          <ellipse cx="112" cy="99" rx="2.3" ry="3" fill="#9d5d60"/>
+          <path d="M96 115 Q105 127 115 115" fill="none" stroke="#9d5d60" stroke-width="3" stroke-linecap="round"/>
+          <path d="M77 57 Q91 52 106 57" fill="none" stroke="#9d5d60" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="92" cy="47" r="13" fill="#f2ca59" stroke="#ad7918" stroke-width="2.5"/>
+          <path d="M95 40 C92 38 87 40 87 43 C87 46 98 46 98 50 C98 54 91 55 87 52 M92 37 V55" fill="none" stroke="#8f6815" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M144 66 Q154 61 157 67 M146 79 Q158 77 161 84" fill="none" stroke="#e9b847" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="157" cy="57" r="3" fill="#e9b847"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="titolo-form">
+      <h2 id="titolo-form">Inserisci un mese</h2>
+      <p class="hint">Inserisci i valori al primo del mese e stipendio e spese del mese precedente. Il patrimonio è calcolato sommando investimenti e liquidità. Il risparmio è stipendio meno spese e viene mostrato a parte, senza sommarlo di nuovo. Inserisci ciascun investimento in una sola categoria per non contarlo due volte.</p>
+      <form id="form-mese">
+        <div class="fields">
+          <label for="mese">Mese del rilevamento
+            <input id="mese" name="mese" type="month" required>
+          </label>
+          <label for="vwce">Investimenti VWCE (€)
+            <input id="vwce" name="vwce" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="sp500">Investimenti S&amp;P 500 (€)
+            <input id="sp500" name="sp500" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="nasdaq">Investimenti NASDAQ (€)
+            <input id="nasdaq" name="nasdaq" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="azioni">Azioni (€)
+            <input id="azioni" name="azioni" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="obbligazioni">Obbligazioni (€)
+            <input id="obbligazioni" name="obbligazioni" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="liquidita">Liquidità corrente (€)
+            <input id="liquidita" name="liquidita" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="contoDeposito">Conto deposito (€)
+            <input id="contoDeposito" name="contoDeposito" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="stipendio">Stipendio ricevuto (€)
+            <input id="stipendio" name="stipendio" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
+          </label>
+          <label for="cibo">Cibo (€)
+            <input id="cibo" name="cibo" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="macchina">Macchina (€)
+            <input id="macchina" name="macchina" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="affitto">Affitto (€)
+            <input id="affitto" name="affitto" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="elettricita">Elettricità (€)
+            <input id="elettricita" name="elettricita" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="gas">Gas (€)
+            <input id="gas" name="gas" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="tasse">Tasse (€)
+            <input id="tasse" name="tasse" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="salute">Salute (€)
+            <input id="salute" name="salute" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="sport">Sport (€)
+            <input id="sport" name="sport" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="divertimenti">Divertimenti (€)
+            <input id="divertimenti" name="divertimenti" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="ristoranti">Ristoranti (€)
+            <input id="ristoranti" name="ristoranti" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="bar">Bar (€)
+            <input id="bar" name="bar" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="altreSpese">Altre spese (€)
+            <input id="altreSpese" name="altreSpese" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+        </div>
+        <button type="submit">Salva mese</button>
+        <p id="messaggio" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="titolo-grafico">
+      <h2 id="titolo-grafico">Andamento del patrimonio</h2>
+      <svg id="grafico" viewBox="0 0 800 300" role="img" aria-label="Grafico dell'andamento mensile del patrimonio"></svg>
+    </section>
+
+    <section class="card" aria-labelledby="titolo-backup">
+      <h2 id="titolo-backup">Backup dei dati</h2>
+      <p class="hint">Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.</p>
+      <div class="backup-azioni">
+        <button id="esporta-backup" type="button">Esporta backup</button>
+        <label for="file-backup">Seleziona un backup da importare
+          <input id="file-backup" type="file" accept=".json,application/json">
+        </label>
+      </div>
+      <p id="backup-messaggio" class="backup-messaggio" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" aria-labelledby="titolo-storico">
+      <h2 id="titolo-storico">Storico mensile</h2>
+      <div class="tabella-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Mese</th>
+              <th scope="col" class="numero">Investimenti</th>
+              <th scope="col" class="numero">Liquidità</th>
+              <th scope="col" class="numero">Conto deposito</th>
+              <th scope="col" class="numero">Patrimonio</th>
+              <th scope="col" class="numero">Stipendio</th>
+              <th scope="col" class="numero">Spese totali</th>
+              <th scope="col" class="numero">Risparmio</th>
+              <th scope="col">Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="righe-storico"></tbody>
+        </table>
+      </div>
+      <p class="nota-privacy">I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.</p>
+    </section>
+  </main>
+
+  <script>
+    const CHIAVE = "patrimonioDati";
+    const CATEGORIE = ["cibo", "macchina", "affitto", "elettricita", "gas", "tasse", "salute", "sport", "divertimenti", "ristoranti", "bar", "altreSpese"];
+    const INVESTIMENTI = ["vwce", "sp500", "nasdaq", "azioni", "obbligazioni"];
+    const COMPONENTI = [...INVESTIMENTI, "liquidita", "contoDeposito"];
+    const form = document.getElementById("form-mese");
+    const messaggio = document.getElementById("messaggio");
+    const backupMessaggio = document.getElementById("backup-messaggio");
+    const formatoEuro = new Intl.NumberFormat("it-IT", {
+      style: "currency",
+      currency: "EUR"
+    });
+    const formatoMese = new Intl.DateTimeFormat("it-IT", {
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC"
+    });
+
+    function normalizzaRecord(record) {
+      if (!record || typeof record.mese !== "string" ||
+          !/^\d{4}-(0[1-9]|1[0-2])$/.test(record.mese) ||
+          !Number.isFinite(record.stipendio) || record.stipendio < 0) {
+        throw new Error("Un record ha una data o uno stipendio non valido.");
+      }
+
+      const pulito = { mese: record.mese, stipendio: record.stipendio };
+      CATEGORIE.forEach((categoria) => {
+        const valore = record[categoria];
+        if (valore !== undefined && (!Number.isFinite(valore) || valore < 0)) {
+          throw new Error("Una spesa contiene un importo non valido.");
+        }
+        pulito[categoria] = valore === undefined ? 0 : valore;
+      });
+
+      const haComponenti = COMPONENTI.some((componente) =>
+        Object.prototype.hasOwnProperty.call(record, componente));
+      if (haComponenti) {
+        COMPONENTI.forEach((componente) => {
+          const valore = record[componente];
+          if (valore !== undefined && (!Number.isFinite(valore) || valore < 0)) {
+            throw new Error("Un investimento o la liquidità contiene un importo non valido.");
+          }
+          pulito[componente] = valore === undefined ? 0 : valore;
+        });
+        pulito.patrimonio = totaleComponenti(pulito);
+      } else if (Number.isFinite(record.patrimonio)) {
+        pulito.patrimonio = record.patrimonio;
+      } else {
+        throw new Error("Un record non contiene un patrimonio leggibile.");
+      }
+      return pulito;
+    }
+
+    function normalizzaDati(input) {
+      if (!Array.isArray(input)) {
+        throw new Error("Il backup non contiene un elenco di mesi valido.");
+      }
+
+      const mesi = new Set();
+      return input.map((record) => {
+        const pulito = normalizzaRecord(record);
+        if (mesi.has(pulito.mese)) {
+          throw new Error("Il backup contiene più righe per lo stesso mese.");
+        }
+        mesi.add(pulito.mese);
+        return pulito;
+      }).sort((a, b) => a.mese.localeCompare(b.mese));
+    }
+
+    function leggiDati() {
+      const salvati = localStorage.getItem(CHIAVE);
+      if (salvati === null) return [];
+      return normalizzaDati(JSON.parse(salvati));
+    }
+
+    let dati;
+    try {
+      dati = leggiDati();
+    } catch (errore) {
+      dati = [];
+      messaggio.textContent = "Non riesco a leggere i dati salvati: " + errore.message;
+      messaggio.className = "errore";
+    }
+
+    document.getElementById("mese").value = new Date().toISOString().slice(0, 7);
+
+    function totaleSpese(record) {
+      return CATEGORIE.reduce((totale, categoria) => totale + record[categoria], 0);
+    }
+
+    function totaleComponenti(record) {
+      return COMPONENTI.reduce((totale, componente) => totale + (record[componente] || 0), 0);
+    }
+
+    function totaleInvestimenti(record) {
+      return INVESTIMENTI.reduce((totale, componente) => totale + (record[componente] || 0), 0);
+    }
+
+    function risparmio(record) {
+      return record.stipendio - totaleSpese(record);
+    }
+
+    function creaElemento(nome, attributi, testo) {
+      const elemento = document.createElementNS("http://www.w3.org/2000/svg", nome);
+      Object.entries(attributi).forEach(([chiave, valore]) => elemento.setAttribute(chiave, valore));
+      if (testo !== undefined) elemento.textContent = testo;
+      return elemento;
+    }
+
+    function disegnaGrafico() {
+      const svg = document.getElementById("grafico");
+      svg.replaceChildren();
+
+      if (dati.length === 0) {
+        svg.append(creaElemento("text", {
+          x: "400", y: "150", "text-anchor": "middle", fill: "#49615b"
+        }, "Aggiungi il primo mese per vedere il grafico"));
+        return;
+      }
+
+      const larghezza = 800;
+      const altezza = 300;
+      const margine = { alto: 20, destra: 24, basso: 56, sinistra: 88 };
+      const areaLarghezza = larghezza - margine.sinistra - margine.destra;
+      const areaAltezza = altezza - margine.alto - margine.basso;
+      const valori = dati.map((record) => record.patrimonio);
+      let minimo = Math.min(...valori);
+      let massimo = Math.max(...valori);
+      if (minimo === massimo) {
+        const scarto = Math.abs(minimo) * 0.1 || 100;
+        minimo -= scarto;
+        massimo += scarto;
+      } else {
+        const scarto = (massimo - minimo) * 0.12;
+        minimo -= scarto;
+        massimo += scarto;
+      }
+
+      for (let indice = 0; indice <= 4; indice += 1) {
+        const valore = massimo - ((massimo - minimo) * indice / 4);
+        const y = margine.alto + areaAltezza * indice / 4;
+        svg.append(creaElemento("line", {
+          x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
+          stroke: "#e1e9e5", "stroke-width": "1"
+        }));
+        svg.append(creaElemento("text", {
+          x: margine.sinistra - 10, y: y + 4, "text-anchor": "end",
+          fill: "#49615b", "font-size": "12"
+        }, formatoEuro.format(valore)));
+      }
+
+      const punti = dati.map((record, indice) => {
+        const x = dati.length === 1
+          ? margine.sinistra + areaLarghezza / 2
+          : margine.sinistra + areaLarghezza * indice / (dati.length - 1);
+        const y = margine.alto + areaAltezza * (massimo - record.patrimonio) / (massimo - minimo);
+        return { x, y, record };
+      });
+
+      svg.append(creaElemento("polyline", {
+        points: punti.map((punto) => punto.x + "," + punto.y).join(" "),
+        fill: "none", stroke: "#176b5b", "stroke-width": "3",
+        "stroke-linecap": "round", "stroke-linejoin": "round"
+      }));
+
+      const passoEtichetta = Math.max(1, Math.ceil(dati.length / 7));
+      punti.forEach((punto, indice) => {
+        svg.append(creaElemento("circle", {
+          cx: punto.x, cy: punto.y, r: "5", fill: "#176b5b",
+          stroke: "#fff", "stroke-width": "2"
+        }));
+        if (indice % passoEtichetta === 0 || indice === punti.length - 1) {
+          const [anno, mese] = punto.record.mese.split("-");
+          svg.append(creaElemento("text", {
+            x: punto.x, y: altezza - 22, "text-anchor": "middle",
+            fill: "#49615b", "font-size": "12"
+          }, formatoMese.format(new Date(Date.UTC(Number(anno), Number(mese) - 1, 1)))));
+        }
+      });
+    }
+
+    function aggiornaStorico() {
+      const corpo = document.getElementById("righe-storico");
+      corpo.replaceChildren();
+      if (dati.length === 0) {
+        const riga = document.createElement("tr");
+        const cella = document.createElement("td");
+        cella.colSpan = 9;
+        cella.className = "vuoto";
+        cella.textContent = "Non hai ancora inserito dati.";
+        riga.append(cella);
+        corpo.append(riga);
+        return;
+      }
+
+      dati.slice().reverse().forEach((record) => {
+        const riga = document.createElement("tr");
+        const [anno, mese] = record.mese.split("-");
+        const meseVisualizzato = formatoMese.format(
+          new Date(Date.UTC(Number(anno), Number(mese) - 1, 1))
+        );
+        const valori = [
+          meseVisualizzato,
+          record.vwce === undefined
+            ? "—"
+            : formatoEuro.format(totaleInvestimenti(record)),
+          record.liquidita === undefined
+            ? "—"
+            : formatoEuro.format(record.liquidita),
+          record.contoDeposito === undefined
+            ? "—"
+            : formatoEuro.format(record.contoDeposito),
+          formatoEuro.format(record.patrimonio),
+          formatoEuro.format(record.stipendio),
+          formatoEuro.format(totaleSpese(record)),
+          formatoEuro.format(risparmio(record))
+        ];
+        valori.forEach((valore, indice) => {
+          const cella = document.createElement("td");
+          cella.textContent = valore;
+          if (indice > 0) cella.className = "numero";
+          riga.append(cella);
+        });
+
+        const cellaAzioni = document.createElement("td");
+        cellaAzioni.className = "azioni";
+
+        const pulsanteModifica = document.createElement("button");
+        pulsanteModifica.type = "button";
+        pulsanteModifica.className = "azione";
+        pulsanteModifica.textContent = "Modifica";
+        pulsanteModifica.setAttribute("aria-label", "Modifica " + meseVisualizzato);
+        pulsanteModifica.addEventListener("click", () => {
+          const campoMese = document.getElementById("mese");
+          campoMese.value = record.mese;
+          caricaMeseSelezionato();
+          document.getElementById("form-mese").scrollIntoView({ behavior: "smooth" });
+          document.getElementById("vwce").focus({ preventScroll: true });
+          if (record.vwce !== undefined) {
+            messaggio.textContent = "Dati di " + meseVisualizzato + " caricati. Modifica i campi e premi Salva mese.";
+            messaggio.className = "successo";
+          }
+        });
+
+        const pulsanteElimina = document.createElement("button");
+        pulsanteElimina.type = "button";
+        pulsanteElimina.className = "azione azione-elimina";
+        pulsanteElimina.textContent = "Elimina";
+        pulsanteElimina.setAttribute("aria-label", "Elimina " + meseVisualizzato);
+        pulsanteElimina.addEventListener("click", () => {
+          if (!window.confirm("Vuoi eliminare i dati di " + meseVisualizzato + "? Questa azione non può essere annullata.")) {
+            return;
+          }
+
+          const nuoviDati = dati.filter((elemento) => elemento.mese !== record.mese);
+          try {
+            localStorage.setItem(CHIAVE, JSON.stringify(nuoviDati));
+          } catch (errore) {
+            messaggio.textContent = "Impossibile eliminare i dati in questo browser: " + errore.message;
+            messaggio.className = "errore";
+            document.getElementById("messaggio").scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+
+          dati = nuoviDati;
+          aggiornaVista();
+          if (document.getElementById("mese").value === record.mese) {
+            caricaMeseSelezionato();
+          }
+          messaggio.textContent = "Dati di " + meseVisualizzato + " eliminati.";
+          messaggio.className = "successo";
+        });
+
+        cellaAzioni.append(pulsanteModifica, pulsanteElimina);
+        riga.append(cellaAzioni);
+        corpo.append(riga);
+      });
+    }
+
+    function aggiornaVista() {
+      disegnaGrafico();
+      aggiornaStorico();
+    }
+
+    function caricaMeseSelezionato() {
+      const record = dati.find((elemento) => elemento.mese === document.getElementById("mese").value);
+      document.getElementById("stipendio").value = record ? String(record.stipendio) : "0";
+      CATEGORIE.forEach((categoria) => {
+        document.getElementById(categoria).value = record ? String(record[categoria]) : "0";
+      });
+      COMPONENTI.forEach((componente) => {
+        const haValoreSalvato = record && Number.isFinite(record[componente]);
+        document.getElementById(componente).value = haValoreSalvato ? String(record[componente]) : "0";
+      });
+
+      messaggio.textContent = "";
+      messaggio.className = "";
+      if (record && !Number.isFinite(record.vwce)) {
+        messaggio.textContent = "Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.";
+      }
+    }
+
+    document.getElementById("mese").addEventListener("change", caricaMeseSelezionato);
+
+    document.getElementById("esporta-backup").addEventListener("click", () => {
+      backupMessaggio.textContent = "";
+      backupMessaggio.className = "backup-messaggio";
+      try {
+        const contenuto = JSON.stringify({
+          app: "il-mio-patrimonio",
+          version: 1,
+          esportatoIl: new Date().toISOString(),
+          records: dati
+        }, null, 2);
+        const url = URL.createObjectURL(new Blob([contenuto], { type: "application/json" }));
+        const collegamento = document.createElement("a");
+        collegamento.href = url;
+        collegamento.download = "backup-patrimonio-" + new Date().toISOString().slice(0, 10) + ".json";
+        collegamento.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        backupMessaggio.textContent = "Backup esportato. Conservalo in un luogo sicuro.";
+        backupMessaggio.className = "backup-messaggio successo";
+      } catch (errore) {
+        backupMessaggio.textContent = "Impossibile esportare il backup: " + errore.message;
+        backupMessaggio.className = "backup-messaggio errore";
+      }
+    });
+
+    document.getElementById("file-backup").addEventListener("change", async (evento) => {
+      const campoFile = evento.target;
+      const file = campoFile.files[0];
+      backupMessaggio.textContent = "";
+      backupMessaggio.className = "backup-messaggio";
+      if (!file) return;
+
+      try {
+        const backup = JSON.parse(await file.text());
+        if (!backup || backup.app !== "il-mio-patrimonio" ||
+            backup.version !== 1 || !Array.isArray(backup.records)) {
+          throw new Error("Formato del backup non riconosciuto.");
+        }
+
+        const recordImportati = normalizzaDati(backup.records);
+        const uniti = new Map(dati.map((record) => [record.mese, record]));
+        recordImportati.forEach((record) => uniti.set(record.mese, record));
+        const nuoviDati = Array.from(uniti.values()).sort((a, b) => a.mese.localeCompare(b.mese));
+        localStorage.setItem(CHIAVE, JSON.stringify(nuoviDati));
+        dati = nuoviDati;
+        aggiornaVista();
+        caricaMeseSelezionato();
+        backupMessaggio.textContent = "Backup importato: " + recordImportati.length +
+          " mesi uniti ai dati presenti. Nei mesi duplicati è stato usato il backup.";
+        backupMessaggio.className = "backup-messaggio successo";
+      } catch (errore) {
+        backupMessaggio.textContent = "Importazione non riuscita: " + errore.message;
+        backupMessaggio.className = "backup-messaggio errore";
+      } finally {
+        campoFile.value = "";
+      }
+    });
+
+    form.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      messaggio.textContent = "";
+      messaggio.className = "";
+
+      if (!form.reportValidity()) return;
+
+      const record = {
+        mese: document.getElementById("mese").value,
+        stipendio: document.getElementById("stipendio").valueAsNumber
+      };
+      COMPONENTI.forEach((componente) => {
+        record[componente] = document.getElementById(componente).valueAsNumber;
+      });
+      record.patrimonio = totaleComponenti(record);
+      CATEGORIE.forEach((categoria) => {
+        const campo = document.getElementById(categoria);
+        record[categoria] = campo.value === "" ? 0 : campo.valueAsNumber;
+      });
+
+      if (!Number.isFinite(record.patrimonio) || !Number.isFinite(record.stipendio) ||
+          COMPONENTI.some((componente) => !Number.isFinite(record[componente]) || record[componente] < 0) ||
+          CATEGORIE.some((categoria) => !Number.isFinite(record[categoria]) || record[categoria] < 0)) {
+        messaggio.textContent = "Controlla gli importi: stipendio, investimenti, liquidità e spese devono essere numeri non negativi.";
+        messaggio.className = "errore";
+        return;
+      }
+
+      const meseEsistente = dati.some((elemento) => elemento.mese === record.mese);
+      const nuoviDati = dati.filter((elemento) => elemento.mese !== record.mese);
+      nuoviDati.push(record);
+      nuoviDati.sort((a, b) => a.mese.localeCompare(b.mese));
+
+      try {
+        localStorage.setItem(CHIAVE, JSON.stringify(nuoviDati));
+      } catch (errore) {
+        messaggio.textContent = "Impossibile salvare i dati in questo browser: " + errore.message;
+        messaggio.className = "errore";
+        return;
+      }
+
+      dati = nuoviDati;
+      aggiornaVista();
+      messaggio.textContent = meseEsistente ? "Mese aggiornato." : "Mese salvato.";
+      messaggio.className = "successo";
+    });
+
+    caricaMeseSelezionato();
+    aggiornaVista();
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js")
+        .catch((errore) => console.error("Impossibile attivare la cache offline:", errore));
+    }
+  </script>
+</body>
+</html>
