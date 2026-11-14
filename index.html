@@ -30,7 +30,7 @@
     }
 
     h1 { margin: 0 0 6px; font-size: 1.8rem; }
-    h2 { margin: 0 0 16px; font-size: 1.2rem; }
+    h2 { margin: 0 0 16px; font-size: 1.2rem; }l
     p { line-height: 1.5; }
 
     .intro { margin: 0 0 20px; color: #49615b; }
@@ -625,6 +625,7 @@
       "Mese per i grafici delle spese": "Month for spending charts",
       "Grafico di confronto": "Comparison chart",
       "Confronto con il mese precedente": "Compare with previous month",
+      "Mese precedente": "Previous month",
       "Spese mensili da sempre": "Monthly spending over time",
       "Grafico di confronto delle spese mensili": "Monthly spending comparison chart",
       "Ripartizione delle spese del mese": "Monthly spending breakdown",
@@ -826,6 +827,7 @@
       ["Mese da analizzare", "Mois à analyser", "Mes que analizar", "Analizowany miesiąc", "Месяц для анализа", "Mês a analisar"],
       ["Grafico di confronto", "Graphique de comparaison", "Gráfico comparativo", "Wykres porównawczy", "Сравнительный график", "Gráfico de comparação"],
       ["Confronto con il mese precedente", "Comparaison avec le mois précédent", "Comparación con el mes anterior", "Porównanie z poprzednim miesiącem", "Сравнение с предыдущим месяцем", "Comparação com o mês anterior"],
+      ["Mese precedente", "Mois précédent", "Mes anterior", "Poprzedni miesiąc", "Предыдущий месяц", "Mês anterior"],
       ["Spese mensili da sempre", "Dépenses mensuelles depuis le début", "Gastos mensuales desde el inicio", "Wydatki miesięczne od początku", "Расходы по месяцам за всё время", "Despesas mensais desde o início"],
       ["Ripartizione delle spese del mese", "Répartition des dépenses du mois", "Distribución de los gastos del mes", "Podział wydatków w miesiącu", "Структура расходов за месяц", "Distribuição das despesas do mês"],
       ["Risparmio mensile", "Épargne mensuelle", "Ahorro mensual", "Oszczędności miesięczne", "Ежемесячные сбережения", "Poupança mensal"],
@@ -1067,6 +1069,7 @@
       "Salva mese": { de: "Monat speichern", uk: "Зберегти місяць" },
       "Andamento del patrimonio": { de: "Vermögensentwicklung", uk: "Динаміка капіталу" },
       "Dal mese precedente": { de: "Seit dem Vormonat", uk: "З попереднього місяця" },
+      "Mese precedente": { de: "Vormonat", uk: "Попередній місяць" },
       "Da inizio anno": { de: "Seit Jahresbeginn", uk: "З початку року" },
       "Da sempre": { de: "Gesamtzeitraum", uk: "За весь час" },
       "Andamento delle spese": { de: "Ausgabenentwicklung", uk: "Динаміка витрат" },
@@ -1096,6 +1099,7 @@
       "Nessun mese salvato": { de: "Keine Monate gespeichert", uk: "Немає збережених місяців" },
       "Nessun dato": { de: "Keine Daten", uk: "Немає даних" },
       "Nessuna spesa": { de: "Keine Ausgaben", uk: "Немає витрат" },
+      "Altre voci minori": { de: "Sonstige kleinere Posten", uk: "Інші дрібні статті" },
       "Modifica": { de: "Bearbeiten", uk: "Редагувати" },
       "Elimina": { de: "Löschen", uk: "Видалити" },
       "I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.": {
@@ -1286,6 +1290,7 @@
         el: "Η μεταβολή συγκρίνει τις καταγεγραμμένες αξίες περιουσίας· δεν αποτελεί απόδοση επενδύσεων, καθώς μπορεί να περιλαμβάνει αποταμιεύσεις, αναλήψεις και έξοδα."
       },
       "Dal mese precedente": { el: "Από τον προηγούμενο μήνα" },
+      "Mese precedente": { el: "Προηγούμενος μήνας" },
       "Da inizio anno": { el: "Από την αρχή του έτους" },
       "Da sempre": { el: "Συνολικά" },
       "Grafico dell'andamento mensile del patrimonio": { el: "Γράφημα μηνιαίας εξέλιξης περιουσίας" },
@@ -1965,6 +1970,7 @@
         messaggio.className = "errore";
       }
       applicaLingua();
+      aggiornaNomiSaldoPredefiniti();
       aggiornaVista();
     });
 
@@ -2003,6 +2009,33 @@
       gas: "Gas", tasse: "Tasse", salute: "Salute", sport: "Sport",
       divertimenti: "Divertimenti", ristoranti: "Ristoranti", bar: "Bar", altreSpese: "Altre spese"
     };
+    const NOMI_SALDI_PREDEFINITI = {
+      "Conto corrente": {
+        it: "Conto corrente", en: "Current account", fr: "Compte courant",
+        es: "Cuenta corriente", el: "Τρεχούμενος λογαριασμός",
+        pl: "Rachunek bieżący", ru: "Текущий счёт", pt: "Conta à ordem",
+        de: "Girokonto", uk: "Поточний рахунок"
+      },
+      "Conto deposito": {
+        it: "Conto deposito", en: "Savings account", fr: "Compte d’épargne",
+        es: "Cuenta de ahorro", el: "Λογαριασμός αποταμίευσης",
+        pl: "Konto oszczędnościowe", ru: "Сберегательный счёт",
+        pt: "Conta poupança", de: "Sparkonto", uk: "Ощадний рахунок"
+      }
+    };
+    function traduciNomeSaldoPredefinito(nome) {
+      for (const [nomeItaliano, traduzioni] of Object.entries(NOMI_SALDI_PREDEFINITI)) {
+        if (nome === nomeItaliano || Object.values(traduzioni).includes(nome)) {
+          return traduzioni[lingua];
+        }
+      }
+      return nome;
+    }
+    function aggiornaNomiSaldoPredefiniti() {
+      document.querySelectorAll(".nome-saldo").forEach((input) => {
+        input.value = traduciNomeSaldoPredefinito(input.value);
+      });
+    }
     const form = document.getElementById("form-mese");
     const messaggio = document.getElementById("messaggio");
     const backupMessaggio = document.getElementById("backup-messaggio");
@@ -2621,7 +2654,7 @@
       inputNome.type = "text";
       inputNome.maxLength = 40;
       inputNome.required = true;
-      inputNome.value = saldo.nome || nomeDefault;
+      inputNome.value = traduciNomeSaldoPredefinito(saldo.nome || nomeDefault);
       inputNome.placeholder = tipo === "liquidita" ? "Es. conto corrente" : "Es. conto deposito";
       inputNome.setAttribute("aria-label", "Nome del saldo");
       etichettaNome.append(inputNome);
@@ -2972,7 +3005,11 @@
         massimo += scarto;
       }
 
-      const passoTacca = 10000;
+      const passoRichiesto = Math.max(10000, (massimo - minimo) / 8);
+      const potenza = Math.pow(10, Math.floor(Math.log10(passoRichiesto)));
+      const rapporto = passoRichiesto / potenza;
+      const fattore = rapporto <= 1 ? 1 : rapporto <= 2 ? 2 : rapporto <= 5 ? 5 : 10;
+      const passoTacca = Math.max(10000, fattore * potenza);
       minimo = Math.floor(minimo / passoTacca) * passoTacca;
       massimo = Math.ceil(massimo / passoTacca) * passoTacca;
       const numeroTacche = Math.round((massimo - minimo) / passoTacca);
@@ -3137,54 +3174,75 @@
         return;
       }
 
-      const altezzaRiga = 29;
-      const altezza = Math.max(100, 54 + righe.length * altezzaRiga);
-      const inizioBarra = 230;
-      const larghezzaBarra = 480;
+      const margine = { alto: 42, destra: 24, basso: 145, sinistra: 72 };
+      const altezza = 410;
+      const larghezzaSlot = 56;
+      const larghezzaPlot = Math.max(700, righe.length * larghezzaSlot);
+      const larghezza = margine.sinistra + larghezzaPlot + margine.destra;
+      const altezzaPlot = altezza - margine.alto - margine.basso;
       const massimo = Math.max(1, ...righe.map((riga) => Math.max(riga.corrente, riga.precedente)));
-      svg.setAttribute("viewBox", "0 0 800 " + altezza);
-      svg.style.width = "800px";
+      const formatoAsse = new Intl.NumberFormat(localeCorrente(), {
+        style: "currency", currency: "EUR", maximumFractionDigits: 0
+      });
+      svg.setAttribute("viewBox", "0 0 " + larghezza + " " + altezza);
+      svg.style.width = larghezza + "px";
+
       svg.append(creaElemento("rect", {
-        x: 230, y: 8, width: 12, height: 12, rx: 2, fill: "#9fc9bd"
+        x: margine.sinistra, y: 8, width: 12, height: 12, rx: 2, fill: "#9fc9bd"
       }));
       svg.append(creaElemento("text", {
-        x: 248, y: 18, fill: "#49615b", "font-size": "12"
-      }, precedente ? meseEtichetta(precedente) : "Mese precedente"));
+        x: margine.sinistra + 18, y: 18, fill: "#49615b", "font-size": "12"
+      }, precedente ? meseEtichetta(precedente) : traduciTesto("Mese precedente")));
       svg.append(creaElemento("rect", {
-        x: 405, y: 8, width: 12, height: 12, rx: 2, fill: "#176b5b"
+        x: margine.sinistra + 175, y: 8, width: 12, height: 12, rx: 2, fill: "#176b5b"
       }));
       svg.append(creaElemento("text", {
-        x: 423, y: 18, fill: "#49615b", "font-size": "12"
+        x: margine.sinistra + 193, y: 18, fill: "#49615b", "font-size": "12"
       }, meseEtichetta(mese)));
-      righe.forEach((riga, indice) => {
-        const y = 42 + indice * altezzaRiga;
+
+      for (let indice = 0; indice <= 4; indice += 1) {
+        const valore = massimo * (1 - indice / 4);
+        const y = margine.alto + altezzaPlot * indice / 4;
+        svg.append(creaElemento("line", {
+          x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
+          stroke: "#e1e9e5", "stroke-width": "1"
+        }));
         svg.append(creaElemento("text", {
-          x: 8, y: y + 13, fill: "#172b27", "font-size": "12"
-        }, riga.nome.length > 27 ? riga.nome.slice(0, 26) + "…" : riga.nome));
+          x: margine.sinistra - 8, y: y + 4, "text-anchor": "end",
+          fill: "#49615b", "font-size": "11"
+        }, formatoAsse.format(valore)));
+      }
+
+      const yBase = margine.alto + altezzaPlot;
+      const altezzaBarra = (valore) => valore / massimo * altezzaPlot;
+      righe.forEach((riga, indice) => {
+        const centroX = margine.sinistra + larghezzaSlot * indice + larghezzaSlot / 2;
+        const nome = nomeSpesaVisualizzato(riga.nome);
         if (precedente) {
-          const larghezzaPrecedente = riga.precedente / massimo * larghezzaBarra;
+          const altezzaPrecedente = altezzaBarra(riga.precedente);
           const barraPrecedente = creaElemento("rect", {
-            x: inizioBarra, y, width: larghezzaPrecedente, height: 8, rx: 3, fill: "#9fc9bd"
+            x: centroX - 13, y: yBase - altezzaPrecedente,
+            width: 11, height: altezzaPrecedente, rx: 3, fill: "#9fc9bd"
           });
-          barraPrecedente.append(creaElemento("title", {}, riga.nome + " — " + meseEtichetta(precedente) +
+          barraPrecedente.append(creaElemento("title", {}, nome + " — " + meseEtichetta(precedente) +
             ": " + formatoEuro.format(riga.precedente)));
           svg.append(barraPrecedente);
-          svg.append(creaElemento("text", {
-            x: inizioBarra + larghezzaPrecedente + 6, y: y + 8,
-            fill: "#49615b", "font-size": "11"
-          }, formatoEuro.format(riga.precedente)));
         }
-        const larghezzaCorrente = riga.corrente / massimo * larghezzaBarra;
+        const altezzaCorrente = altezzaBarra(riga.corrente);
         const barra = creaElemento("rect", {
-          x: inizioBarra, y: y + 11, width: larghezzaCorrente, height: 8, rx: 3, fill: "#176b5b"
+          x: centroX + 2, y: yBase - altezzaCorrente,
+          width: 11, height: altezzaCorrente, rx: 3, fill: "#176b5b"
         });
-        barra.append(creaElemento("title", {}, riga.nome + " — " + meseEtichetta(mese) +
+        barra.append(creaElemento("title", {}, nome + " — " + meseEtichetta(mese) +
           ": " + formatoEuro.format(riga.corrente)));
         svg.append(barra);
-        svg.append(creaElemento("text", {
-          x: inizioBarra + larghezzaCorrente + 6, y: y + 19,
-          fill: "#49615b", "font-size": "11"
-        }, formatoEuro.format(riga.corrente)));
+        const etichetta = creaElemento("text", {
+          x: centroX + 3, y: yBase + 12,
+          transform: "rotate(-45 " + (centroX + 3) + " " + (yBase + 12) + ")",
+          fill: "#172b27", "font-size": "10", "text-anchor": "end"
+        }, nome);
+        etichetta.append(creaElemento("title", {}, nome));
+        svg.append(etichetta);
       });
     }
 
@@ -3309,7 +3367,7 @@
             fill: COLORI_SPESE[indice % COLORI_SPESE.length],
             stroke: "#fff", "stroke-width": "2"
           });
-          fetta.append(creaElemento("title", {}, componente.nome + ": " +
+          fetta.append(creaElemento("title", {}, nomeSpesaVisualizzato(componente.nome) + ": " +
             formatoEuro.format(componente.valore) + " (" +
             (componente.valore / totale * 100).toLocaleString(localeCorrente(), {
               maximumFractionDigits: 1
@@ -3326,13 +3384,20 @@
         colore.style.backgroundColor = COLORI_SPESE[indice % COLORI_SPESE.length];
         colore.setAttribute("aria-hidden", "true");
         const nome = document.createElement("span");
-        nome.textContent = componente.nome;
+        nome.textContent = nomeSpesaVisualizzato(componente.nome);
         const valore = document.createElement("span");
         valore.textContent = formatoEuro.format(componente.valore) + " · " +
           percentuale.toLocaleString(localeCorrente(), { maximumFractionDigits: 1 }) + "%";
         voce.append(colore, nome, valore);
         legenda.append(voce);
       });
+    }
+
+    function nomeSpesaVisualizzato(nome) {
+      const tradotto = Object.values(NOMI_CATEGORIE).includes(nome)
+        ? traduciTesto(nome + " (EUR)").replace(/ \(EUR\)$/, "")
+        : traduciTesto(nome);
+      return tradotto;
     }
 
     function disegnaGraficoRisparmio(recordSelezionato) {
@@ -3473,7 +3538,7 @@
         return;
       }
 
-      dati.slice().reverse().forEach((record) => {
+      dati.forEach((record) => {
         const riga = document.createElement("tr");
         const [anno, mese] = record.mese.split("-");
         const meseVisualizzato = formatoMese.format(
