@@ -2605,20 +2605,15 @@
         massimo += scarto;
       }
 
-      const passoGrezzo = (massimo - minimo) / 4;
-      const ordineGrandezza = Math.pow(10, Math.floor(Math.log10(passoGrezzo)));
-      const frazione = passoGrezzo / ordineGrandezza;
-      const passoTacca = (frazione <= 1 ? 1 : frazione <= 2 ? 2 : frazione <= 5 ? 5 : 10) *
-        ordineGrandezza;
+      const passoTacca = 10000;
       minimo = Math.floor(minimo / passoTacca) * passoTacca;
       massimo = Math.ceil(massimo / passoTacca) * passoTacca;
       const numeroTacche = Math.round((massimo - minimo) / passoTacca);
-      const decimaliTacca = Math.max(0, Math.min(2, Math.ceil(-Math.log10(passoTacca))));
       const formatoTacca = new Intl.NumberFormat(localeCorrente(), {
         style: "currency",
         currency: "EUR",
-        minimumFractionDigits: decimaliTacca,
-        maximumFractionDigits: decimaliTacca
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
       });
 
       for (let indice = 0; indice <= numeroTacche; indice += 1) {
