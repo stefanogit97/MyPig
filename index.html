@@ -142,6 +142,7 @@
     .riepilogo-spese { min-height: 1.5em; color: #49615b; }
     .titolo-ripartizione { margin: 24px 0 12px; font-size: 1.05rem; }
     .riepilogo-risparmio { margin: 0 0 12px; font-weight: 700; }
+    .grafico-patrimonio-scroll, .grafico-spese-scroll { overflow-x: auto; }
     .grafico-risparmio-scroll { overflow-x: auto; }
     #grafico-risparmio { display: block; height: auto; max-width: none; }
     .grafico-torta-contenitore {
@@ -263,6 +264,7 @@
       .metriche-patrimonio { grid-template-columns: 1fr; }
       .controlli-grafico-spese, .grafico-torta-contenitore { grid-template-columns: 1fr; }
       .grafico-torta-contenitore svg { max-width: 260px; margin: 0 auto; }
+      #grafico, #grafico-spese { width: 800px; max-width: none; }
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
@@ -469,7 +471,9 @@
           <p id="metrica-sempre-riferimento" class="riferimento">—</p>
         </article>
       </div>
-      <svg id="grafico" viewBox="0 0 800 300" role="img" aria-label="Grafico dell'andamento mensile del patrimonio"></svg>
+      <div class="grafico-patrimonio-scroll">
+        <svg id="grafico" viewBox="0 0 800 300" role="img" aria-label="Grafico dell'andamento mensile del patrimonio"></svg>
+      </div>
     </section>
 
     <section class="card" aria-labelledby="titolo-andamento-spese">
@@ -487,7 +491,9 @@
         </label>
       </div>
       <p id="riepilogo-confronto-spese" class="riepilogo-spese" aria-live="polite"></p>
-      <svg id="grafico-spese" viewBox="0 0 800 360" role="img" aria-label="Grafico di confronto delle spese mensili"></svg>
+      <div class="grafico-spese-scroll">
+        <svg id="grafico-spese" viewBox="0 0 800 360" role="img" aria-label="Grafico di confronto delle spese mensili"></svg>
+      </div>
       <h3 class="titolo-ripartizione">Ripartizione delle spese del mese</h3>
       <div class="grafico-torta-contenitore">
         <svg id="grafico-torta-spese" viewBox="0 0 260 260" role="img" aria-label="Grafico a torta delle spese del mese"></svg>
@@ -2963,6 +2969,7 @@
     function disegnaGraficoRisparmio(recordSelezionato) {
       const svg = document.getElementById("grafico-risparmio");
       const riepilogo = document.getElementById("risparmio-mese-selezionato");
+      document.querySelector(".grafico-risparmio-scroll").scrollLeft = 0;
       svg.replaceChildren();
 
       if (recordSelezionato) {
@@ -2983,28 +2990,35 @@
 
       const larghezzaPasso = 100;
       const larghezza = Math.max(800, dati.length * larghezzaPasso + 96);
-      const altezza = 360;
       const margine = { alto: 48, destra: 24, basso: 66, sinistra: 88 };
-      const areaAltezza = altezza - margine.alto - margine.basso;
       const valori = dati.map(risparmio);
       let minimo = Math.min(0, ...valori);
       let massimo = Math.max(0, ...valori);
+      const passoTacca = 500;
       if (minimo === 0 && massimo === 0) {
-        minimo = -100;
-        massimo = 100;
+        minimo = -passoTacca;
+        massimo = passoTacca;
       } else {
-        const scarto = (massimo - minimo) * 0.12;
-        if (minimo < 0) minimo -= scarto;
-        if (massimo > 0) massimo += scarto;
+        minimo = Math.floor(minimo / passoTacca) * passoTacca;
+        massimo = Math.ceil(massimo / passoTacca) * passoTacca;
       }
+      const numeroTacche = (massimo - minimo) / passoTacca;
+      const altezza = Math.max(360, margine.alto + margine.basso + numeroTacche * 36);
+      const areaAltezza = altezza - margine.alto - margine.basso;
       const yPerValore = (valore) =>
         margine.alto + areaAltezza * (massimo - valore) / (massimo - minimo);
       const yZero = yPerValore(0);
+      const formatoTacca = new Intl.NumberFormat(localeCorrente(), {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
       svg.setAttribute("viewBox", "0 0 " + larghezza + " " + altezza);
       svg.style.width = larghezza + "px";
 
-      for (let indice = 0; indice <= 4; indice += 1) {
-        const valore = massimo - (massimo - minimo) * indice / 4;
+      for (let indice = 0; indice <= numeroTacche; indice += 1) {
+        const valore = massimo - passoTacca * indice;
         const y = yPerValore(valore);
         svg.append(creaElemento("line", {
           x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
@@ -3014,7 +3028,7 @@
         svg.append(creaElemento("text", {
           x: margine.sinistra - 10, y: y + 4, "text-anchor": "end",
           fill: "#49615b", "font-size": "12"
-        }, formatoEuro.format(valore)));
+        }, formatoTacca.format(valore)));
       }
 
       const spazio = (larghezza - margine.sinistra - margine.destra) / dati.length;
