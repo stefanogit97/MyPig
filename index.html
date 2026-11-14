@@ -67,6 +67,62 @@
       gap: 14px;
     }
 
+    .investimenti-gruppo { margin-top: 20px; }
+    .investimenti-gruppo h3 { margin: 0 0 10px; font-size: 1.05rem; }
+    .righe-posizioni { display: grid; gap: 10px; }
+    .riga-posizione {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(120px, .7fr) auto;
+      align-items: end;
+      gap: 10px;
+    }
+
+    .riga-posizione label { min-width: 0; }
+    .riga-posizione select, .riga-posizione input {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 6px;
+      padding: 9px 10px;
+      border: 1px solid #aebfb8;
+      border-radius: 8px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .riga-posizione select:focus, .riga-posizione input:focus {
+      outline: 3px solid #9ed5c6;
+      outline-offset: 2px;
+    }
+
+    button.rimuovi-posizione, button.aggiungi-posizione {
+      width: auto;
+      min-height: 44px;
+      margin: 0;
+      padding: 9px 12px;
+    }
+
+    button.aggiungi-posizione { margin-top: 10px; }
+    .etf-personalizzato[hidden] { display: none; }
+    .metriche-patrimonio {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 16px;
+    }
+
+    .metrica {
+      padding: 14px;
+      border-radius: 10px;
+      background: #eef6f2;
+    }
+
+    .metrica h3 { margin: 0 0 8px; font-size: .95rem; }
+    .metrica p { margin: 2px 0; font-size: 1rem; font-weight: 700; }
+    .metrica p.riferimento { color: #49615b; font-size: .8rem; font-weight: 400; }
+    .metrica .variazione-negativa { color: #a12121; }
+    .metrica .variazione-positiva { color: #176b5b; }
+    .nota-metriche { margin: 0 0 12px; color: #49615b; font-size: .9rem; }
+
     label { display: block; font-weight: 600; }
     input {
       width: 100%;
@@ -135,6 +191,9 @@
       body { padding: 18px 12px 32px; }
       .card { padding: 16px; }
       .fields { grid-template-columns: 1fr; gap: 12px; }
+      .riga-posizione { grid-template-columns: 1fr 1fr; }
+      .riga-posizione button { grid-column: 1 / -1; }
+      .metriche-patrimonio { grid-template-columns: 1fr; }
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
@@ -202,26 +261,11 @@
   <main>
     <section class="card" aria-labelledby="titolo-form">
       <h2 id="titolo-form">Inserisci un mese</h2>
-      <p class="hint">Inserisci i valori al primo del mese e stipendio e spese del mese precedente. Il patrimonio è calcolato sommando investimenti e liquidità. Il risparmio è stipendio meno spese e viene mostrato a parte, senza sommarlo di nuovo. Inserisci ciascun investimento in una sola categoria per non contarlo due volte.</p>
+      <p class="hint">Inserisci i valori al primo del mese e stipendio e spese del mese precedente. Il patrimonio è calcolato sommando ETF, azioni, obbligazioni, liquidità e conto deposito. Il risparmio è stipendio meno spese e viene mostrato a parte, senza sommarlo di nuovo.</p>
       <form id="form-mese">
         <div class="fields">
           <label for="mese">Mese del rilevamento
             <input id="mese" name="mese" type="month" required>
-          </label>
-          <label for="vwce">Investimenti VWCE (€)
-            <input id="vwce" name="vwce" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
-          </label>
-          <label for="sp500">Investimenti S&amp;P 500 (€)
-            <input id="sp500" name="sp500" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
-          </label>
-          <label for="nasdaq">Investimenti NASDAQ (€)
-            <input id="nasdaq" name="nasdaq" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
-          </label>
-          <label for="azioni">Azioni (€)
-            <input id="azioni" name="azioni" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
-          </label>
-          <label for="obbligazioni">Obbligazioni (€)
-            <input id="obbligazioni" name="obbligazioni" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
           </label>
           <label for="liquidita">Liquidità corrente (€)
             <input id="liquidita" name="liquidita" type="number" min="0" step="0.01" required inputmode="decimal" value="0">
@@ -269,6 +313,24 @@
             <input id="altreSpese" name="altreSpese" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
         </div>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-etf">
+          <h3 id="titolo-etf">ETF</h3>
+          <p class="hint">Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.</p>
+          <div id="righe-etf" class="righe-posizioni"></div>
+          <button id="aggiungi-etf" class="aggiungi-posizione" type="button">Aggiungi ETF</button>
+        </section>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-azioni">
+          <h3 id="titolo-azioni">Azioni</h3>
+          <p class="hint">Aggiungi le azioni che possiedi e inserisci un nome o ticker.</p>
+          <div id="righe-azioni" class="righe-posizioni"></div>
+          <button id="aggiungi-azione" class="aggiungi-posizione" type="button">Aggiungi azione</button>
+        </section>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-obbligazioni">
+          <h3 id="titolo-obbligazioni">Obbligazioni</h3>
+          <p class="hint">Aggiungi le obbligazioni che possiedi e inserisci un nome o identificativo.</p>
+          <div id="righe-obbligazioni" class="righe-posizioni"></div>
+          <button id="aggiungi-obbligazione" class="aggiungi-posizione" type="button">Aggiungi obbligazione</button>
+        </section>
         <button type="submit">Salva mese</button>
         <p id="messaggio" role="status" aria-live="polite"></p>
       </form>
@@ -276,6 +338,27 @@
 
     <section class="card" aria-labelledby="titolo-grafico">
       <h2 id="titolo-grafico">Andamento del patrimonio</h2>
+      <p class="nota-metriche">La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.</p>
+      <div class="metriche-patrimonio" aria-live="polite">
+        <article class="metrica">
+          <h3>Dal mese precedente</h3>
+          <p id="metrica-mese-euro">—</p>
+          <p id="metrica-mese-percento">—</p>
+          <p id="metrica-mese-riferimento" class="riferimento">—</p>
+        </article>
+        <article class="metrica">
+          <h3>Da inizio anno</h3>
+          <p id="metrica-anno-euro">—</p>
+          <p id="metrica-anno-percento">—</p>
+          <p id="metrica-anno-riferimento" class="riferimento">—</p>
+        </article>
+        <article class="metrica">
+          <h3>Da sempre</h3>
+          <p id="metrica-sempre-euro">—</p>
+          <p id="metrica-sempre-percento">—</p>
+          <p id="metrica-sempre-riferimento" class="riferimento">—</p>
+        </article>
+      </div>
       <svg id="grafico" viewBox="0 0 800 300" role="img" aria-label="Grafico dell'andamento mensile del patrimonio"></svg>
     </section>
 
@@ -298,7 +381,7 @@
           <thead>
             <tr>
               <th scope="col">Mese</th>
-              <th scope="col" class="numero">Investimenti</th>
+              <th scope="col" class="numero">ETF, azioni e obbligazioni</th>
               <th scope="col" class="numero">Liquidità</th>
               <th scope="col" class="numero">Conto deposito</th>
               <th scope="col" class="numero">Patrimonio</th>
@@ -318,8 +401,15 @@
   <script>
     const CHIAVE = "patrimonioDati";
     const CATEGORIE = ["cibo", "macchina", "affitto", "elettricita", "gas", "tasse", "salute", "sport", "divertimenti", "ristoranti", "bar", "altreSpese"];
-    const INVESTIMENTI = ["vwce", "sp500", "nasdaq", "azioni", "obbligazioni"];
-    const COMPONENTI = [...INVESTIMENTI, "liquidita", "contoDeposito"];
+    const VOCI_ETF = [
+      { valore: "VWCE", etichetta: "VWCE (FTSE All-World)" },
+      { valore: "VUAA", etichetta: "VUAA (S&P 500)" },
+      { valore: "SJPA", etichetta: "SJPA (Japan)" },
+      { valore: "CSNDX", etichetta: "CSNDX (Nasdaq)" },
+      { valore: "VNGA60", etichetta: "VNGA60" },
+      { valore: "VNGA40", etichetta: "VNGA40" },
+      { valore: "Altro ETF", etichetta: "Altro ETF" }
+    ];
     const form = document.getElementById("form-mese");
     const messaggio = document.getElementById("messaggio");
     const backupMessaggio = document.getElementById("backup-messaggio");
@@ -349,23 +439,85 @@
         pulito[categoria] = valore === undefined ? 0 : valore;
       });
 
-      const haComponenti = COMPONENTI.some((componente) =>
-        Object.prototype.hasOwnProperty.call(record, componente));
-      if (haComponenti) {
-        COMPONENTI.forEach((componente) => {
+      if (Array.isArray(record.posizioniEtf) ||
+          Array.isArray(record.posizioniAzionarie) ||
+          Array.isArray(record.posizioniObbligazionarie)) {
+        pulito.posizioniEtf = normalizzaPosizioni(record.posizioniEtf || []);
+        pulito.posizioniAzionarie = normalizzaPosizioni(record.posizioniAzionarie || []);
+        pulito.posizioniObbligazionarie = normalizzaPosizioni(record.posizioniObbligazionarie || []);
+        ["liquidita", "contoDeposito"].forEach((componente) => {
           const valore = record[componente];
           if (valore !== undefined && (!Number.isFinite(valore) || valore < 0)) {
-            throw new Error("Un investimento o la liquidità contiene un importo non valido.");
+            throw new Error("Un investimento o un saldo contiene un importo non valido.");
           }
           pulito[componente] = valore === undefined ? 0 : valore;
         });
         pulito.patrimonio = totaleComponenti(pulito);
-      } else if (Number.isFinite(record.patrimonio)) {
-        pulito.patrimonio = record.patrimonio;
       } else {
-        throw new Error("Un record non contiene un patrimonio leggibile.");
+        const vecchieVoci = ["vwce", "sp500", "nasdaq", "azioni", "obbligazioni", "liquidita", "contoDeposito"];
+        const haVecchieVoci = vecchieVoci.some((componente) =>
+          Object.prototype.hasOwnProperty.call(record, componente));
+        if (haVecchieVoci) {
+          pulito.posizioniEtf = [];
+          pulito.posizioniAzionarie = [];
+          pulito.posizioniObbligazionarie = [];
+          [
+            ["vwce", "VWCE"],
+            ["sp500", "S&P 500 (storico)"],
+            ["nasdaq", "NASDAQ (storico)"]
+          ].forEach(([chiave, nome]) => {
+            const valore = record[chiave] === undefined ? 0 : record[chiave];
+            if (!Number.isFinite(valore) || valore < 0) {
+              throw new Error("Un vecchio valore di investimento non è valido.");
+            }
+            if (valore > 0) pulito.posizioniEtf.push({ nome, valore });
+          });
+          const vecchieAzioni = record.azioni === undefined ? 0 : record.azioni;
+          if (!Number.isFinite(vecchieAzioni) || vecchieAzioni < 0) {
+            throw new Error("Il vecchio valore delle azioni non è valido.");
+          }
+          if (vecchieAzioni > 0) {
+            pulito.posizioniAzionarie.push({ nome: "Azioni (storico)", valore: vecchieAzioni });
+          }
+          const vecchieObbligazioni = record.obbligazioni === undefined ? 0 : record.obbligazioni;
+          if (!Number.isFinite(vecchieObbligazioni) || vecchieObbligazioni < 0) {
+            throw new Error("Il vecchio valore delle obbligazioni non è valido.");
+          }
+          if (vecchieObbligazioni > 0) {
+            pulito.posizioniObbligazionarie.push({
+              nome: "Obbligazioni (storico)",
+              valore: vecchieObbligazioni
+            });
+          }
+          ["liquidita", "contoDeposito"].forEach((componente) => {
+            const valore = record[componente] === undefined ? 0 : record[componente];
+            if (!Number.isFinite(valore) || valore < 0) {
+              throw new Error("Un vecchio valore di patrimonio non è valido.");
+            }
+            pulito[componente] = valore;
+          });
+          pulito.patrimonio = totaleComponenti(pulito);
+        } else if (Number.isFinite(record.patrimonio)) {
+          pulito.legacyNonSuddiviso = true;
+          pulito.patrimonio = record.patrimonio;
+        } else {
+          throw new Error("Un record non contiene un patrimonio leggibile.");
+        }
       }
       return pulito;
+    }
+
+    function normalizzaPosizioni(posizioni) {
+      if (!Array.isArray(posizioni)) {
+        throw new Error("Le righe degli investimenti non hanno un formato valido.");
+      }
+      return posizioni.map((posizione) => {
+        if (!posizione || typeof posizione.nome !== "string" ||
+            !posizione.nome.trim() || !Number.isFinite(posizione.valore) || posizione.valore < 0) {
+          throw new Error("Una riga di investimento contiene nome o importo non valido.");
+        }
+        return { nome: posizione.nome.trim(), valore: posizione.valore };
+      });
     }
 
     function normalizzaDati(input) {
@@ -406,16 +558,197 @@
     }
 
     function totaleComponenti(record) {
-      return COMPONENTI.reduce((totale, componente) => totale + (record[componente] || 0), 0);
+      return totaleInvestimenti(record) +
+        (record.liquidita || 0) +
+        (record.contoDeposito || 0);
     }
 
     function totaleInvestimenti(record) {
-      return INVESTIMENTI.reduce((totale, componente) => totale + (record[componente] || 0), 0);
+      const etf = (record.posizioniEtf || []).reduce((totale, posizione) => totale + posizione.valore, 0);
+      const azioni = (record.posizioniAzionarie || []).reduce((totale, posizione) => totale + posizione.valore, 0);
+      const obbligazioni = (record.posizioniObbligazionarie || []).reduce(
+        (totale, posizione) => totale + posizione.valore, 0
+      );
+      return etf + azioni + obbligazioni;
     }
 
     function risparmio(record) {
       return record.stipendio - totaleSpese(record);
     }
+
+    function formattaVariazione(valore) {
+      return (valore > 0 ? "+" : "") + formatoEuro.format(valore);
+    }
+
+    function meseEtichetta(record) {
+      const [anno, mese] = record.mese.split("-");
+      return formatoMese.format(new Date(Date.UTC(Number(anno), Number(mese) - 1, 1)));
+    }
+
+    function mostraMetrica(prefisso, ultimo, riferimento, descrizioneRiferimento) {
+      const valoreEuro = document.getElementById("metrica-" + prefisso + "-euro");
+      const valorePercento = document.getElementById("metrica-" + prefisso + "-percento");
+      const testoRiferimento = document.getElementById("metrica-" + prefisso + "-riferimento");
+      if (!ultimo || !riferimento) {
+        valoreEuro.textContent = "N/D";
+        valorePercento.textContent = "N/D";
+        testoRiferimento.textContent = "Riferimento non disponibile";
+        valoreEuro.className = "";
+        valorePercento.className = "";
+        return;
+      }
+
+      const differenza = ultimo.patrimonio - riferimento.patrimonio;
+      testoRiferimento.textContent = descrizioneRiferimento + " " + meseEtichetta(riferimento);
+      valoreEuro.textContent = formattaVariazione(differenza);
+      valorePercento.textContent = riferimento.patrimonio === 0
+        ? "N/D (saldo iniziale pari a zero)"
+        : (differenza > 0 ? "+" : "") +
+          ((differenza / riferimento.patrimonio) * 100).toLocaleString("it-IT", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }) + "%";
+      const classe = differenza > 0 ? "variazione-positiva" :
+        differenza < 0 ? "variazione-negativa" : "";
+      valoreEuro.className = classe;
+      valorePercento.className = classe;
+    }
+
+    function aggiornaMetriche() {
+      const ultimo = dati[dati.length - 1];
+      if (!ultimo) {
+        mostraMetrica("anno", null, null);
+        mostraMetrica("sempre", null, null);
+        mostraMetrica("mese", null, null);
+        return;
+      }
+
+      const annoCorrente = ultimo.mese.slice(0, 4);
+      const ultimoAnnoPrecedente = dati.filter((record) =>
+        Number(record.mese.slice(0, 4)) === Number(annoCorrente) - 1
+      );
+      const baseAnnoPrecedente = ultimoAnnoPrecedente[ultimoAnnoPrecedente.length - 1];
+      const primaRilevazioneAnno = dati.find((record) =>
+        record.mese.slice(0, 4) === annoCorrente
+      );
+      const baseAnno = baseAnnoPrecedente || primaRilevazioneAnno;
+      const primaRilevazione = dati[0];
+      const mesePrecedente = dati.length > 1 ? dati[dati.length - 2] : null;
+      mostraMetrica("anno", ultimo, baseAnno,
+        baseAnnoPrecedente ? "Confronto con fine anno:" : "Prima rilevazione dell'anno:");
+      mostraMetrica("sempre", ultimo, primaRilevazione, "Prima rilevazione:");
+      mostraMetrica("mese", ultimo, mesePrecedente, "Ultimo mese registrato:");
+    }
+
+    function creaRigaPosizione(tipo, posizione = {}) {
+      const riga = document.createElement("div");
+      riga.className = "riga-posizione";
+      riga.dataset.tipo = tipo;
+
+      const etf = tipo === "etf";
+      const labelNome = document.createElement("label");
+      labelNome.textContent = etf ? "ETF" :
+        tipo === "azione" ? "Azione o ticker" : "Nome obbligazione";
+
+      let nomeCampo;
+      if (etf) {
+        nomeCampo = document.createElement("select");
+        VOCI_ETF.forEach((voce) => {
+          const opzione = document.createElement("option");
+          opzione.value = voce.valore;
+          opzione.textContent = voce.etichetta;
+          nomeCampo.append(opzione);
+        });
+        const valoreSalvato = posizione.nome || VOCI_ETF[0].valore;
+        nomeCampo.value = VOCI_ETF.some((voce) => voce.valore === valoreSalvato)
+          ? valoreSalvato
+          : "Altro ETF";
+        nomeCampo.required = true;
+        nomeCampo.setAttribute("aria-label", "Tipo di ETF");
+        const labelPersonalizzato = document.createElement("span");
+        labelPersonalizzato.className = "etf-personalizzato";
+        labelPersonalizzato.hidden = nomeCampo.value !== "Altro ETF";
+        labelPersonalizzato.textContent = "Nome ETF";
+        const campoPersonalizzato = document.createElement("input");
+        campoPersonalizzato.type = "text";
+        campoPersonalizzato.maxLength = 40;
+        campoPersonalizzato.placeholder = "Es. nome o ticker ETF";
+        campoPersonalizzato.value = nomeCampo.value === "Altro ETF" && valoreSalvato !== "Altro ETF"
+          ? valoreSalvato
+          : "";
+        campoPersonalizzato.required = nomeCampo.value === "Altro ETF";
+        campoPersonalizzato.setAttribute("aria-label", "Nome personalizzato dell'ETF");
+        labelPersonalizzato.append(campoPersonalizzato);
+        nomeCampo.addEventListener("change", () => {
+          labelPersonalizzato.hidden = nomeCampo.value !== "Altro ETF";
+          campoPersonalizzato.required = nomeCampo.value === "Altro ETF";
+          if (nomeCampo.value !== "Altro ETF") campoPersonalizzato.value = "";
+        });
+        labelNome.append(labelPersonalizzato);
+      } else {
+        nomeCampo = document.createElement("input");
+        nomeCampo.type = "text";
+        nomeCampo.required = true;
+        nomeCampo.maxLength = 40;
+        nomeCampo.placeholder = tipo === "azione" ? "Es. ENI o Apple" : "Es. BTP o obbligazione";
+        nomeCampo.value = posizione.nome || "";
+        nomeCampo.setAttribute("aria-label", "Nome o ticker dell'azione");
+      }
+      nomeCampo.className = "nome-posizione";
+      labelNome.append(nomeCampo);
+
+      const labelValore = document.createElement("label");
+      labelValore.textContent = "Valore (€)";
+      const valoreCampo = document.createElement("input");
+      valoreCampo.className = "valore-posizione";
+      valoreCampo.type = "number";
+      valoreCampo.min = "0";
+      valoreCampo.step = "0.01";
+      valoreCampo.required = true;
+      valoreCampo.inputMode = "decimal";
+      valoreCampo.value = posizione.valore === undefined ? "0" : String(posizione.valore);
+      valoreCampo.setAttribute("aria-label", "Valore dell'investimento in euro");
+      labelValore.append(valoreCampo);
+
+      const rimuovi = document.createElement("button");
+      rimuovi.type = "button";
+      rimuovi.className = "rimuovi-posizione azione azione-elimina";
+      rimuovi.textContent = "Rimuovi";
+      rimuovi.setAttribute("aria-label", "Rimuovi " +
+        (etf ? "ETF" : tipo === "azione" ? "azione" : "obbligazione"));
+      rimuovi.addEventListener("click", () => riga.remove());
+
+      riga.append(labelNome, labelValore, rimuovi);
+      return riga;
+    }
+
+    function mostraPosizioni(containerId, tipo, posizioni = []) {
+      const contenitore = document.getElementById(containerId);
+      contenitore.replaceChildren(...posizioni.map((posizione) => creaRigaPosizione(tipo, posizione)));
+    }
+
+    function leggiPosizioni(containerId, tipo) {
+      return Array.from(document.querySelectorAll("#" + containerId + " .riga-posizione")).map((riga) => {
+        const nomeCampo = riga.querySelector(".nome-posizione");
+        const nome = tipo === "etf" && nomeCampo.value === "Altro ETF"
+          ? riga.querySelector(".etf-personalizzato input").value.trim()
+          : nomeCampo.value.trim();
+        return {
+          nome,
+          valore: riga.querySelector(".valore-posizione").valueAsNumber
+        };
+      });
+    }
+
+    document.getElementById("aggiungi-etf").addEventListener("click", () => {
+      document.getElementById("righe-etf").append(creaRigaPosizione("etf"));
+    });
+    document.getElementById("aggiungi-azione").addEventListener("click", () => {
+      document.getElementById("righe-azioni").append(creaRigaPosizione("azione"));
+    });
+    document.getElementById("aggiungi-obbligazione").addEventListener("click", () => {
+      document.getElementById("righe-obbligazioni").append(creaRigaPosizione("obbligazione"));
+    });
 
     function creaElemento(nome, attributi, testo) {
       const elemento = document.createElementNS("http://www.w3.org/2000/svg", nome);
@@ -518,7 +851,7 @@
         );
         const valori = [
           meseVisualizzato,
-          record.vwce === undefined
+          record.legacyNonSuddiviso
             ? "—"
             : formatoEuro.format(totaleInvestimenti(record)),
           record.liquidita === undefined
@@ -552,8 +885,12 @@
           campoMese.value = record.mese;
           caricaMeseSelezionato();
           document.getElementById("form-mese").scrollIntoView({ behavior: "smooth" });
-          document.getElementById("vwce").focus({ preventScroll: true });
-          if (record.vwce !== undefined) {
+          const primoCampoInvestimenti = document.querySelector("#righe-etf select") ||
+            document.querySelector("#righe-azioni input") ||
+            document.querySelector("#righe-obbligazioni input") ||
+            document.getElementById("liquidita");
+          primoCampoInvestimenti.focus({ preventScroll: true });
+          if (!record.legacyNonSuddiviso) {
             messaggio.textContent = "Dati di " + meseVisualizzato + " caricati. Modifica i campi e premi Salva mese.";
             messaggio.className = "successo";
           }
@@ -597,22 +934,27 @@
     function aggiornaVista() {
       disegnaGrafico();
       aggiornaStorico();
+      aggiornaMetriche();
     }
 
     function caricaMeseSelezionato() {
       const record = dati.find((elemento) => elemento.mese === document.getElementById("mese").value);
       document.getElementById("stipendio").value = record ? String(record.stipendio) : "0";
+      ["liquidita", "contoDeposito"].forEach((componente) => {
+        document.getElementById(componente).value = record && Number.isFinite(record[componente])
+          ? String(record[componente])
+          : "0";
+      });
       CATEGORIE.forEach((categoria) => {
         document.getElementById(categoria).value = record ? String(record[categoria]) : "0";
       });
-      COMPONENTI.forEach((componente) => {
-        const haValoreSalvato = record && Number.isFinite(record[componente]);
-        document.getElementById(componente).value = haValoreSalvato ? String(record[componente]) : "0";
-      });
+      mostraPosizioni("righe-etf", "etf", record ? record.posizioniEtf || [] : []);
+      mostraPosizioni("righe-azioni", "azione", record ? record.posizioniAzionarie || [] : []);
+      mostraPosizioni("righe-obbligazioni", "obbligazione", record ? record.posizioniObbligazionarie || [] : []);
 
       messaggio.textContent = "";
       messaggio.className = "";
-      if (record && !Number.isFinite(record.vwce)) {
+      if (record && record.legacyNonSuddiviso) {
         messaggio.textContent = "Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.";
       }
     }
@@ -687,19 +1029,24 @@
         mese: document.getElementById("mese").value,
         stipendio: document.getElementById("stipendio").valueAsNumber
       };
-      COMPONENTI.forEach((componente) => {
-        record[componente] = document.getElementById(componente).valueAsNumber;
-      });
-      record.patrimonio = totaleComponenti(record);
+      record.liquidita = document.getElementById("liquidita").valueAsNumber;
+      record.contoDeposito = document.getElementById("contoDeposito").valueAsNumber;
+      record.posizioniEtf = leggiPosizioni("righe-etf", "etf");
+      record.posizioniAzionarie = leggiPosizioni("righe-azioni", "azione");
+      record.posizioniObbligazionarie = leggiPosizioni("righe-obbligazioni", "obbligazione");
       CATEGORIE.forEach((categoria) => {
         const campo = document.getElementById(categoria);
         record[categoria] = campo.value === "" ? 0 : campo.valueAsNumber;
       });
+      record.patrimonio = totaleComponenti(record);
 
       if (!Number.isFinite(record.patrimonio) || !Number.isFinite(record.stipendio) ||
-          COMPONENTI.some((componente) => !Number.isFinite(record[componente]) || record[componente] < 0) ||
+          !Number.isFinite(record.liquidita) || record.liquidita < 0 ||
+          !Number.isFinite(record.contoDeposito) || record.contoDeposito < 0 ||
+          [...record.posizioniEtf, ...record.posizioniAzionarie, ...record.posizioniObbligazionarie]
+            .some((posizione) => !posizione.nome || !Number.isFinite(posizione.valore) || posizione.valore < 0) ||
           CATEGORIE.some((categoria) => !Number.isFinite(record[categoria]) || record[categoria] < 0)) {
-        messaggio.textContent = "Controlla gli importi: stipendio, investimenti, liquidità e spese devono essere numeri non negativi.";
+        messaggio.textContent = "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.";
         messaggio.className = "errore";
         return;
       }
