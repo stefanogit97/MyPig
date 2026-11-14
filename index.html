@@ -3433,7 +3433,7 @@
       const valori = dati.map(risparmio);
       let minimo = Math.min(0, ...valori);
       let massimo = Math.max(0, ...valori);
-      const passoTacca = 500;
+      const passoTacca = intervalloAsseRisparmio(massimo - minimo);
       if (minimo === 0 && massimo === 0) {
         minimo = -passoTacca;
         massimo = passoTacca;
@@ -3505,6 +3505,18 @@
           "font-size": "12"
         }, formatoMese.format(new Date(Date.UTC(Number(anno), Number(meseNumero) - 1, 1)))));
       });
+    }
+
+    function intervalloAsseRisparmio(ampiezza) {
+      if (ampiezza <= 500) return 50;
+      if (ampiezza <= 1000) return 100;
+
+      const intervalloMinimo = ampiezza / 10;
+      const ordine = Math.pow(10, Math.floor(Math.log10(intervalloMinimo)));
+      const fattore = [1, 2, 5, 10].find((valore) =>
+        valore * ordine >= intervalloMinimo
+      );
+      return fattore * ordine;
     }
 
     function aggiornaGraficiSpese() {
