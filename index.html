@@ -131,6 +131,39 @@
       margin: 0 0 16px;
     }
 
+    .controlli-grafico-spese {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .riepilogo-spese { min-height: 1.5em; color: #49615b; }
+    .titolo-ripartizione { margin: 24px 0 12px; font-size: 1.05rem; }
+    .grafico-torta-contenitore {
+      display: grid;
+      grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+      align-items: center;
+      gap: 20px;
+    }
+
+    .grafico-torta-contenitore svg, #grafico-spese {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .legenda-torta { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .legenda-torta li {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      font-size: .9rem;
+    }
+    .colore-legenda { width: 14px; height: 14px; border-radius: 3px; }
+
     .metrica {
       padding: 14px;
       border-radius: 10px;
@@ -224,6 +257,8 @@
       .riga-saldo { grid-template-columns: 1fr 1fr; }
       .riga-saldo button { grid-column: 1 / -1; }
       .metriche-patrimonio { grid-template-columns: 1fr; }
+      .controlli-grafico-spese, .grafico-torta-contenitore { grid-template-columns: 1fr; }
+      .grafico-torta-contenitore svg { max-width: 260px; margin: 0 auto; }
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
@@ -310,8 +345,11 @@
           <label for="cibo"><span id="etichetta-cibo">Cibo (EUR)</span>
             <input id="cibo" name="cibo" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="macchina"><span id="etichetta-macchina">Macchina (EUR)</span>
+          <label for="macchina"><span id="etichetta-macchina">Benzina (EUR)</span>
             <input id="macchina" name="macchina" type="number" min="0" step="0.01" inputmode="decimal" value="0">
+          </label>
+          <label for="taxiTrasporti"><span id="etichetta-taxiTrasporti">Taxi-Trasporti (EUR)</span>
+            <input id="taxiTrasporti" name="taxiTrasporti" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
           <label for="affitto"><span id="etichetta-affitto">Affitto (EUR)</span>
             <input id="affitto" name="affitto" type="number" min="0" step="0.01" inputmode="decimal" value="0">
@@ -340,10 +378,13 @@
           <label for="bar"><span id="etichetta-bar">Bar (EUR)</span>
             <input id="bar" name="bar" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
-          <label for="altreSpese"><span id="etichetta-altreSpese">Altre spese (EUR)</span>
-            <input id="altreSpese" name="altreSpese" type="number" min="0" step="0.01" inputmode="decimal" value="0">
-          </label>
         </div>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-altre-spese">
+          <h3 id="titolo-altre-spese">Altre spese</h3>
+          <p class="hint">Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.</p>
+          <div id="righe-altre-spese" class="righe-posizioni"></div>
+          <button id="aggiungi-altra-spesa" class="aggiungi-posizione" type="button">Aggiungi altra spesa</button>
+        </section>
         <section class="investimenti-gruppo" aria-labelledby="titolo-liquidita">
           <h3 id="titolo-liquidita">Liquidità corrente</h3>
           <p class="hint">Aggiungi ogni conto o saldo liquido; puoi usare una valuta diversa per ciascuna riga.</p>
@@ -406,6 +447,29 @@
       <svg id="grafico" viewBox="0 0 800 300" role="img" aria-label="Grafico dell'andamento mensile del patrimonio"></svg>
     </section>
 
+    <section class="card" aria-labelledby="titolo-andamento-spese">
+      <h2 id="titolo-andamento-spese">Andamento delle spese</h2>
+      <p class="nota-metriche">Il confronto mensile usa l’ultima rilevazione salvata come riferimento, anche se mancano mesi intermedi. Tutti gli importi sono in euro.</p>
+      <div class="controlli-grafico-spese">
+        <label for="mese-grafico-spese">Mese da analizzare
+          <select id="mese-grafico-spese" aria-label="Mese per i grafici delle spese"></select>
+        </label>
+        <label for="tipo-grafico-spese">Grafico di confronto
+          <select id="tipo-grafico-spese">
+            <option value="confronto">Confronto con il mese precedente</option>
+            <option value="sempre">Spese mensili da sempre</option>
+          </select>
+        </label>
+      </div>
+      <p id="riepilogo-confronto-spese" class="riepilogo-spese" aria-live="polite"></p>
+      <svg id="grafico-spese" viewBox="0 0 800 360" role="img" aria-label="Grafico di confronto delle spese mensili"></svg>
+      <h3 class="titolo-ripartizione">Ripartizione delle spese del mese</h3>
+      <div class="grafico-torta-contenitore">
+        <svg id="grafico-torta-spese" viewBox="0 0 260 260" role="img" aria-label="Grafico a torta delle spese del mese"></svg>
+        <ul id="legenda-torta-spese" class="legenda-torta"></ul>
+      </div>
+    </section>
+
     <section class="card" aria-labelledby="titolo-backup">
       <h2 id="titolo-backup">Backup dei dati</h2>
       <p class="hint">Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.</p>
@@ -444,7 +508,7 @@
 
   <script>
     const CHIAVE = "patrimonioDati";
-    const CATEGORIE = ["cibo", "macchina", "affitto", "elettricita", "gas", "tasse", "salute", "sport", "divertimenti", "ristoranti", "bar", "altreSpese"];
+    const CATEGORIE = ["cibo", "macchina", "taxiTrasporti", "affitto", "elettricita", "gas", "tasse", "salute", "sport", "divertimenti", "ristoranti", "bar", "altreSpese"];
     const VOCI_ETF = [
       { valore: "VWCE", etichetta: "VWCE (FTSE All-World)" },
       { valore: "VUAA", etichetta: "VUAA (S&P 500)" },
@@ -473,7 +537,8 @@
       ["NGN", "Naira nigeriana"]
     ];
     const NOMI_CATEGORIE = {
-      cibo: "Cibo", macchina: "Macchina", affitto: "Affitto", elettricita: "Elettricità",
+      cibo: "Cibo", macchina: "Benzina", taxiTrasporti: "Taxi-Trasporti",
+      affitto: "Affitto", elettricita: "Elettricità",
       gas: "Gas", tasse: "Tasse", salute: "Salute", sport: "Sport",
       divertimenti: "Divertimenti", ristoranti: "Ristoranti", bar: "Bar", altreSpese: "Altre spese"
     };
@@ -507,8 +572,11 @@
       const codice = selettoreValuta.value;
       document.getElementById("etichetta-stipendio").textContent = "Stipendio ricevuto (" + codice + ")";
       CATEGORIE.forEach((categoria) => {
-        document.getElementById("etichetta-" + categoria).textContent =
-          NOMI_CATEGORIE[categoria] + " (" + codice + ")";
+        const etichetta = document.getElementById("etichetta-" + categoria);
+        if (etichetta) etichetta.textContent = NOMI_CATEGORIE[categoria] + " (" + codice + ")";
+      });
+      document.querySelectorAll(".importo-spesa-personalizzata").forEach((etichetta) => {
+        etichetta.textContent = "Importo (" + codice + ")";
       });
     }
 
@@ -626,6 +694,23 @@
         }
         pulito.speseOriginali[categoria] = valore;
       });
+      pulito.spesePersonalizzate = Array.isArray(record.spesePersonalizzate)
+        ? normalizzaSpesePersonalizzate(record.spesePersonalizzate)
+        : pulito.speseOriginali.altreSpese > 0
+          ? [{
+            nome: "Altre spese (storico)",
+            valuta,
+            importoOriginale: pulito.speseOriginali.altreSpese,
+            tassoCambio,
+            tassoCambioData: pulito.tassoCambioData,
+            tassoCambioFonte: pulito.tassoCambioFonte,
+            valore: pulito.altreSpese
+          }]
+          : [];
+      pulito.altreSpese = totaleSaldi(pulito.spesePersonalizzate);
+      pulito.speseOriginali.altreSpese = pulito.spesePersonalizzate.reduce(
+        (totale, spesa) => totale + spesa.importoOriginale, 0
+      );
 
       if (Array.isArray(record.posizioniEtf) ||
           Array.isArray(record.posizioniAzionarie) ||
@@ -750,6 +835,30 @@
           tassoCambioData: typeof posizione.tassoCambioData === "string" ? posizione.tassoCambioData : "",
           tassoCambioFonte: posizione.tassoCambioFonte === "manuale" ? "manuale" : "Frankfurter",
           valore: posizione.valore
+        };
+      });
+    }
+
+    function normalizzaSpesePersonalizzate(spese) {
+      if (!Array.isArray(spese)) {
+        throw new Error("Le righe delle altre spese non hanno un formato valido.");
+      }
+      return spese.map((spesa) => {
+        if (!spesa || typeof spesa.nome !== "string" || !spesa.nome.trim() ||
+            !VALUTE.some(([codice]) => codice === spesa.valuta) ||
+            !Number.isFinite(spesa.importoOriginale) || spesa.importoOriginale < 0 ||
+            !Number.isFinite(spesa.tassoCambio) || spesa.tassoCambio <= 0 ||
+            !Number.isFinite(spesa.valore) || spesa.valore < 0) {
+          throw new Error("Un'altra spesa contiene nome, valuta o importo non valido.");
+        }
+        return {
+          nome: spesa.nome.trim(),
+          valuta: spesa.valuta,
+          importoOriginale: spesa.importoOriginale,
+          tassoCambio: spesa.tassoCambio,
+          tassoCambioData: typeof spesa.tassoCambioData === "string" ? spesa.tassoCambioData : "",
+          tassoCambioFonte: spesa.tassoCambioFonte === "manuale" ? "manuale" : "Frankfurter",
+          valore: spesa.valore
         };
       });
     }
@@ -1127,6 +1236,61 @@
       }));
     }
 
+    function creaRigaSpesa(spesa = {}) {
+      const riga = document.createElement("div");
+      riga.className = "riga-posizione";
+      const etichettaNome = document.createElement("label");
+      etichettaNome.textContent = "Voce di spesa";
+      const inputNome = document.createElement("input");
+      inputNome.className = "nome-spesa-personalizzata";
+      inputNome.type = "text";
+      inputNome.maxLength = 40;
+      inputNome.required = true;
+      inputNome.placeholder = "Es. Abbonamenti";
+      inputNome.value = spesa.nome || "";
+      etichettaNome.append(inputNome);
+
+      const etichettaImporto = document.createElement("label");
+      const testoImporto = document.createElement("span");
+      testoImporto.className = "importo-spesa-personalizzata";
+      testoImporto.textContent = "Importo (" + selettoreValuta.value + ")";
+      const inputImporto = document.createElement("input");
+      inputImporto.className = "valore-spesa-personalizzata";
+      inputImporto.type = "number";
+      inputImporto.min = "0";
+      inputImporto.step = "0.01";
+      inputImporto.inputMode = "decimal";
+      inputImporto.required = true;
+      inputImporto.value = spesa.importoOriginale === undefined ? "0" : String(spesa.importoOriginale);
+      etichettaImporto.append(testoImporto, inputImporto);
+
+      const rimuovi = document.createElement("button");
+      rimuovi.type = "button";
+      rimuovi.className = "rimuovi-posizione azione azione-elimina";
+      rimuovi.textContent = "Rimuovi";
+      rimuovi.setAttribute("aria-label", "Rimuovi altra spesa");
+      rimuovi.addEventListener("click", () => riga.remove());
+      riga.append(etichettaNome, etichettaImporto, rimuovi);
+      return riga;
+    }
+
+    function mostraSpesePersonalizzate(spese = []) {
+      document.getElementById("righe-altre-spese").replaceChildren(
+        ...spese.map((spesa) => creaRigaSpesa(spesa))
+      );
+    }
+
+    function leggiSpesePersonalizzate() {
+      return Array.from(document.querySelectorAll("#righe-altre-spese .riga-posizione")).map((riga) => ({
+        nome: riga.querySelector(".nome-spesa-personalizzata").value.trim(),
+        importoOriginale: riga.querySelector(".valore-spesa-personalizzata").valueAsNumber
+      }));
+    }
+
+    document.getElementById("aggiungi-altra-spesa").addEventListener("click", () => {
+      document.getElementById("righe-altre-spese").append(creaRigaSpesa());
+    });
+
     async function convertiSaldi(saldi, containerId) {
       const cambiPerValuta = new Map();
       const valute = Array.from(new Set(saldi.map((saldo) => saldo.valuta)))
@@ -1282,6 +1446,319 @@
       });
     }
 
+    const COLORI_SPESE = [
+      "#176b5b", "#d18b20", "#4472a8", "#bd5a50", "#7956a1",
+      "#3d8c91", "#a65c8a", "#728b3d", "#d06b32", "#5f6b7a",
+      "#bf9d34", "#43875d"
+    ];
+
+    function dettagliSpese(record) {
+      const categorieFisse = CATEGORIE
+        .filter((categoria) => categoria !== "altreSpese")
+        .map((categoria) => ({ nome: NOMI_CATEGORIE[categoria], valore: record[categoria] }));
+      const speseLibere = (record.spesePersonalizzate || []).map((spesa) => ({
+        nome: spesa.nome,
+        valore: spesa.valore
+      }));
+      const aggregate = new Map();
+      [...categorieFisse, ...speseLibere].forEach((spesa) => {
+        if (spesa.valore > 0) {
+          aggregate.set(spesa.nome, (aggregate.get(spesa.nome) || 0) + spesa.valore);
+        }
+      });
+      return Array.from(aggregate, ([nome, valore]) => ({ nome, valore }));
+    }
+
+    function aggiornaSelettoreMeseSpese() {
+      const selettore = document.getElementById("mese-grafico-spese");
+      const meseCorrente = selettore.value || document.getElementById("mese").value;
+      selettore.replaceChildren();
+      dati.forEach((record) => {
+        const opzione = document.createElement("option");
+        opzione.value = record.mese;
+        opzione.textContent = meseEtichetta(record);
+        selettore.append(opzione);
+      });
+      if (dati.length === 0) {
+        const opzione = document.createElement("option");
+        opzione.value = "";
+        opzione.textContent = "Nessun mese salvato";
+        selettore.append(opzione);
+        selettore.disabled = true;
+        return;
+      }
+
+      selettore.disabled = false;
+      selettore.value = dati.some((record) => record.mese === meseCorrente)
+        ? meseCorrente
+        : dati[dati.length - 1].mese;
+    }
+
+    function mostraRiepilogoConfronto(mese, precedente) {
+      const riepilogo = document.getElementById("riepilogo-confronto-spese");
+      if (!mese) {
+        riepilogo.textContent = "Salva un mese per visualizzare il confronto delle spese.";
+        return;
+      }
+      const totale = totaleSpese(mese);
+      if (!precedente) {
+        riepilogo.textContent = "Totale di " + meseEtichetta(mese) + ": " +
+          formatoEuro.format(totale) + ". Non è ancora disponibile una rilevazione precedente.";
+        return;
+      }
+      const totalePrecedente = totaleSpese(precedente);
+      const differenza = totale - totalePrecedente;
+      const variazione = totalePrecedente === 0
+        ? "variazione percentuale non disponibile (mese precedente pari a zero)"
+        : ((differenza > 0 ? "+" : "") +
+          (differenza / totalePrecedente * 100).toLocaleString("it-IT", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }) + "%");
+      riepilogo.textContent = "Totale di " + meseEtichetta(mese) + ": " +
+        formatoEuro.format(totale) + " (" + (differenza > 0 ? "+" : "") +
+        formatoEuro.format(differenza) + ", " + variazione + ") rispetto a " +
+        meseEtichetta(precedente) + " (" + formatoEuro.format(totalePrecedente) + ").";
+    }
+
+    function disegnaConfrontoSpese(mese) {
+      const svg = document.getElementById("grafico-spese");
+      const meseIndice = mese ? dati.findIndex((record) => record.mese === mese.mese) : -1;
+      const precedente = meseIndice > 0 ? dati[meseIndice - 1] : null;
+      mostraRiepilogoConfronto(mese, precedente);
+      svg.replaceChildren();
+      if (!mese) {
+        svg.setAttribute("viewBox", "0 0 800 100");
+        svg.append(creaElemento("text", {
+          x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
+        }, "Aggiungi il primo mese per confrontare le spese."));
+        return;
+      }
+
+      const componenti = dettagliSpese(mese);
+      const precedenti = precedente ? dettagliSpese(precedente) : [];
+      const nomi = new Set([...componenti.map((voce) => voce.nome), ...precedenti.map((voce) => voce.nome)]);
+      const righe = Array.from(nomi, (nome) => ({
+        nome,
+        corrente: componenti.find((voce) => voce.nome === nome)?.valore || 0,
+        precedente: precedenti.find((voce) => voce.nome === nome)?.valore || 0
+      }));
+      if (righe.length === 0) {
+        svg.setAttribute("viewBox", "0 0 800 100");
+        svg.append(creaElemento("text", {
+          x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
+        }, "Non risultano spese registrate per questo mese."));
+        return;
+      }
+
+      const altezzaRiga = 29;
+      const altezza = Math.max(100, 54 + righe.length * altezzaRiga);
+      const inizioBarra = 230;
+      const larghezzaBarra = 480;
+      const massimo = Math.max(1, ...righe.map((riga) => Math.max(riga.corrente, riga.precedente)));
+      svg.setAttribute("viewBox", "0 0 800 " + altezza);
+      svg.append(creaElemento("rect", {
+        x: 230, y: 8, width: 12, height: 12, rx: 2, fill: "#9fc9bd"
+      }));
+      svg.append(creaElemento("text", {
+        x: 248, y: 18, fill: "#49615b", "font-size": "12"
+      }, precedente ? meseEtichetta(precedente) : "Mese precedente"));
+      svg.append(creaElemento("rect", {
+        x: 405, y: 8, width: 12, height: 12, rx: 2, fill: "#176b5b"
+      }));
+      svg.append(creaElemento("text", {
+        x: 423, y: 18, fill: "#49615b", "font-size": "12"
+      }, meseEtichetta(mese)));
+      righe.forEach((riga, indice) => {
+        const y = 42 + indice * altezzaRiga;
+        svg.append(creaElemento("text", {
+          x: 8, y: y + 13, fill: "#172b27", "font-size": "12"
+        }, riga.nome.length > 27 ? riga.nome.slice(0, 26) + "…" : riga.nome));
+        if (precedente) {
+          const larghezzaPrecedente = riga.precedente / massimo * larghezzaBarra;
+          const barraPrecedente = creaElemento("rect", {
+            x: inizioBarra, y, width: larghezzaPrecedente, height: 8, rx: 3, fill: "#9fc9bd"
+          });
+          barraPrecedente.append(creaElemento("title", {}, riga.nome + " — " + meseEtichetta(precedente) +
+            ": " + formatoEuro.format(riga.precedente)));
+          svg.append(barraPrecedente);
+          svg.append(creaElemento("text", {
+            x: inizioBarra + larghezzaPrecedente + 6, y: y + 8,
+            fill: "#49615b", "font-size": "11"
+          }, formatoEuro.format(riga.precedente)));
+        }
+        const larghezzaCorrente = riga.corrente / massimo * larghezzaBarra;
+        const barra = creaElemento("rect", {
+          x: inizioBarra, y: y + 11, width: larghezzaCorrente, height: 8, rx: 3, fill: "#176b5b"
+        });
+        barra.append(creaElemento("title", {}, riga.nome + " — " + meseEtichetta(mese) +
+          ": " + formatoEuro.format(riga.corrente)));
+        svg.append(barra);
+        svg.append(creaElemento("text", {
+          x: inizioBarra + larghezzaCorrente + 6, y: y + 19,
+          fill: "#49615b", "font-size": "11"
+        }, formatoEuro.format(riga.corrente)));
+      });
+    }
+
+    function disegnaTrendSpese() {
+      const svg = document.getElementById("grafico-spese");
+      const riepilogo = document.getElementById("riepilogo-confronto-spese");
+      svg.replaceChildren();
+      riepilogo.textContent = dati.length
+        ? "Spese mensili registrate in euro, dall'inizio dello storico."
+        : "Salva i mesi per visualizzare l'andamento delle spese.";
+      if (dati.length === 0) {
+        svg.setAttribute("viewBox", "0 0 800 100");
+        svg.append(creaElemento("text", {
+          x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
+        }, "Aggiungi il primo mese per vedere il grafico."));
+        return;
+      }
+
+      const larghezza = 800;
+      const altezza = 330;
+      const margine = { alto: 20, destra: 24, basso: 56, sinistra: 88 };
+      const areaLarghezza = larghezza - margine.sinistra - margine.destra;
+      const areaAltezza = altezza - margine.alto - margine.basso;
+      const valori = dati.map(totaleSpese);
+      const massimo = Math.max(1, ...valori) * 1.12;
+      for (let indice = 0; indice <= 4; indice += 1) {
+        const valore = massimo * (1 - indice / 4);
+        const y = margine.alto + areaAltezza * indice / 4;
+        svg.append(creaElemento("line", {
+          x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
+          stroke: "#e1e9e5", "stroke-width": "1"
+        }));
+        svg.append(creaElemento("text", {
+          x: margine.sinistra - 10, y: y + 4, "text-anchor": "end",
+          fill: "#49615b", "font-size": "12"
+        }, formatoEuro.format(valore)));
+      }
+      const punti = dati.map((record, indice) => {
+        const x = dati.length === 1
+          ? margine.sinistra + areaLarghezza / 2
+          : margine.sinistra + areaLarghezza * indice / (dati.length - 1);
+        const totale = totaleSpese(record);
+        const y = margine.alto + areaAltezza * (1 - totale / massimo);
+        return { x, y, record, totale };
+      });
+      svg.append(creaElemento("polyline", {
+        points: punti.map((punto) => punto.x + "," + punto.y).join(" "),
+        fill: "none", stroke: "#d18b20", "stroke-width": "3",
+        "stroke-linecap": "round", "stroke-linejoin": "round"
+      }));
+      const passoEtichetta = Math.max(1, Math.ceil(dati.length / 8));
+      punti.forEach((punto, indice) => {
+        const cerchio = creaElemento("circle", {
+          cx: punto.x, cy: punto.y, r: "5", fill: "#d18b20",
+          stroke: "#fff", "stroke-width": "2"
+        });
+        cerchio.append(creaElemento("title", {}, meseEtichetta(punto.record) +
+          ": " + formatoEuro.format(punto.totale)));
+        svg.append(cerchio);
+        if (indice % passoEtichetta === 0 || indice === punti.length - 1) {
+          const [anno, meseNumero] = punto.record.mese.split("-");
+          svg.append(creaElemento("text", {
+            x: punto.x, y: altezza - 22, "text-anchor": "middle",
+            fill: "#49615b", "font-size": "12"
+          }, formatoMese.format(new Date(Date.UTC(Number(anno), Number(meseNumero) - 1, 1)))));
+        }
+      });
+    }
+
+    function disegnaTortaSpese(record) {
+      const svg = document.getElementById("grafico-torta-spese");
+      const legenda = document.getElementById("legenda-torta-spese");
+      svg.replaceChildren();
+      legenda.replaceChildren();
+      if (!record) {
+        svg.append(creaElemento("text", {
+          x: "130", y: "130", "text-anchor": "middle", fill: "#49615b", "font-size": "12"
+        }, "Nessun dato"));
+        return;
+      }
+
+      const componenti = dettagliSpese(record).sort((a, b) => b.valore - a.valore);
+      const totale = componenti.reduce((somma, componente) => somma + componente.valore, 0);
+      if (totale <= 0) {
+        svg.append(creaElemento("text", {
+          x: "130", y: "130", "text-anchor": "middle", fill: "#49615b", "font-size": "12"
+        }, "Nessuna spesa"));
+        return;
+      }
+      const visibili = componenti.slice(0, 8);
+      const rimanenti = componenti.slice(8);
+      if (rimanenti.length) {
+        visibili.push({
+          nome: "Altre voci minori",
+          valore: rimanenti.reduce((somma, componente) => somma + componente.valore, 0)
+        });
+      }
+
+      const centro = 130;
+      const raggio = 105;
+      if (visibili.length === 1) {
+        svg.append(creaElemento("circle", {
+          cx: centro, cy: centro, r: raggio, fill: COLORI_SPESE[0]
+        }));
+      } else {
+        let angoloIniziale = -Math.PI / 2;
+        visibili.forEach((componente, indice) => {
+          const angoloFinale = angoloIniziale + componente.valore / totale * Math.PI * 2;
+          const x1 = centro + raggio * Math.cos(angoloIniziale);
+          const y1 = centro + raggio * Math.sin(angoloIniziale);
+          const x2 = centro + raggio * Math.cos(angoloFinale);
+          const y2 = centro + raggio * Math.sin(angoloFinale);
+          const arcoGrande = angoloFinale - angoloIniziale > Math.PI ? 1 : 0;
+          const fetta = creaElemento("path", {
+            d: "M " + centro + " " + centro + " L " + x1 + " " + y1 +
+              " A " + raggio + " " + raggio + " 0 " + arcoGrande + " 1 " + x2 + " " + y2 + " Z",
+            fill: COLORI_SPESE[indice % COLORI_SPESE.length],
+            stroke: "#fff", "stroke-width": "2"
+          });
+          fetta.append(creaElemento("title", {}, componente.nome + ": " +
+            formatoEuro.format(componente.valore) + " (" +
+            (componente.valore / totale * 100).toLocaleString("it-IT", {
+              maximumFractionDigits: 1
+            }) + "%)"));
+          svg.append(fetta);
+          angoloIniziale = angoloFinale;
+        });
+      }
+      visibili.forEach((componente, indice) => {
+        const percentuale = componente.valore / totale * 100;
+        const voce = document.createElement("li");
+        const colore = document.createElement("span");
+        colore.className = "colore-legenda";
+        colore.style.backgroundColor = COLORI_SPESE[indice % COLORI_SPESE.length];
+        colore.setAttribute("aria-hidden", "true");
+        const nome = document.createElement("span");
+        nome.textContent = componente.nome;
+        const valore = document.createElement("span");
+        valore.textContent = formatoEuro.format(componente.valore) + " · " +
+          percentuale.toLocaleString("it-IT", { maximumFractionDigits: 1 }) + "%";
+        voce.append(colore, nome, valore);
+        legenda.append(voce);
+      });
+    }
+
+    function aggiornaGraficiSpese() {
+      aggiornaSelettoreMeseSpese();
+      const mese = dati.find((record) =>
+        record.mese === document.getElementById("mese-grafico-spese").value
+      );
+      if (document.getElementById("tipo-grafico-spese").value === "sempre") {
+        disegnaTrendSpese();
+      } else {
+        disegnaConfrontoSpese(mese);
+      }
+      disegnaTortaSpese(mese);
+    }
+
+    document.getElementById("mese-grafico-spese").addEventListener("change", aggiornaGraficiSpese);
+    document.getElementById("tipo-grafico-spese").addEventListener("change", aggiornaGraficiSpese);
+
     function aggiornaStorico() {
       const corpo = document.getElementById("righe-storico");
       corpo.replaceChildren();
@@ -1389,6 +1866,7 @@
       disegnaGrafico();
       aggiornaStorico();
       aggiornaMetriche();
+      aggiornaGraficiSpese();
     }
 
     function caricaMeseSelezionato() {
@@ -1406,10 +1884,13 @@
         ? String(record.stipendioOriginale)
         : "0";
       CATEGORIE.forEach((categoria) => {
-        document.getElementById(categoria).value = record
-          ? String(record.speseOriginali[categoria])
-          : "0";
+        if (categoria !== "altreSpese") {
+          document.getElementById(categoria).value = record
+            ? String(record.speseOriginali[categoria])
+            : "0";
+        }
       });
+      mostraSpesePersonalizzate(record ? record.spesePersonalizzate : []);
       mostraPosizioni("righe-etf", "etf", record ? record.posizioniEtf || [] : []);
       mostraPosizioni("righe-azioni", "azione", record ? record.posizioniAzionarie || [] : []);
       mostraPosizioni("righe-obbligazioni", "obbligazione", record ? record.posizioniObbligazionarie || [] : []);
@@ -1425,7 +1906,13 @@
       }
     }
 
-    document.getElementById("mese").addEventListener("change", caricaMeseSelezionato);
+    document.getElementById("mese").addEventListener("change", () => {
+      caricaMeseSelezionato();
+      if (dati.some((record) => record.mese === document.getElementById("mese").value)) {
+        document.getElementById("mese-grafico-spese").value = document.getElementById("mese").value;
+      }
+      aggiornaGraficiSpese();
+    });
 
     document.getElementById("esporta-backup").addEventListener("click", () => {
       backupMessaggio.textContent = "";
@@ -1510,17 +1997,24 @@
         record.posizioniEtf = leggiPosizioni("righe-etf", "etf");
         record.posizioniAzionarie = leggiPosizioni("righe-azioni", "azione");
         record.posizioniObbligazionarie = leggiPosizioni("righe-obbligazioni", "obbligazione");
+        const altreSpeseOriginali = leggiSpesePersonalizzate();
         CATEGORIE.forEach((categoria) => {
+          if (categoria === "altreSpese") return;
           const campo = document.getElementById(categoria);
           record.valoriOriginali.spese[categoria] = campo.value === "" ? 0 : campo.valueAsNumber;
         });
+        record.valoriOriginali.spese.altreSpese = altreSpeseOriginali.reduce(
+          (totale, spesa) => totale + spesa.importoOriginale, 0
+        );
         if (!Number.isFinite(record.stipendioOriginale) ||
             [...saldiLiquidita, ...saldiDeposito].some((saldo) =>
               !saldo.nome || !VALUTE.some(([codice]) => codice === saldo.valuta) ||
               !Number.isFinite(saldo.importoOriginale) || saldo.importoOriginale < 0) ||
+            altreSpeseOriginali.some((spesa) =>
+              !spesa.nome || !Number.isFinite(spesa.importoOriginale) || spesa.importoOriginale < 0) ||
             [...record.posizioniEtf, ...record.posizioniAzionarie, ...record.posizioniObbligazionarie]
               .some((posizione) => !posizione.nome || !Number.isFinite(posizione.valore) || posizione.valore < 0) ||
-            CATEGORIE.some((categoria) =>
+            CATEGORIE.filter((categoria) => categoria !== "altreSpese").some((categoria) =>
               !Number.isFinite(record.valoriOriginali.spese[categoria]) ||
               record.valoriOriginali.spese[categoria] < 0)) {
           messaggio.textContent = "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.";
@@ -1553,11 +2047,25 @@
         record.tassoCambioFonte = cambio.fonte;
         record.stipendio = Math.round((record.stipendioOriginale * cambio.tasso + Number.EPSILON) * 100) / 100;
         record.speseOriginali = record.valoriOriginali.spese;
-        CATEGORIE.forEach((categoria) => {
+        CATEGORIE.filter((categoria) => categoria !== "altreSpese").forEach((categoria) => {
           record[categoria] = Math.round(
             (record.valoriOriginali.spese[categoria] * cambio.tasso + Number.EPSILON) * 100
           ) / 100;
         });
+        record.spesePersonalizzate = altreSpeseOriginali.map((spesa) => ({
+          nome: spesa.nome,
+          valuta: record.valuta,
+          importoOriginale: spesa.importoOriginale,
+          tassoCambio: cambio.tasso,
+          tassoCambioData: cambio.data,
+          tassoCambioFonte: cambio.fonte,
+          valore: Math.round((spesa.importoOriginale * cambio.tasso + Number.EPSILON) * 100) / 100
+        }));
+        record.altreSpese = totaleSaldi(record.spesePersonalizzate);
+        record.speseOriginali = {
+          ...record.valoriOriginali.spese,
+          altreSpese: altreSpeseOriginali.reduce((totale, spesa) => totale + spesa.importoOriginale, 0)
+        };
         [record.posizioniLiquidita, record.contiDeposito] = await Promise.all([
           convertiSaldi(saldiLiquidita, "righe-liquidita"),
           convertiSaldi(saldiDeposito, "righe-conti-deposito")
@@ -1580,6 +2088,7 @@
         localStorage.setItem(CHIAVE, JSON.stringify(nuoviDati));
 
         dati = nuoviDati;
+        document.getElementById("mese-grafico-spese").value = record.mese;
         aggiornaVista();
         mostraTassoCambio(cambio.tasso, cambio.data, cambio.fonte);
         messaggio.textContent = (meseEsistente ? "Mese aggiornato." : "Mese salvato.") +
