@@ -39,6 +39,7 @@
       justify-content: space-between;
       gap: 16px;
     }
+    .selettore-lingua { flex: 0 0 180px; }
 
     .mascotte { flex: 0 0 180px; width: 180px; }
     .maialino { transform-box: fill-box; transform-origin: center bottom; animation: saltello 1.4s ease-out both; }
@@ -265,6 +266,8 @@
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
+      .hero { flex-wrap: wrap; }
+      .selettore-lingua { order: 3; flex: 1 1 100%; max-width: 220px; }
     }
   </style>
 </head>
@@ -275,6 +278,19 @@
         <h1>Il mio patrimonio</h1>
         <p class="intro">Un riepilogo mensile semplice della tua situazione finanziaria.</p>
       </div>
+      <label class="selettore-lingua" for="selettore-lingua"><span>Lingua / Language</span>
+        <select id="selettore-lingua" aria-label="Lingua / Language">
+          <option value="it">Italiano</option>
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="pl">Polski</option>
+          <option value="pt">Português</option>
+          <option value="ru">Русский</option>
+          <option value="uk">Українська</option>
+        </select>
+      </label>
       <svg class="mascotte" viewBox="0 0 190 205" role="img" aria-labelledby="titolo-mascotte descrizione-mascotte">
         <title id="titolo-mascotte">Un maialino salvadanaio sorridente sopra una montagna di monete</title>
         <desc id="descrizione-mascotte">Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.</desc>
@@ -329,13 +345,13 @@
   <main>
     <section class="card" aria-labelledby="titolo-form">
       <h2 id="titolo-form">Inserisci un mese</h2>
-      <p class="hint">Inserisci stipendio e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.</p>
+      <p class="hint">Inserisci stipendio, altre entrate e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.</p>
       <form id="form-mese">
         <div class="fields">
           <label for="mese">Mese del rilevamento
             <input id="mese" name="mese" type="month" required>
           </label>
-          <label for="valuta">Valuta di stipendio e spese
+          <label for="valuta">Valuta di stipendio, altre entrate e spese
             <select id="valuta" name="valuta"></select>
           </label>
           <p id="informazione-cambio" class="informazione-cambio" role="status" aria-live="polite">Per EUR il cambio è 1:1.</p>
@@ -382,6 +398,12 @@
             <input id="bar" name="bar" type="number" min="0" step="0.01" inputmode="decimal" value="0">
           </label>
         </div>
+        <section class="investimenti-gruppo" aria-labelledby="titolo-altre-entrate">
+          <h3 id="titolo-altre-entrate">Altre entrate</h3>
+          <p class="hint">Aggiungi una riga per ogni altra entrata e indica il nome. Gli importi usano la valuta selezionata sopra.</p>
+          <div id="righe-altre-entrate" class="righe-posizioni"></div>
+          <button id="aggiungi-altra-entrata" class="aggiungi-posizione" type="button">Aggiungi altra entrata</button>
+        </section>
         <section class="investimenti-gruppo" aria-labelledby="titolo-altre-spese">
           <h3 id="titolo-altre-spese">Altre spese</h3>
           <p class="hint">Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.</p>
@@ -390,7 +412,7 @@
         </section>
         <section class="investimenti-gruppo" aria-labelledby="titolo-liquidita">
           <h3 id="titolo-liquidita">Liquidità corrente</h3>
-          <p class="hint">Inserisci il saldo effettivo a fine mese, dopo aver ricevuto lo stipendio e pagato le spese. Il saldo è già incluso nel patrimonio: stipendio e spese non vengono aggiunti o sottratti una seconda volta. Puoi usare una valuta diversa per ciascun conto.</p>
+          <p class="hint">Inserisci il saldo effettivo a fine mese, dopo aver ricevuto stipendio e altre entrate e pagato le spese. Il saldo è già incluso nel patrimonio: entrate e spese non vengono aggiunte o sottratte una seconda volta. Puoi usare una valuta diversa per ciascun conto.</p>
           <div id="righe-liquidita" class="righe-posizioni"></div>
           <button id="aggiungi-liquidita" class="aggiungi-posizione" type="button">Aggiungi liquidità</button>
         </section>
@@ -475,7 +497,7 @@
 
     <section class="card" aria-labelledby="titolo-risparmio-mensile">
       <h2 id="titolo-risparmio-mensile">Risparmio mensile</h2>
-      <p class="nota-metriche">Calcolato come stipendio meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.</p>
+      <p class="nota-metriche">Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.</p>
       <p id="risparmio-mese-selezionato" class="riepilogo-risparmio" aria-live="polite"></p>
       <div class="grafico-risparmio-scroll">
         <svg id="grafico-risparmio" viewBox="0 0 800 360" role="img" aria-label="Grafico a barre del risparmio mensile"></svg>
@@ -505,7 +527,7 @@
               <th scope="col" class="numero">Liquidità</th>
               <th scope="col" class="numero">Conto deposito</th>
               <th scope="col" class="numero">Patrimonio</th>
-              <th scope="col" class="numero">Stipendio</th>
+              <th scope="col" class="numero">Entrate totali</th>
               <th scope="col" class="numero">Spese totali</th>
               <th scope="col" class="numero">Risparmio</th>
               <th scope="col">Azioni</th>
@@ -519,6 +541,1071 @@
   </main>
 
   <script>
+    const CHIAVE_LINGUA = "patrimonioLingua";
+    const TRADUZIONI = {
+      "Il mio patrimonio": "My Net Worth",
+      "Un riepilogo mensile semplice della tua situazione finanziaria.": "A simple monthly overview of your finances.",
+      "Un maialino salvadanaio sorridente sopra una montagna di monete": "A smiling piggy bank on a pile of coins",
+      "Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.": "A smiling pink piggy bank with two eyes and a coin in the slot on its back, above a pile of gold coins.",
+      "Lingua / Language": "Language / Lingua",
+      "Inserisci un mese": "Enter a month",
+      "Inserisci stipendio, altre entrate e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.": "Enter your salary, other income and expenses in the selected currency. You can add multiple cash balances and savings accounts, each in its own currency. When saved, amounts are converted to euros using the latest published reference exchange rate (not a real-time quote). Investments, net worth and results remain in euros; the exchange rates used are saved in your history. Only currency codes, never your amounts, are sent online to look up rates. If the service is unavailable, you can enter manually how many euros one unit of the currency is worth.",
+      "Mese del rilevamento": "Reporting month",
+      "Valuta di stipendio, altre entrate e spese": "Currency for salary, other income and expenses",
+      "Per EUR il cambio è 1:1.": "The exchange rate for EUR is 1:1.",
+      "Euro per un'unità di valuta": "Euros per one unit of currency",
+      "Stipendio ricevuto (EUR)": "Salary received (EUR)",
+      "Cibo (EUR)": "Food (EUR)",
+      "Benzina (EUR)": "Fuel (EUR)",
+      "Taxi-Trasporti (EUR)": "Taxi and transport (EUR)",
+      "Affitto (EUR)": "Rent (EUR)",
+      "Elettricità (EUR)": "Electricity (EUR)",
+      "Gas (EUR)": "Gas (EUR)",
+      "Tasse (EUR)": "Taxes (EUR)",
+      "Salute (EUR)": "Health (EUR)",
+      "Sport (EUR)": "Sports (EUR)",
+      "Divertimenti (EUR)": "Entertainment (EUR)",
+      "Ristoranti (EUR)": "Restaurants (EUR)",
+      "Bar (EUR)": "Cafes (EUR)",
+      "Altre spese": "Other expenses",
+      "Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.": "Add a row for each other expense and enter its name. Amounts use the currency selected above.",
+      "Aggiungi altra spesa": "Add another expense",
+      "Altre entrate": "Other income",
+      "Aggiungi una riga per ogni altra entrata e indica il nome. Gli importi usano la valuta selezionata sopra.": "Add a row for each other income item and enter its name. Amounts use the currency selected above.",
+      "Aggiungi altra entrata": "Add other income",
+      "Voce di entrata": "Income item",
+      "Es. Regalo": "E.g. Gift",
+      "Rimuovi altra entrata": "Remove other income",
+      "Liquidità corrente": "Cash",
+      "Inserisci il saldo effettivo a fine mese, dopo aver ricevuto stipendio e altre entrate e pagato le spese. Il saldo è già incluso nel patrimonio: entrate e spese non vengono aggiunte o sottratte una seconda volta. Puoi usare una valuta diversa per ciascun conto.": "Enter the actual month-end balance, after receiving salary and other income and paying expenses. This balance is already included in your net worth: income and expenses are not added or subtracted a second time. You can use a different currency for each account.",
+      "Aggiungi liquidità": "Add cash balance",
+      "Conti deposito": "Savings accounts",
+      "Aggiungi ogni conto deposito e scegli la valuta del saldo.": "Add each savings account and choose its balance currency.",
+      "Aggiungi conto deposito": "Add savings account",
+      "Investimenti": "Investments",
+      "ETF": "ETFs",
+      "Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.": "Add a row for each ETF and enter its value for the reporting month.",
+      "Aggiungi ETF": "Add ETF",
+      "Azioni": "Stocks",
+      "Aggiungi le azioni che possiedi e inserisci un nome o ticker.": "Add the stocks you own and enter a name or ticker.",
+      "Aggiungi azione": "Add stock",
+      "Obbligazioni": "Bonds",
+      "Aggiungi le obbligazioni che possiedi e inserisci un nome o identificativo.": "Add the bonds you own and enter a name or identifier.",
+      "Aggiungi obbligazione": "Add bond",
+      "Salva mese": "Save month",
+      "Andamento del patrimonio": "Net worth over time",
+      "La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.": "The change compares recorded net worth: it is not investment performance, as it can include savings, withdrawals and expenses.",
+      "Dal mese precedente": "Since previous month",
+      "Da inizio anno": "Year to date",
+      "Da sempre": "All time",
+      "Grafico dell'andamento mensile del patrimonio": "Monthly net worth chart",
+      "Andamento delle spese": "Spending over time",
+      "Il confronto mensile usa l’ultima rilevazione salvata come riferimento, anche se mancano mesi intermedi. Tutti gli importi sono in euro.": "The monthly comparison uses the latest saved entry as a reference, even if some months are missing. All amounts are in euros.",
+      "Mese da analizzare": "Month to analyze",
+      "Mese per i grafici delle spese": "Month for spending charts",
+      "Grafico di confronto": "Comparison chart",
+      "Confronto con il mese precedente": "Compare with previous month",
+      "Spese mensili da sempre": "Monthly spending over time",
+      "Grafico di confronto delle spese mensili": "Monthly spending comparison chart",
+      "Ripartizione delle spese del mese": "Monthly spending breakdown",
+      "Grafico a torta delle spese del mese": "Monthly spending pie chart",
+      "Risparmio mensile": "Monthly savings",
+      "Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.": "Calculated as salary plus other income minus expenses; the chart shows savings for every recorded month, in euros.",
+      "Grafico a barre del risparmio mensile": "Monthly savings bar chart",
+      "Backup dei dati": "Data backup",
+      "Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.": "Export a copy of your data or import a backup. Importing merges the months; if a month is duplicated, the backup entry is used. The JSON file is not encrypted, so keep it somewhere private and secure.",
+      "Esporta backup": "Export backup",
+      "Seleziona un backup da importare": "Select a backup to import",
+      "Storico mensile": "Monthly history",
+      "Mese": "Month",
+      "ETF, azioni e obbligazioni": "ETFs, stocks and bonds",
+      "Liquidità": "Cash",
+      "Conto deposito": "Savings account",
+      "Patrimonio": "Net worth",
+      "Entrate totali": "Total income",
+      "Mese salvato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": "Month saved. Salary, other income, expenses and savings have been converted to euros.",
+      "Mese aggiornato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": "Month updated. Salary, other income, expenses and savings have been converted to euros.",
+      "Controlla nomi e importi: stipendio, altre entrate, investimenti, saldi e spese devono essere validi e non negativi.": "Check names and amounts: salary, other income, investments, balances and expenses must be valid and non-negative.",
+      "Spese totali": "Total expenses",
+      "Risparmio": "Savings",
+      "Azioni": "Actions",
+      "I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.": "Data is saved only in this browser on this device; it is not sent to a server.",
+      "Dollaro statunitense": "US dollar",
+      "Sterlina britannica": "British pound",
+      "Franco svizzero": "Swiss franc",
+      "Yen giapponese": "Japanese yen",
+      "Dollaro canadese": "Canadian dollar",
+      "Dollaro australiano": "Australian dollar",
+      "Dollaro neozelandese": "New Zealand dollar",
+      "Yuan cinese": "Chinese yuan",
+      "Rupia indiana": "Indian rupee",
+      "Dollaro di Singapore": "Singapore dollar",
+      "Dollaro di Hong Kong": "Hong Kong dollar",
+      "Zloty polacco": "Polish zloty",
+      "Corona svedese": "Swedish krona",
+      "Corona norvegese": "Norwegian krone",
+      "Corona danese": "Danish krone",
+      "Corona ceca": "Czech koruna",
+      "Fiorino ungherese": "Hungarian forint",
+      "Leu rumeno": "Romanian leu",
+      "Lev bulgaro": "Bulgarian lev",
+      "Lira turca": "Turkish lira",
+      "Real brasiliano": "Brazilian real",
+      "Peso messicano": "Mexican peso",
+      "Rand sudafricano": "South African rand",
+      "Won sudcoreano": "South Korean won",
+      "Rupia indonesiana": "Indonesian rupiah",
+      "Shekel israeliano": "Israeli shekel",
+      "Corona islandese": "Icelandic krona",
+      "Ringgit malese": "Malaysian ringgit",
+      "Peso filippino": "Philippine peso",
+      "Baht thailandese": "Thai baht",
+      "Dirham degli Emirati": "UAE dirham",
+      "Riyal saudita": "Saudi riyal",
+      "Peso argentino": "Argentine peso",
+      "Peso cileno": "Chilean peso",
+      "Peso colombiano": "Colombian peso",
+      "Sol peruviano": "Peruvian sol",
+      "Dollaro taiwanese": "Taiwan dollar",
+      "Grivnia ucraina": "Ukrainian hryvnia",
+      "Rublo russo": "Russian ruble",
+      "Tenge kazako": "Kazakhstani tenge",
+      "Dirham marocchino": "Moroccan dirham",
+      "Sterlina egiziana": "Egyptian pound",
+      "Dong vietnamita": "Vietnamese dong",
+      "Rupia pakistana": "Pakistani rupee",
+      "Naira nigeriana": "Nigerian naira",
+      "Altro ETF": "Other ETF",
+      "S&P 500 (storico)": "S&P 500 (legacy)",
+      "NASDAQ (storico)": "NASDAQ (legacy)",
+      "Azioni (storico)": "Stocks (legacy)",
+      "Obbligazioni (storico)": "Bonds (legacy)",
+      "Altre spese (storico)": "Other expenses (legacy)",
+      "Nome": "Name",
+      "Valuta": "Currency",
+      "Importo": "Amount",
+      "Voce di spesa": "Expense item",
+      "Valore (€)": "Value (€)",
+      "Nome del saldo": "Balance name",
+      "Valuta del saldo": "Balance currency",
+      "Importo del saldo": "Balance amount",
+      "Rimuovi saldo": "Remove balance",
+      "Rimuovi altra spesa": "Remove other expense",
+      "Tipo di ETF": "ETF type",
+      "Nome personalizzato dell'ETF": "Custom ETF name",
+      "Valore dell'investimento in euro": "Investment value in euros",
+      "Nome o ticker dell'azione": "Stock name or ticker",
+      "Azione o ticker": "Stock or ticker",
+      "Nome obbligazione": "Bond name",
+      "Nome ETF": "ETF name",
+      "Rimuovi": "Remove",
+      "Nessun mese salvato": "No months saved",
+      "Nessun dato": "No data",
+      "Nessuna spesa": "No expenses",
+      "Altre voci minori": "Other smaller items",
+      "Aggiungi il primo mese per vedere il grafico": "Add your first month to see the chart",
+      "Aggiungi il primo mese per confrontare le spese.": "Add your first month to compare expenses.",
+      "Aggiungi il primo mese per vedere il grafico.": "Add your first month to see the chart.",
+      "Non risultano spese registrate per questo mese.": "No expenses have been recorded for this month.",
+      "Salva un mese per visualizzare il confronto delle spese.": "Save a month to see the spending comparison.",
+      "Salva i mesi per visualizzare l'andamento delle spese.": "Save months to see spending over time.",
+      "Aggiungi il primo mese per confrontare le spese": "Add your first month to compare expenses",
+      "Registra un mese per visualizzare il risparmio.": "Record a month to see savings.",
+      "N/D": "N/A",
+      "Riferimento non disponibile": "Reference not available",
+      "Confronto con fine anno:": "Compared with year-end:",
+      "Prima rilevazione dell'anno:": "First entry of the year:",
+      "Prima rilevazione:": "First entry:",
+      "Ultimo mese registrato:": "Latest recorded month:",
+      "Cambio manuale": "Manual exchange rate",
+      "Tasso inserito manualmente": "Manually entered rate",
+      "Ultimo tasso Frankfurter": "Latest Frankfurter rate",
+      "Tasso di cambio manuale": "Manual exchange rate",
+      "Es. 0,92": "e.g. 0.92",
+      "Es. conto corrente": "e.g. current account",
+      "Es. conto deposito": "e.g. savings account",
+      "Es. Abbonamenti": "e.g. Subscriptions",
+      "Es. nome o ticker ETF": "e.g. ETF name or ticker",
+      "Es. ENI o Apple": "e.g. ENI or Apple",
+      "Es. BTP o obbligazione": "e.g. government or corporate bond",
+      "Per EUR il cambio è 1:1.": "The exchange rate for EUR is 1:1.",
+      "Non hai ancora inserito dati.": "No data has been entered yet.",
+      "Modifica": "Edit",
+      "Elimina": "Delete",
+      "Backup esportato. Conservalo in un luogo sicuro.": "Backup exported. Keep it somewhere safe.",
+      "Formato del backup non riconosciuto.": "Unrecognized backup format.",
+      "Mese aggiornato.": "Month updated.",
+      "Mese salvato.": "Month saved.",
+      "Backup": "Backup",
+      "questa azione non può essere annullata.": "This action cannot be undone.",
+      "euro": "euros"
+    };
+
+    const TRADUZIONI_RIGHE = [
+      ["Il mio patrimonio", "Mon patrimoine", "Mi patrimonio", "Mój majątek", "Мои финансы", "Meu patrimônio"],
+      ["Un riepilogo mensile semplice della tua situazione finanziaria.", "Un résumé mensuel simple de votre situation financière.", "Un resumen mensual sencillo de tu situación financiera.", "Proste miesięczne podsumowanie Twojej sytuacji finansowej.", "Простой ежемесячный обзор ваших финансов.", "Um resumo mensal simples da sua situação financeira."],
+      ["Lingua / Language", "Langue / Language", "Idioma / Language", "Język / Language", "Язык / Language", "Idioma / Language"],
+      ["Inserisci un mese", "Saisir un mois", "Añadir un mes", "Wprowadź miesiąc", "Добавить месяц", "Adicionar um mês"],
+      ["Mese del rilevamento", "Mois du relevé", "Mes del registro", "Miesiąc zestawienia", "Месяц отчёта", "Mês do registo"],
+      ["Valuta di stipendio, altre entrate e spese", "Devise du salaire, des autres revenus et des dépenses", "Moneda del salario, otros ingresos y gastos", "Waluta wynagrodzenia, innych przychodów i wydatków", "Валюта зарплаты, прочих доходов и расходов", "Moeda do salário, de outros rendimentos e das despesas"],
+      ["Altre entrate", "Autres revenus", "Otros ingresos", "Inne przychody", "Прочие доходы", "Outros rendimentos"],
+      ["Aggiungi una riga per ogni altra entrata e indica il nome. Gli importi usano la valuta selezionata sopra.", "Ajoutez une ligne pour chaque autre revenu et indiquez son nom. Les montants utilisent la devise sélectionnée ci-dessus.", "Añade una fila por cada otro ingreso e indica su nombre. Los importes usan la moneda seleccionada arriba.", "Dodaj wiersz dla każdego innego przychodu i podaj jego nazwę. Kwoty są w wybranej wyżej walucie.", "Добавьте строку для каждого другого дохода и укажите его название. Суммы вводятся в выбранной выше валюте.", "Adicione uma linha para cada outro rendimento e indique o nome. Os valores usam a moeda selecionada acima."],
+      ["Aggiungi altra entrata", "Ajouter un autre revenu", "Añadir otro ingreso", "Dodaj inny przychód", "Добавить другой доход", "Adicionar outro rendimento"],
+      ["Voce di entrata", "Type de revenu", "Concepto de ingreso", "Pozycja przychodu", "Статья дохода", "Tipo de rendimento"],
+      ["Es. Regalo", "Ex. Cadeau", "Ej. Regalo", "Np. Prezent", "Напр. Подарок", "Ex.: Presente"],
+      ["Rimuovi altra entrata", "Supprimer l’autre revenu", "Eliminar otro ingreso", "Usuń inny przychód", "Удалить другой доход", "Remover outro rendimento"],
+      ["Inserisci il saldo effettivo a fine mese, dopo aver ricevuto stipendio e altre entrate e pagato le spese. Il saldo è già incluso nel patrimonio: entrate e spese non vengono aggiunte o sottratte una seconda volta. Puoi usare una valuta diversa per ciascun conto.", "Saisissez le solde réel de fin de mois, après réception du salaire et des autres revenus et paiement des dépenses. Ce solde est déjà inclus dans le patrimoine : les revenus et les dépenses ne sont pas ajoutés ou soustraits une seconde fois. Vous pouvez utiliser une devise différente pour chaque compte.", "Introduce el saldo real de fin de mes, después de recibir el salario y otros ingresos y pagar los gastos. Este saldo ya está incluido en el patrimonio: los ingresos y gastos no se suman ni restan una segunda vez. Puedes usar una moneda distinta para cada cuenta.", "Wpisz faktyczne saldo na koniec miesiąca po otrzymaniu wynagrodzenia i innych przychodów oraz opłaceniu wydatków. To saldo jest już uwzględnione w majątku: przychody i wydatki nie są dodawane ani odejmowane ponownie. Dla każdego konta możesz użyć innej waluty.", "Введите фактический остаток на конец месяца после получения зарплаты и других доходов и оплаты расходов. Этот остаток уже включён в капитал: доходы и расходы не прибавляются и не вычитаются повторно. Для каждого счёта можно выбрать отдельную валюту.", "Introduza o saldo real no fim do mês, depois de receber o salário e outros rendimentos e pagar as despesas. Este saldo já está incluído no património: os rendimentos e as despesas não são adicionados nem subtraídos novamente. Pode usar uma moeda diferente para cada conta."],
+      ["Per EUR il cambio è 1:1.", "Le taux de change de l’EUR est de 1:1.", "El tipo de cambio del EUR es 1:1.", "Kurs EUR wynosi 1:1.", "Курс EUR равен 1:1.", "A taxa de câmbio do EUR é 1:1."],
+      ["Euro per un'unità di valuta", "Euros pour une unité de devise", "Euros por unidad de moneda", "Euro za jednostkę waluty", "Евро за единицу валюты", "Euros por unidade da moeda"],
+      ["Stipendio ricevuto (EUR)", "Salaire reçu (EUR)", "Salario recibido (EUR)", "Otrzymane wynagrodzenie (EUR)", "Полученная зарплата (EUR)", "Salário recebido (EUR)"],
+      ["Cibo (EUR)", "Alimentation (EUR)", "Comida (EUR)", "Jedzenie (EUR)", "Еда (EUR)", "Alimentação (EUR)"],
+      ["Benzina (EUR)", "Carburant (EUR)", "Combustible (EUR)", "Paliwo (EUR)", "Топливо (EUR)", "Combustível (EUR)"],
+      ["Taxi-Trasporti (EUR)", "Taxi et transports (EUR)", "Taxi y transporte (EUR)", "Taksówki i transport (EUR)", "Такси и транспорт (EUR)", "Táxi e transportes (EUR)"],
+      ["Affitto (EUR)", "Loyer (EUR)", "Alquiler (EUR)", "Czynsz (EUR)", "Аренда (EUR)", "Renda (EUR)"],
+      ["Elettricità (EUR)", "Électricité (EUR)", "Electricidad (EUR)", "Prąd (EUR)", "Электричество (EUR)", "Eletricidade (EUR)"],
+      ["Gas (EUR)", "Gaz (EUR)", "Gas (EUR)", "Gaz (EUR)", "Газ (EUR)", "Gás (EUR)"],
+      ["Tasse (EUR)", "Impôts (EUR)", "Impuestos (EUR)", "Podatki (EUR)", "Налоги (EUR)", "Impostos (EUR)"],
+      ["Salute (EUR)", "Santé (EUR)", "Salud (EUR)", "Zdrowie (EUR)", "Здоровье (EUR)", "Saúde (EUR)"],
+      ["Sport (EUR)", "Sport (EUR)", "Deporte (EUR)", "Sport (EUR)", "Спорт (EUR)", "Desporto (EUR)"],
+      ["Divertimenti (EUR)", "Loisirs (EUR)", "Ocio (EUR)", "Rozrywka (EUR)", "Развлечения (EUR)", "Lazer (EUR)"],
+      ["Ristoranti (EUR)", "Restaurants (EUR)", "Restaurantes (EUR)", "Restauracje (EUR)", "Рестораны (EUR)", "Restaurantes (EUR)"],
+      ["Bar (EUR)", "Cafés (EUR)", "Bares (EUR)", "Bary (EUR)", "Кафе (EUR)", "Cafés (EUR)"],
+      ["Altre spese", "Autres dépenses", "Otros gastos", "Inne wydatki", "Прочие расходы", "Outras despesas"],
+      ["Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.", "Ajoutez une ligne pour chaque autre dépense et indiquez son nom. Les montants utilisent la devise sélectionnée ci-dessus.", "Añade una fila por cada otro gasto e indica su nombre. Los importes usan la moneda seleccionada arriba.", "Dodaj wiersz dla każdego innego wydatku i wpisz jego nazwę. Kwoty używają wybranej wyżej waluty.", "Добавьте строку для каждого другого расхода и укажите название. Суммы вводятся в выбранной выше валюте.", "Adicione uma linha para cada outra despesa e indique o nome. Os valores usam a moeda selecionada acima."],
+      ["Aggiungi altra spesa", "Ajouter une autre dépense", "Añadir otro gasto", "Dodaj inny wydatek", "Добавить другой расход", "Adicionar outra despesa"],
+      ["Liquidità corrente", "Liquidités", "Efectivo", "Gotówka", "Денежные средства", "Dinheiro disponível"],
+      ["Inserisci il saldo effettivo a fine mese, dopo aver ricevuto lo stipendio e pagato le spese. Il saldo è già incluso nel patrimonio: stipendio e spese non vengono aggiunti o sottratti una seconda volta. Puoi usare una valuta diversa per ciascun conto.", "Saisissez le solde réel de fin de mois, après réception du salaire et paiement des dépenses. Ce solde est déjà inclus dans le patrimoine : le salaire et les dépenses ne sont pas ajoutés ou soustraits une seconde fois. Vous pouvez utiliser une devise différente pour chaque compte.", "Introduce el saldo real de fin de mes, después de recibir el salario y pagar los gastos. El saldo ya está incluido en el patrimonio: el salario y los gastos no se suman ni restan otra vez. Puedes usar una moneda distinta para cada cuenta.", "Wpisz rzeczywiste saldo na koniec miesiąca, po otrzymaniu wynagrodzenia i opłaceniu wydatków. Saldo jest już uwzględnione w majątku: wynagrodzenie i wydatki nie są ponownie dodawane ani odejmowane. Dla każdego konta możesz wybrać inną walutę.", "Введите фактический остаток на конец месяца после получения зарплаты и оплаты расходов. Остаток уже включён в капитал: зарплата и расходы повторно не прибавляются и не вычитаются. Для каждого счёта можно выбрать отдельную валюту.", "Indique o saldo real no fim do mês, depois de receber o salário e pagar as despesas. O saldo já está incluído no património: o salário e as despesas não são adicionados nem subtraídos novamente. Pode usar uma moeda diferente para cada conta."],
+      ["Aggiungi liquidità", "Ajouter des liquidités", "Añadir efectivo", "Dodaj gotówkę", "Добавить денежные средства", "Adicionar dinheiro"],
+      ["Conti deposito", "Comptes d’épargne", "Cuentas de ahorro", "Konta oszczędnościowe", "Сберегательные счета", "Contas poupança"],
+      ["Aggiungi ogni conto deposito e scegli la valuta del saldo.", "Ajoutez chaque compte d’épargne et choisissez la devise du solde.", "Añade cada cuenta de ahorro y elige la moneda del saldo.", "Dodaj każde konto oszczędnościowe i wybierz walutę salda.", "Добавьте каждый сберегательный счёт и выберите валюту остатка.", "Adicione cada conta poupança e escolha a moeda do saldo."],
+      ["Aggiungi conto deposito", "Ajouter un compte d’épargne", "Añadir cuenta de ahorro", "Dodaj konto oszczędnościowe", "Добавить сберегательный счёт", "Adicionar conta poupança"],
+      ["Investimenti", "Investissements", "Inversiones", "Inwestycje", "Инвестиции", "Investimentos"],
+      ["ETF", "ETF", "ETF", "ETF", "ETF", "ETF"],
+      ["Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.", "Ajoutez une ligne pour chaque ETF et saisissez sa valeur au mois du relevé.", "Añade una fila por cada ETF e indica su valor en el mes del registro.", "Dodaj wiersz dla każdego ETF-u i wpisz jego wartość w miesiącu zestawienia.", "Добавьте строку для каждого ETF и укажите его стоимость на отчётный месяц.", "Adicione uma linha para cada ETF e indique o seu valor no mês do registo."],
+      ["Aggiungi ETF", "Ajouter un ETF", "Añadir ETF", "Dodaj ETF", "Добавить ETF", "Adicionar ETF"],
+      ["Azioni", "Actions", "Acciones", "Akcje", "Акции", "Ações"],
+      ["Aggiungi le azioni che possiedi e inserisci un nome o ticker.", "Ajoutez les actions que vous détenez et saisissez un nom ou un ticker.", "Añade las acciones que tienes e indica un nombre o ticker.", "Dodaj posiadane akcje i wpisz nazwę lub ticker.", "Добавьте имеющиеся акции и укажите название или тикер.", "Adicione as ações que possui e indique um nome ou ticker."],
+      ["Aggiungi azione", "Ajouter une action", "Añadir acción", "Dodaj akcję", "Добавить акцию", "Adicionar ação"],
+      ["Obbligazioni", "Obligations", "Bonos", "Obligacje", "Облигации", "Obrigações"],
+      ["Aggiungi le obbligazioni che possiedi e inserisci un nome o identificativo.", "Ajoutez les obligations que vous détenez et saisissez un nom ou un identifiant.", "Añade los bonos que tienes e indica un nombre o identificador.", "Dodaj posiadane obligacje i wpisz nazwę lub identyfikator.", "Добавьте имеющиеся облигации и укажите название или идентификатор.", "Adicione as obrigações que possui e indique um nome ou identificador."],
+      ["Aggiungi obbligazione", "Ajouter une obligation", "Añadir bono", "Dodaj obligację", "Добавить облигацию", "Adicionar obrigação"],
+      ["Salva mese", "Enregistrer le mois", "Guardar mes", "Zapisz miesiąc", "Сохранить месяц", "Guardar mês"],
+      ["Andamento del patrimonio", "Évolution du patrimoine", "Evolución del patrimonio", "Zmiany majątku", "Динамика капитала", "Evolução do património"],
+      ["La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.", "La variation compare les patrimoines enregistrés : elle ne représente pas le rendement des investissements, car elle peut inclure l’épargne, les retraits et les dépenses.", "La variación compara los patrimonios registrados: no representa el rendimiento de las inversiones, ya que puede incluir ahorros, retiradas y gastos.", "Zmiana porównuje zapisany majątek: nie oznacza stopy zwrotu z inwestycji, ponieważ może uwzględniać oszczędności, wypłaty i wydatki.", "Изменение сравнивает записанный капитал и не является доходностью инвестиций, так как может включать сбережения, снятия и расходы.", "A variação compara os patrimónios registados: não representa o rendimento dos investimentos, pois pode incluir poupanças, levantamentos e despesas."],
+      ["Dal mese precedente", "Depuis le mois précédent", "Desde el mes anterior", "Od poprzedniego miesiąca", "С прошлого месяца", "Desde o mês anterior"],
+      ["Da inizio anno", "Depuis le début de l’année", "Desde principios de año", "Od początku roku", "С начала года", "Desde o início do ano"],
+      ["Da sempre", "Depuis le début", "Desde el inicio", "Od początku", "За всё время", "Desde o início"],
+      ["Andamento delle spese", "Évolution des dépenses", "Evolución de los gastos", "Zmiany wydatków", "Динамика расходов", "Evolução das despesas"],
+      ["Il confronto mensile usa l’ultima rilevazione salvata come riferimento, anche se mancano mesi intermedi. Tutti gli importi sono in euro.", "La comparaison mensuelle utilise le dernier relevé enregistré comme référence, même si des mois intermédiaires manquent. Tous les montants sont en euros.", "La comparación mensual usa el último registro guardado como referencia, aunque falten meses intermedios. Todos los importes están en euros.", "Porównanie miesięczne wykorzystuje ostatni zapis jako punkt odniesienia, nawet jeśli brakuje miesięcy pośrednich. Wszystkie kwoty są w euro.", "Для сравнения используется последняя сохранённая запись, даже если некоторые месяцы пропущены. Все суммы указаны в евро.", "A comparação mensal usa o último registo guardado como referência, mesmo que faltem meses intermédios. Todos os valores estão em euros."],
+      ["Mese da analizzare", "Mois à analyser", "Mes que analizar", "Analizowany miesiąc", "Месяц для анализа", "Mês a analisar"],
+      ["Grafico di confronto", "Graphique de comparaison", "Gráfico comparativo", "Wykres porównawczy", "Сравнительный график", "Gráfico de comparação"],
+      ["Confronto con il mese precedente", "Comparaison avec le mois précédent", "Comparación con el mes anterior", "Porównanie z poprzednim miesiącem", "Сравнение с предыдущим месяцем", "Comparação com o mês anterior"],
+      ["Spese mensili da sempre", "Dépenses mensuelles depuis le début", "Gastos mensuales desde el inicio", "Wydatki miesięczne od początku", "Расходы по месяцам за всё время", "Despesas mensais desde o início"],
+      ["Ripartizione delle spese del mese", "Répartition des dépenses du mois", "Distribución de los gastos del mes", "Podział wydatków w miesiącu", "Структура расходов за месяц", "Distribuição das despesas do mês"],
+      ["Risparmio mensile", "Épargne mensuelle", "Ahorro mensual", "Oszczędności miesięczne", "Ежемесячные сбережения", "Poupança mensal"],
+      ["Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.", "Calculée comme le salaire plus les autres revenus moins les dépenses ; le graphique affiche l’épargne de chaque mois enregistré, en euros.", "Se calcula como salario más otros ingresos menos gastos; el gráfico muestra el ahorro de cada mes registrado, en euros.", "Obliczane jako wynagrodzenie plus inne przychody minus wydatki; wykres pokazuje oszczędności za każdy zapisany miesiąc w euro.", "Рассчитывается как зарплата плюс прочие доходы минус расходы; на графике показаны сбережения за каждый записанный месяц в евро.", "Calculada como salário mais outros rendimentos menos despesas; o gráfico mostra a poupança de cada mês registado, em euros."],
+      ["Backup dei dati", "Sauvegarde des données", "Copia de seguridad", "Kopia zapasowa danych", "Резервная копия данных", "Cópia de segurança dos dados"],
+      ["Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.", "Exportez une copie de vos données ou importez une sauvegarde. L’importation fusionne les mois et, en cas de doublon, utilise les données de la sauvegarde. Le fichier JSON n’est pas chiffré : conservez-le dans un endroit privé et sûr.", "Exporta una copia de tus datos o importa una copia de seguridad. La importación combina los meses y, si un mes está duplicado, utiliza los datos de la copia. El archivo JSON no está cifrado: guárdalo en un lugar privado y seguro.", "Wyeksportuj kopię danych lub zaimportuj kopię zapasową. Import łączy miesiące, a w przypadku duplikatu używa danych z kopii. Plik JSON nie jest szyfrowany — przechowuj go w bezpiecznym i prywatnym miejscu.", "Экспортируйте копию данных или импортируйте резервную копию. При импорте месяцы объединяются, а для дубликатов используются данные из копии. Файл JSON не зашифрован — храните его в безопасном и закрытом месте.", "Exporte uma cópia dos seus dados ou importe uma cópia de segurança. A importação junta os meses e, em caso de duplicado, utiliza os dados da cópia. O ficheiro JSON não é cifrado: guarde-o num local privado e seguro."],
+      ["Esporta backup", "Exporter la sauvegarde", "Exportar copia", "Eksportuj kopię", "Экспортировать копию", "Exportar cópia"],
+      ["Seleziona un backup da importare", "Sélectionner une sauvegarde à importer", "Seleccionar una copia para importar", "Wybierz kopię do zaimportowania", "Выберите копию для импорта", "Selecionar uma cópia para importar"],
+      ["Storico mensile", "Historique mensuel", "Historial mensual", "Historia miesięczna", "История по месяцам", "Histórico mensal"],
+      ["Mese", "Mois", "Mes", "Miesiąc", "Месяц", "Mês"],
+      ["ETF, azioni e obbligazioni", "ETF, actions et obligations", "ETF, acciones y bonos", "ETF-y, akcje i obligacje", "ETF, акции и облигации", "ETF, ações e obrigações"],
+      ["Liquidità", "Liquidités", "Efectivo", "Gotówka", "Денежные средства", "Dinheiro"],
+      ["Conto deposito", "Compte d’épargne", "Cuenta de ahorro", "Konto oszczędnościowe", "Сберегательный счёт", "Conta poupança"],
+      ["Patrimonio", "Patrimoine", "Patrimonio", "Majątek", "Капитал", "Património"],
+      ["Stipendio", "Salaire", "Salario", "Wynagrodzenie", "Зарплата", "Salário"],
+      ["Spese totali", "Dépenses totales", "Gastos totales", "Wydatki łącznie", "Общие расходы", "Despesas totais"],
+      ["Risparmio", "Épargne", "Ahorro", "Oszczędności", "Сбережения", "Poupança"],
+      ["Azioni", "Actions", "Acciones", "Akcje", "Акции", "Ações"],
+      ["I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.", "Les données sont enregistrées uniquement dans ce navigateur et sur cet appareil ; elles ne sont pas envoyées à un serveur.", "Los datos solo se guardan en este navegador y dispositivo; no se envían a ningún servidor.", "Dane są zapisywane tylko w tej przeglądarce i na tym urządzeniu; nie są wysyłane na serwer.", "Данные сохраняются только в этом браузере и на этом устройстве; на сервер они не отправляются.", "Os dados são guardados apenas neste navegador e dispositivo; não são enviados para um servidor."],
+      ["Nome", "Nom", "Nombre", "Nazwa", "Название", "Nome"],
+      ["Valuta", "Devise", "Moneda", "Waluta", "Валюта", "Moeda"],
+      ["Importo", "Montant", "Importe", "Kwota", "Сумма", "Valor"],
+      ["Voce di spesa", "Poste de dépense", "Concepto de gasto", "Pozycja wydatku", "Статья расходов", "Tipo de despesa"],
+      ["Valore (€)", "Valeur (€)", "Valor (€)", "Wartość (€)", "Стоимость (€)", "Valor (€)"],
+      ["Azione o ticker", "Action ou ticker", "Acción o ticker", "Akcja lub ticker", "Акция или тикер", "Ação ou ticker"],
+      ["Nome obbligazione", "Nom de l’obligation", "Nombre del bono", "Nazwa obligacji", "Название облигации", "Nome da obrigação"],
+      ["Nome ETF", "Nom de l’ETF", "Nombre del ETF", "Nazwa ETF-u", "Название ETF", "Nome do ETF"],
+      ["Rimuovi", "Supprimer", "Eliminar", "Usuń", "Удалить", "Remover"],
+      ["Nessun mese salvato", "Aucun mois enregistré", "No hay meses guardados", "Brak zapisanych miesięcy", "Нет сохранённых месяцев", "Nenhum mês guardado"],
+      ["Nessun dato", "Aucune donnée", "Sin datos", "Brak danych", "Нет данных", "Sem dados"],
+      ["Nessuna spesa", "Aucune dépense", "Sin gastos", "Brak wydatków", "Нет расходов", "Sem despesas"],
+      ["Altre voci minori", "Autres postes mineurs", "Otros conceptos menores", "Pozostałe drobne pozycje", "Прочие небольшие статьи", "Outros itens menores"],
+      ["Aggiungi il primo mese per vedere il grafico", "Ajoutez le premier mois pour afficher le graphique", "Añade el primer mes para ver el gráfico", "Dodaj pierwszy miesiąc, aby zobaczyć wykres", "Добавьте первый месяц, чтобы увидеть график", "Adicione o primeiro mês para ver o gráfico"],
+      ["Aggiungi il primo mese per confrontare le spese.", "Ajoutez le premier mois pour comparer les dépenses.", "Añade el primer mes para comparar los gastos.", "Dodaj pierwszy miesiąc, aby porównać wydatki.", "Добавьте первый месяц, чтобы сравнить расходы.", "Adicione o primeiro mês para comparar as despesas."],
+      ["Aggiungi il primo mese per vedere il grafico.", "Ajoutez le premier mois pour afficher le graphique.", "Añade el primer mes para ver el gráfico.", "Dodaj pierwszy miesiąc, aby zobaczyć wykres.", "Добавьте первый месяц, чтобы увидеть график.", "Adicione o primeiro mês para ver o gráfico."],
+      ["Non risultano spese registrate per questo mese.", "Aucune dépense enregistrée pour ce mois.", "No hay gastos registrados para este mes.", "Brak wydatków zapisanych w tym miesiącu.", "За этот месяц расходы не записаны.", "Não há despesas registadas neste mês."],
+      ["Salva un mese per visualizzare il confronto delle spese.", "Enregistrez un mois pour afficher la comparaison des dépenses.", "Guarda un mes para ver la comparación de gastos.", "Zapisz miesiąc, aby zobaczyć porównanie wydatków.", "Сохраните месяц, чтобы увидеть сравнение расходов.", "Guarde um mês para ver a comparação das despesas."],
+      ["Salva i mesi per visualizzare l'andamento delle spese.", "Enregistrez des mois pour afficher l’évolution des dépenses.", "Guarda los meses para ver la evolución de los gastos.", "Zapisz miesiące, aby zobaczyć zmiany wydatków.", "Сохраните месяцы, чтобы увидеть динамику расходов.", "Guarde os meses para ver a evolução das despesas."],
+      ["Registra un mese per visualizzare il risparmio.", "Enregistrez un mois pour afficher l’épargne.", "Registra un mes para ver el ahorro.", "Zapisz miesiąc, aby zobaczyć oszczędności.", "Запишите месяц, чтобы увидеть сбережения.", "Registe um mês para ver a poupança."],
+      ["N/D", "N/D", "N/D", "Brak", "Н/Д", "N/D"],
+      ["Riferimento non disponibile", "Référence indisponible", "Referencia no disponible", "Brak punktu odniesienia", "Нет данных для сравнения", "Referência indisponível"],
+      ["Confronto con fine anno:", "Comparaison avec la fin de l’année :", "Comparación con el cierre del año:", "Porównanie z końcem roku:", "Сравнение с концом года:", "Comparação com o fim do ano:"],
+      ["Prima rilevazione dell'anno:", "Premier relevé de l’année :", "Primer registro del año:", "Pierwszy zapis w roku:", "Первая запись за год:", "Primeiro registo do ano:"],
+      ["Prima rilevazione:", "Premier relevé :", "Primer registro:", "Pierwszy zapis:", "Первая запись:", "Primeiro registo:"],
+      ["Ultimo mese registrato:", "Dernier mois enregistré :", "Último mes registrado:", "Ostatni zapisany miesiąc:", "Последний записанный месяц:", "Último mês registado:"],
+      ["Cambio manuale", "Taux manuel", "Tipo de cambio manual", "Kurs ręczny", "Ручной курс", "Taxa manual"],
+      ["Tasso inserito manualmente", "Taux saisi manuellement", "Tipo de cambio introducido manualmente", "Kurs wpisany ręcznie", "Курс введён вручную", "Taxa introduzida manualmente"],
+      ["Ultimo tasso Frankfurter", "Dernier taux Frankfurter", "Último tipo de cambio de Frankfurter", "Ostatni kurs Frankfurter", "Последний курс Frankfurter", "Última taxa Frankfurter"],
+      ["Tasso di cambio manuale", "Taux de change manuel", "Tipo de cambio manual", "Ręczny kurs wymiany", "Ручной обменный курс", "Taxa de câmbio manual"],
+      ["Es. 0,92", "Ex. 0,92", "Ej. 0,92", "Np. 0,92", "Напр. 0,92", "Ex.: 0,92"],
+      ["Es. conto corrente", "Ex. compte courant", "Ej. cuenta corriente", "Np. rachunek bieżący", "Напр. текущий счёт", "Ex.: conta à ordem"],
+      ["Es. conto deposito", "Ex. compte d’épargne", "Ej. cuenta de ahorro", "Np. konto oszczędnościowe", "Напр. накопительный счёт", "Ex.: conta poupança"],
+      ["Es. Abbonamenti", "Ex. Abonnements", "Ej. Suscripciones", "Np. Subskrypcje", "Напр. подписки", "Ex.: Subscrições"],
+      ["Es. nome o ticker ETF", "Ex. nom ou ticker de l’ETF", "Ej. nombre o ticker del ETF", "Np. nazwa lub ticker ETF-u", "Напр. название или тикер ETF", "Ex.: nome ou ticker do ETF"],
+      ["Es. ENI o Apple", "Ex. ENI ou Apple", "Ej. ENI o Apple", "Np. ENI lub Apple", "Напр. ENI или Apple", "Ex.: ENI ou Apple"],
+      ["Es. BTP o obbligazione", "Ex. obligation d’État ou entreprise", "Ej. bono público o corporativo", "Np. obligacja skarbowa lub firmowa", "Напр. государственная или корпоративная облигация", "Ex.: obrigação do Estado ou de empresa"],
+      ["Non hai ancora inserito dati.", "Vous n’avez pas encore saisi de données.", "Aún no has introducido datos.", "Nie wprowadzono jeszcze danych.", "Вы ещё не ввели данные.", "Ainda não introduziu dados."],
+      ["Modifica", "Modifier", "Editar", "Edytuj", "Изменить", "Editar"],
+      ["Elimina", "Supprimer", "Eliminar", "Usuń", "Удалить", "Eliminar"],
+      ["Backup esportato. Conservalo in un luogo sicuro.", "Sauvegarde exportée. Conservez-la dans un endroit sûr.", "Copia exportada. Guárdala en un lugar seguro.", "Kopia została wyeksportowana. Przechowuj ją w bezpiecznym miejscu.", "Резервная копия экспортирована. Храните её в безопасном месте.", "Cópia exportada. Guarde-a num local seguro."],
+      ["Formato del backup non riconosciuto.", "Format de sauvegarde non reconnu.", "Formato de copia no reconocido.", "Nieznany format kopii zapasowej.", "Неизвестный формат резервной копии.", "Formato da cópia não reconhecido."],
+      ["Un maialino salvadanaio sorridente sopra una montagna di monete", "Une tirelire en forme de cochon souriante sur une montagne de pièces", "Una hucha con forma de cerdito sonriente sobre una montaña de monedas", "Uśmiechnięta skarbonka-świnka na górze monet", "Улыбающаяся копилка-свинка на горе монет", "Um mealheiro em forma de porquinho sorridente sobre uma pilha de moedas"],
+      ["Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.", "Un cochon rose souriant avec deux yeux et une pièce dans la fente sur son dos, au-dessus d’une montagne de pièces dorées.", "Un cerdito rosa sonriente con dos ojos y una moneda en la ranura del lomo, sobre una montaña de monedas doradas.", "Różowa, uśmiechnięta świnka z dwojgiem oczu i monetą w szczelinie na grzbiecie, nad górą złotych monet.", "Розовая улыбающаяся свинка с двумя глазами и монетой в прорези на спине, над горой золотых монет.", "Um porquinho rosa sorridente com dois olhos e uma moeda na ranhura do dorso, sobre uma pilha de moedas douradas."],
+      ["Inserisci stipendio e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.", "Saisissez votre salaire et vos dépenses dans la devise sélectionnée. Vous pouvez ajouter plusieurs soldes de liquidités et comptes d’épargne, chacun dans sa propre devise. À l’enregistrement, les montants seront convertis en euros au dernier taux de référence publié (ce n’est pas un cours en temps réel). Les investissements, le patrimoine et les résultats restent en euros ; les taux utilisés sont conservés dans l’historique. Seuls les codes de devise, jamais vos montants, sont transmis en ligne pour rechercher les taux. Si le service est indisponible, vous pouvez saisir manuellement la valeur en euros d’une unité de devise.", "Introduce tu salario y tus gastos en la moneda seleccionada. Puedes añadir varios saldos de efectivo y cuentas de ahorro, cada uno en su propia moneda. Al guardar, se convertirán a euros con el último tipo de cambio de referencia publicado (no es una cotización en tiempo real). Las inversiones, el patrimonio y los resultados se mantienen en euros; los tipos utilizados se guardan en el historial. Para consultar los tipos solo se envían en línea los códigos de moneda, nunca tus importes. Si el servicio no está disponible, puedes introducir manualmente cuántos euros vale una unidad de la moneda.", "Wpisz wynagrodzenie i wydatki w wybranej walucie. Możesz dodać kilka sald gotówki i kont oszczędnościowych, każde we własnej walucie. Podczas zapisywania kwoty zostaną przeliczone na euro według najnowszego opublikowanego kursu referencyjnego (nie jest to kurs w czasie rzeczywistym). Inwestycje, majątek i wyniki pozostają w euro; użyte kursy są zapisywane w historii. Do pobrania kursów wysyłane są online wyłącznie kody walut, nigdy kwoty. Jeśli usługa jest niedostępna, możesz ręcznie podać wartość jednej jednostki waluty w euro.", "Введите зарплату и расходы в выбранной валюте. Можно добавить несколько денежных остатков и сберегательных счетов, каждый в своей валюте. При сохранении суммы будут пересчитаны в евро по последнему опубликованному справочному курсу (это не курс в реальном времени). Инвестиции, капитал и результаты указываются в евро; использованные курсы сохраняются в истории. Для получения курсов онлайн передаются только коды валют, а не суммы. Если сервис недоступен, можно вручную указать стоимость единицы валюты в евро.", "Introduza o salário e as despesas na moeda selecionada. Pode adicionar vários saldos em dinheiro e contas poupança, cada um na sua própria moeda. Ao guardar, os valores serão convertidos para euros à última taxa de referência publicada (não é uma cotação em tempo real). Os investimentos, o património e os resultados permanecem em euros; as taxas utilizadas ficam guardadas no histórico. Para consultar as taxas, são enviados online apenas os códigos das moedas, nunca os seus valores. Se o serviço estiver indisponível, pode indicar manualmente o valor em euros de uma unidade da moeda."],
+      ["Grafico dell'andamento mensile del patrimonio", "Graphique de l’évolution mensuelle du patrimoine", "Gráfico de la evolución mensual del patrimonio", "Wykres miesięcznych zmian majątku", "График изменения капитала по месяцам", "Gráfico da evolução mensal do património"],
+      ["Mese per i grafici delle spese", "Mois pour les graphiques des dépenses", "Mes para los gráficos de gastos", "Miesiąc dla wykresów wydatków", "Месяц для графиков расходов", "Mês para os gráficos de despesas"],
+      ["Grafico di confronto delle spese mensili", "Graphique de comparaison des dépenses mensuelles", "Gráfico comparativo de gastos mensuales", "Wykres porównujący wydatki miesięczne", "График сравнения расходов по месяцам", "Gráfico de comparação das despesas mensais"],
+      ["Grafico a torta delle spese del mese", "Diagramme circulaire des dépenses du mois", "Gráfico circular de los gastos del mes", "Wykres kołowy wydatków w miesiącu", "Круговая диаграмма расходов за месяц", "Gráfico circular das despesas do mês"],
+      ["Grafico a barre del risparmio mensile", "Graphique en barres de l’épargne mensuelle", "Gráfico de barras del ahorro mensual", "Wykres słupkowy oszczędności miesięcznych", "Столбчатая диаграмма ежемесячных сбережений", "Gráfico de barras da poupança mensal"],
+      ["Nome del saldo", "Nom du solde", "Nombre del saldo", "Nazwa salda", "Название остатка", "Nome do saldo"],
+      ["Valuta del saldo", "Devise du solde", "Moneda del saldo", "Waluta salda", "Валюта остатка", "Moeda do saldo"],
+      ["Importo del saldo", "Montant du solde", "Importe del saldo", "Kwota salda", "Сумма остатка", "Valor do saldo"],
+      ["Rimuovi saldo", "Supprimer le solde", "Eliminar saldo", "Usuń saldo", "Удалить остаток", "Remover saldo"],
+      ["Rimuovi altra spesa", "Supprimer l’autre dépense", "Eliminar otro gasto", "Usuń inny wydatek", "Удалить другой расход", "Remover outra despesa"],
+      ["Tipo di ETF", "Type d’ETF", "Tipo de ETF", "Typ ETF-u", "Тип ETF", "Tipo de ETF"],
+      ["Nome personalizzato dell'ETF", "Nom personnalisé de l’ETF", "Nombre personalizado del ETF", "Własna nazwa ETF-u", "Пользовательское название ETF", "Nome personalizado do ETF"],
+      ["Valore dell'investimento in euro", "Valeur de l’investissement en euros", "Valor de la inversión en euros", "Wartość inwestycji w euro", "Стоимость инвестиции в евро", "Valor do investimento em euros"],
+      ["Nome o ticker dell'azione", "Nom ou ticker de l’action", "Nombre o ticker de la acción", "Nazwa lub ticker akcji", "Название или тикер акции", "Nome ou ticker da ação"],
+      ["Azioni", "Actions", "Acciones", "Akcje", "Акции", "Ações"],
+      ["Mese salvato. Stipendio, spese e risparmio sono stati convertiti in euro.", "Mois enregistré. Le salaire, les dépenses et l’épargne ont été convertis en euros.", "Mes guardado. El salario, los gastos y el ahorro se han convertido a euros.", "Miesiąc zapisany. Wynagrodzenie, wydatki i oszczędności przeliczono na euro.", "Месяц сохранён. Зарплата, расходы и сбережения пересчитаны в евро.", "Mês guardado. O salário, as despesas e a poupança foram convertidos para euros."],
+      ["Mese aggiornato. Stipendio, spese e risparmio sono stati convertiti in euro.", "Mois mis à jour. Le salaire, les dépenses et l’épargne ont été convertis en euros.", "Mes actualizado. El salario, los gastos y el ahorro se han convertido a euros.", "Miesiąc zaktualizowany. Wynagrodzenie, wydatki i oszczędności przeliczono na euro.", "Месяц обновлён. Зарплата, расходы и сбережения пересчитаны в евро.", "Mês atualizado. O salário, as despesas e a poupança foram convertidos para euros."],
+      ["Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.", "Vérifiez les noms et les montants : le salaire, les investissements, les soldes et les dépenses doivent être valides et positifs ou nuls.", "Revisa los nombres y los importes: el salario, las inversiones, los saldos y los gastos deben ser válidos y no negativos.", "Sprawdź nazwy i kwoty: wynagrodzenie, inwestycje, salda i wydatki muszą być prawidłowe i nieujemne.", "Проверьте названия и суммы: зарплата, инвестиции, остатки и расходы должны быть корректными и неотрицательными.", "Verifique os nomes e os valores: o salário, os investimentos, os saldos e as despesas têm de ser válidos e não negativos."],
+      ["La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.", "La conversion en euros a produit un montant invalide. Vérifiez les valeurs saisies.", "La conversión a euros ha producido un importe no válido. Revisa los valores introducidos.", "Przeliczenie na euro dało nieprawidłową kwotę. Sprawdź wprowadzone wartości.", "При пересчёте в евро получена недопустимая сумма. Проверьте введённые значения.", "A conversão para euros produziu um valor inválido. Verifique os valores introduzidos."],
+      ["Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.", "Cette donnée historique n’est pas ventilée par composant. Si vous l’enregistrez, l’ancien total sera remplacé par les valeurs saisies.", "Este dato histórico no está desglosado por componentes. Si lo guardas, el total anterior se sustituirá por los valores que introduzcas.", "Ten historyczny zapis nie jest podzielony na składniki. Po zapisaniu poprzednia suma zostanie zastąpiona wprowadzonymi wartościami.", "Эта историческая запись не разбита на составляющие. При сохранении прежняя сумма будет заменена введёнными значениями.", "Este registo histórico não está dividido por componentes. Se o guardar, o total anterior será substituído pelos valores introduzidos."],
+      ["Registra un mese per visualizzare il risparmio.", "Enregistrez un mois pour afficher l’épargne.", "Registra un mes para ver el ahorro.", "Zapisz miesiąc, aby zobaczyć oszczędności.", "Запишите месяц, чтобы увидеть сбережения.", "Registe um mês para ver a poupança."]
+    ];
+    const TRADUZIONI_LOCALIZZATE = Object.fromEntries(TRADUZIONI_RIGHE.map(
+      ([it, fr, es, pl, ru, pt]) => [it, { fr, es, pl, ru, pt }]
+    ));
+    function integraTraduzioniLocalizzate(nuoveTraduzioni) {
+      Object.entries(nuoveTraduzioni).forEach(([testo, traduzioni]) => {
+        TRADUZIONI_LOCALIZZATE[testo] = {
+          ...TRADUZIONI_LOCALIZZATE[testo],
+          ...traduzioni
+        };
+      });
+    }
+
+    integraTraduzioniLocalizzate({
+      "Valuta di stipendio, altre entrate e spese": {
+        de: "Währung für Gehalt, sonstige Einnahmen und Ausgaben",
+        uk: "Валюта зарплати, інших доходів і витрат"
+      },
+      "Altre entrate": {
+        de: "Sonstige Einnahmen", uk: "Інші доходи"
+      },
+      "Aggiungi una riga per ogni altra entrata e indica il nome. Gli importi usano la valuta selezionata sopra.": {
+        de: "Fügen Sie für jede weitere Einnahme eine Zeile hinzu und geben Sie den Namen ein. Die Beträge verwenden die oben ausgewählte Währung.",
+        uk: "Додайте рядок для кожного іншого доходу та вкажіть його назву. Суми вводяться у вибраній вище валюті."
+      },
+      "Aggiungi altra entrata": {
+        de: "Weitere Einnahme hinzufügen", uk: "Додати інший дохід"
+      },
+      "Voce di entrata": {
+        de: "Einnahmeposten", uk: "Стаття доходу"
+      },
+      "Es. Regalo": {
+        de: "Z. B. Geschenk", uk: "Напр. подарунок"
+      },
+      "Rimuovi altra entrata": {
+        de: "Sonstige Einnahme entfernen", uk: "Видалити інший дохід"
+      },
+      "Entrate totali": {
+        fr: "Revenus totaux", es: "Ingresos totales", pl: "Łączne przychody",
+        ru: "Общий доход", pt: "Rendimentos totais",
+        de: "Gesamteinnahmen", uk: "Загальні доходи"
+      },
+      "Inserisci stipendio, altre entrate e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.": {
+        fr: "Saisissez votre salaire, vos autres revenus et vos dépenses dans la devise sélectionnée. Vous pouvez ajouter plusieurs soldes de liquidités et comptes d’épargne, chacun dans sa propre devise. À l’enregistrement, les montants seront convertis en euros au dernier taux de référence publié (ce n’est pas un cours en temps réel). Les investissements, le patrimoine et les résultats restent en euros ; les taux utilisés sont conservés dans l’historique. Seuls les codes de devise, jamais vos montants, sont transmis en ligne pour rechercher les taux. Si le service est indisponible, vous pouvez saisir manuellement la valeur en euros d’une unité de devise.",
+        es: "Introduce tu salario, otros ingresos y gastos en la moneda seleccionada. Puedes añadir varios saldos de efectivo y cuentas de ahorro, cada uno en su propia moneda. Al guardar, se convertirán a euros con el último tipo de cambio de referencia publicado (no es una cotización en tiempo real). Las inversiones, el patrimonio y los resultados se mantienen en euros; los tipos utilizados se guardan en el historial. Para consultar los tipos solo se envían en línea los códigos de moneda, nunca tus importes. Si el servicio no está disponible, puedes introducir manualmente cuántos euros vale una unidad de la moneda.",
+        pl: "Wpisz wynagrodzenie, inne przychody i wydatki w wybranej walucie. Możesz dodać kilka sald gotówki i kont oszczędnościowych, każde we własnej walucie. Podczas zapisywania kwoty zostaną przeliczone na euro według najnowszego opublikowanego kursu referencyjnego (nie jest to kurs w czasie rzeczywistym). Inwestycje, majątek i wyniki pozostają w euro; użyte kursy są zapisywane w historii. Do pobrania kursów wysyłane są online wyłącznie kody walut, nigdy kwoty. Jeśli usługa jest niedostępna, możesz ręcznie podać wartość jednej jednostki waluty w euro.",
+        ru: "Введите зарплату, прочие доходы и расходы в выбранной валюте. Можно добавить несколько денежных остатков и сберегательных счетов, каждый в своей валюте. При сохранении суммы будут пересчитаны в евро по последнему опубликованному справочному курсу (это не курс в реальном времени). Инвестиции, капитал и результаты указываются в евро; использованные курсы сохраняются в истории. Для получения курсов онлайн передаются только коды валют, а не суммы. Если сервис недоступен, можно вручную указать стоимость единицы валюты в евро.",
+        pt: "Introduza o salário, outros rendimentos e despesas na moeda selecionada. Pode adicionar vários saldos em dinheiro e contas poupança, cada um na sua própria moeda. Ao guardar, os valores serão convertidos para euros à última taxa de referência publicada (não é uma cotação em tempo real). Os investimentos, o património e os resultados permanecem em euros; as taxas utilizadas ficam guardadas no histórico. Para consultar as taxas, são enviados online apenas os códigos das moedas, nunca os seus valores. Se o serviço estiver indisponível, pode indicar manualmente o valor em euros de uma unidade da moeda.",
+        de: "Geben Sie Gehalt, sonstige Einnahmen und Ausgaben in der ausgewählten Währung ein. Sie können mehrere Bargeldbestände und Sparkonten hinzufügen, jeweils in einer eigenen Währung. Beim Speichern werden die Beträge mit dem zuletzt veröffentlichten Referenzkurs in Euro umgerechnet (keine Echtzeitkurse). Anlagen, Vermögen und Ergebnisse bleiben in Euro; verwendete Wechselkurse werden im Verlauf gespeichert. Für die Abfrage werden online nur Währungscodes, niemals Ihre Beträge, übermittelt. Falls der Dienst nicht erreichbar ist, können Sie den Euro-Wert einer Währungseinheit manuell eingeben.",
+        uk: "Введіть зарплату, інші доходи та витрати у вибраній валюті. Можна додати кілька залишків готівки й ощадних рахунків, кожен у власній валюті. Під час збереження суми буде конвертовано в євро за останнім опублікованим довідковим курсом (це не курс у реальному часі). Інвестиції, капітал і результати відображаються в євро; використані курси зберігаються в історії. Для отримання курсів онлайн надсилаються лише коди валют, а не ваші суми. Якщо сервіс недоступний, можна вручну ввести вартість одиниці валюти в євро."
+      },
+      "Inserisci il saldo effettivo a fine mese, dopo aver ricevuto stipendio e altre entrate e pagato le spese. Il saldo è già incluso nel patrimonio: entrate e spese non vengono aggiunte o sottratte una seconda volta. Puoi usare una valuta diversa per ciascun conto.": {
+        de: "Geben Sie den tatsächlichen Kontostand am Monatsende ein, nachdem Gehalt und sonstige Einnahmen eingegangen und die Ausgaben bezahlt sind. Dieser Betrag ist bereits im Vermögen enthalten: Einnahmen und Ausgaben werden nicht noch einmal addiert oder abgezogen. Für jedes Konto kann eine andere Währung verwendet werden.",
+        uk: "Введіть фактичний залишок на кінець місяця після отримання зарплати та інших доходів і оплати витрат. Цей залишок уже враховано в капіталі: доходи й витрати не додаються та не віднімаються повторно. Для кожного рахунку можна вибрати іншу валюту."
+      },
+      "Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.": {
+        de: "Berechnet als Gehalt plus sonstige Einnahmen minus Ausgaben; das Diagramm zeigt die Ersparnisse jedes erfassten Monats in Euro.",
+        uk: "Розраховується як зарплата плюс інші доходи мінус витрати; на графіку показано заощадження за кожен записаний місяць у євро."
+      },
+      "Mese salvato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": {
+        fr: "Mois enregistré. Le salaire, les autres revenus, les dépenses et l’épargne ont été convertis en euros.",
+        es: "Mes guardado. El salario, otros ingresos, gastos y ahorro se han convertido a euros.",
+        pl: "Miesiąc zapisany. Wynagrodzenie, inne przychody, wydatki i oszczędności przeliczono na euro.",
+        ru: "Месяц сохранён. Зарплата, прочие доходы, расходы и сбережения пересчитаны в евро.",
+        pt: "Mês guardado. O salário, outros rendimentos, despesas e poupança foram convertidos para euros.",
+        de: "Monat gespeichert. Gehalt, sonstige Einnahmen, Ausgaben und Ersparnisse wurden in Euro umgerechnet.",
+        uk: "Місяць збережено. Зарплату, інші доходи, витрати та заощадження перераховано в євро."
+      },
+      "Mese aggiornato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": {
+        fr: "Mois mis à jour. Le salaire, les autres revenus, les dépenses et l’épargne ont été convertis en euros.",
+        es: "Mes actualizado. El salario, otros ingresos, gastos y ahorro se han convertido a euros.",
+        pl: "Miesiąc zaktualizowany. Wynagrodzenie, inne przychody, wydatki i oszczędności przeliczono na euro.",
+        ru: "Месяц обновлён. Зарплата, прочие доходы, расходы и сбережения пересчитаны в евро.",
+        pt: "Mês atualizado. O salário, outros rendimentos, despesas e poupança foram convertidos para euros.",
+        de: "Monat aktualisiert. Gehalt, sonstige Einnahmen, Ausgaben und Ersparnisse wurden in Euro umgerechnet.",
+        uk: "Місяць оновлено. Зарплату, інші доходи, витрати та заощадження перераховано в євро."
+      },
+      "Controlla nomi e importi: stipendio, altre entrate, investimenti, saldi e spese devono essere validi e non negativi.": {
+        fr: "Vérifiez les noms et les montants : le salaire, les autres revenus, les investissements, les soldes et les dépenses doivent être valides et positifs ou nuls.",
+        es: "Revisa los nombres y los importes: el salario, otros ingresos, las inversiones, los saldos y los gastos deben ser válidos y no negativos.",
+        pl: "Sprawdź nazwy i kwoty: wynagrodzenie, inne przychody, inwestycje, salda i wydatki muszą być prawidłowe i nieujemne.",
+        ru: "Проверьте названия и суммы: зарплата, прочие доходы, инвестиции, остатки и расходы должны быть корректными и неотрицательными.",
+        pt: "Verifique os nomes e os valores: o salário, outros rendimentos, investimentos, saldos e despesas têm de ser válidos e não negativos.",
+        de: "Überprüfen Sie Namen und Beträge: Gehalt, sonstige Einnahmen, Anlagen, Kontostände und Ausgaben müssen gültig und nicht negativ sein.",
+        uk: "Перевірте назви та суми: зарплата, інші доходи, інвестиції, залишки й витрати мають бути коректними та невід’ємними."
+      },
+      "Il mio patrimonio": { de: "Mein Vermögen", uk: "Мій капітал" },
+      "Un riepilogo mensile semplice della tua situazione finanziaria.": {
+        de: "Eine einfache monatliche Übersicht über Ihre finanzielle Situation.",
+        uk: "Простий щомісячний огляд вашого фінансового стану."
+      },
+      "Lingua / Language": { de: "Sprache / Language", uk: "Мова / Language" },
+      "Inserisci un mese": { de: "Monat erfassen", uk: "Додати місяць" },
+      "Grafico dell'andamento mensile del patrimonio": {
+        de: "Diagramm der monatlichen Vermögensentwicklung",
+        uk: "Графік зміни капіталу за місяцями"
+      },
+      "Mese per i grafici delle spese": {
+        de: "Monat für Ausgabendiagramme",
+        uk: "Місяць для графіків витрат"
+      },
+      "Grafico di confronto delle spese mensili": {
+        de: "Vergleich der monatlichen Ausgaben",
+        uk: "Порівняння витрат за місяцями"
+      },
+      "Grafico a torta delle spese del mese": {
+        de: "Kreisdiagramm der Monatsausgaben",
+        uk: "Кругова діаграма витрат за місяць"
+      },
+      "Grafico a barre del risparmio mensile": {
+        de: "Balkendiagramm der monatlichen Ersparnisse",
+        uk: "Стовпчаста діаграма щомісячних заощаджень"
+      },
+      "Nome del saldo": { de: "Kontoname", uk: "Назва рахунку" },
+      "Valuta del saldo": { de: "Kontowährung", uk: "Валюта рахунку" },
+      "Importo del saldo": { de: "Kontostand", uk: "Сума на рахунку" },
+      "Rimuovi saldo": { de: "Kontostand entfernen", uk: "Видалити залишок" },
+      "Rimuovi altra spesa": { de: "Sonstige Ausgabe entfernen", uk: "Видалити іншу витрату" },
+      "Tipo di ETF": { de: "ETF-Typ", uk: "Тип ETF" },
+      "Nome personalizzato dell'ETF": { de: "Benutzerdefinierter ETF-Name", uk: "Власна назва ETF" },
+      "Valore dell'investimento in euro": { de: "Anlagewert in Euro", uk: "Вартість інвестиції в євро" },
+      "Nome o ticker dell'azione": { de: "Aktienname oder Ticker", uk: "Назва акції або тікер" },
+      "Mese del rilevamento": { de: "Berichtsmonat", uk: "Звітний місяць" },
+      "Valuta di stipendio e spese": { de: "Währung für Gehalt und Ausgaben", uk: "Валюта зарплати та витрат" },
+      "Per EUR il cambio è 1:1.": { de: "Der Wechselkurs für EUR beträgt 1:1.", uk: "Курс EUR становить 1:1." },
+      "Euro per un'unità di valuta": { de: "Euro pro Währungseinheit", uk: "Євро за одиницю валюти" },
+      "Stipendio ricevuto (EUR)": { de: "Erhaltenes Gehalt (EUR)", uk: "Отримана зарплата (EUR)" },
+      "Cibo (EUR)": { de: "Lebensmittel (EUR)", uk: "Їжа (EUR)" },
+      "Benzina (EUR)": { de: "Kraftstoff (EUR)", uk: "Пальне (EUR)" },
+      "Taxi-Trasporti (EUR)": { de: "Taxi und Transport (EUR)", uk: "Таксі та транспорт (EUR)" },
+      "Affitto (EUR)": { de: "Miete (EUR)", uk: "Оренда (EUR)" },
+      "Elettricità (EUR)": { de: "Strom (EUR)", uk: "Електроенергія (EUR)" },
+      "Gas (EUR)": { de: "Gas (EUR)", uk: "Газ (EUR)" },
+      "Tasse (EUR)": { de: "Steuern (EUR)", uk: "Податки (EUR)" },
+      "Salute (EUR)": { de: "Gesundheit (EUR)", uk: "Здоров’я (EUR)" },
+      "Sport (EUR)": { de: "Sport (EUR)", uk: "Спорт (EUR)" },
+      "Divertimenti (EUR)": { de: "Freizeit (EUR)", uk: "Розваги (EUR)" },
+      "Ristoranti (EUR)": { de: "Restaurants (EUR)", uk: "Ресторани (EUR)" },
+      "Bar (EUR)": { de: "Cafés (EUR)", uk: "Кафе (EUR)" },
+      "Altre spese": { de: "Sonstige Ausgaben", uk: "Інші витрати" },
+      "Aggiungi altra spesa": { de: "Weitere Ausgabe hinzufügen", uk: "Додати інші витрати" },
+      "Liquidità corrente": { de: "Bargeld", uk: "Готівка" },
+      "Aggiungi liquidità": { de: "Bargeld hinzufügen", uk: "Додати готівку" },
+      "Conti deposito": { de: "Sparkonten", uk: "Ощадні рахунки" },
+      "Investimenti": { de: "Anlagen", uk: "Інвестиції" },
+      "Azioni": { de: "Aktien", uk: "Акції" },
+      "Obbligazioni": { de: "Anleihen", uk: "Облігації" },
+      "Salva mese": { de: "Monat speichern", uk: "Зберегти місяць" },
+      "Andamento del patrimonio": { de: "Vermögensentwicklung", uk: "Динаміка капіталу" },
+      "Dal mese precedente": { de: "Seit dem Vormonat", uk: "З попереднього місяця" },
+      "Da inizio anno": { de: "Seit Jahresbeginn", uk: "З початку року" },
+      "Da sempre": { de: "Gesamtzeitraum", uk: "За весь час" },
+      "Andamento delle spese": { de: "Ausgabenentwicklung", uk: "Динаміка витрат" },
+      "Mese da analizzare": { de: "Monat analysieren", uk: "Місяць для аналізу" },
+      "Grafico di confronto": { de: "Vergleichsdiagramm", uk: "Порівняльний графік" },
+      "Confronto con il mese precedente": { de: "Vergleich mit dem Vormonat", uk: "Порівняння з попереднім місяцем" },
+      "Spese mensili da sempre": { de: "Monatliche Ausgaben im Gesamtzeitraum", uk: "Витрати за місяцями за весь час" },
+      "Ripartizione delle spese del mese": { de: "Aufschlüsselung der Monatsausgaben", uk: "Розподіл витрат за місяць" },
+      "Risparmio mensile": { de: "Monatliche Ersparnisse", uk: "Щомісячні заощадження" },
+      "Backup dei dati": { de: "Datensicherung", uk: "Резервна копія даних" },
+      "Esporta backup": { de: "Sicherung exportieren", uk: "Експортувати копію" },
+      "Storico mensile": { de: "Monatsübersicht", uk: "Історія за місяцями" },
+      "Mese": { de: "Monat", uk: "Місяць" },
+      "ETF, azioni e obbligazioni": { de: "ETFs, Aktien und Anleihen", uk: "ETF, акції та облігації" },
+      "Liquidità": { de: "Bargeld", uk: "Готівка" },
+      "Conto deposito": { de: "Sparkonto", uk: "Ощадний рахунок" },
+      "Patrimonio": { de: "Vermögen", uk: "Капітал" },
+      "Stipendio": { de: "Gehalt", uk: "Зарплата" },
+      "Spese totali": { de: "Gesamtausgaben", uk: "Загальні витрати" },
+      "Risparmio": { de: "Ersparnisse", uk: "Заощадження" },
+      "Nome": { de: "Name", uk: "Назва" },
+      "Valuta": { de: "Währung", uk: "Валюта" },
+      "Importo": { de: "Betrag", uk: "Сума" },
+      "Voce di spesa": { de: "Ausgabeposten", uk: "Стаття витрат" },
+      "Valore (€)": { de: "Wert (€)", uk: "Вартість (€)" },
+      "Rimuovi": { de: "Entfernen", uk: "Видалити" },
+      "Nessun mese salvato": { de: "Keine Monate gespeichert", uk: "Немає збережених місяців" },
+      "Nessun dato": { de: "Keine Daten", uk: "Немає даних" },
+      "Nessuna spesa": { de: "Keine Ausgaben", uk: "Немає витрат" },
+      "Modifica": { de: "Bearbeiten", uk: "Редагувати" },
+      "Elimina": { de: "Löschen", uk: "Видалити" },
+      "I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.": {
+        de: "Die Daten werden nur in diesem Browser auf diesem Gerät gespeichert und nicht an einen Server gesendet.",
+        uk: "Дані зберігаються лише в цьому браузері на цьому пристрої та не надсилаються на сервер."
+      },
+      "Mese salvato. Stipendio, spese e risparmio sono stati convertiti in euro.": {
+        de: "Monat gespeichert. Gehalt, Ausgaben und Ersparnisse wurden in Euro umgerechnet.",
+        uk: "Місяць збережено. Зарплату, витрати та заощадження перераховано в євро."
+      },
+      "Mese aggiornato. Stipendio, spese e risparmio sono stati convertiti in euro.": {
+        de: "Monat aktualisiert. Gehalt, Ausgaben und Ersparnisse wurden in Euro umgerechnet.",
+        uk: "Місяць оновлено. Зарплату, витрати та заощадження перераховано в євро."
+      },
+      "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.": {
+        de: "Überprüfen Sie Namen und Beträge: Gehalt, Anlagen, Kontostände und Ausgaben müssen gültig und nicht negativ sein.",
+        uk: "Перевірте назви та суми: зарплата, інвестиції, залишки й витрати мають бути коректними та невід’ємними."
+      },
+      "La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.": {
+        de: "Die Umrechnung in Euro hat einen ungültigen Betrag ergeben. Überprüfen Sie Ihre Eingaben.",
+        uk: "Під час конвертації в євро отримано некоректну суму. Перевірте введені значення."
+      },
+      "Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.": {
+        de: "Dieser historische Eintrag ist nicht in Komponenten aufgeteilt. Beim Speichern wird der alte Gesamtbetrag durch die eingegebenen Werte ersetzt.",
+        uk: "Цей історичний запис не розподілено за складниками. Після збереження попередню суму буде замінено введеними значеннями."
+      },
+      "Inserisci stipendio e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.": {
+        de: "Geben Sie Gehalt und Ausgaben in der ausgewählten Währung ein. Sie können mehrere Bargeldbestände und Sparkonten hinzufügen, jeweils in einer eigenen Währung. Beim Speichern werden die Beträge mit dem zuletzt veröffentlichten Referenzkurs in Euro umgerechnet (keine Echtzeitkurse). Anlagen, Vermögen und Ergebnisse bleiben in Euro; verwendete Wechselkurse werden im Verlauf gespeichert. Für die Abfrage werden online nur Währungscodes, niemals Ihre Beträge, übermittelt. Falls der Dienst nicht erreichbar ist, können Sie den Euro-Wert einer Währungseinheit manuell eingeben.",
+        uk: "Введіть зарплату та витрати у вибраній валюті. Можна додати кілька залишків готівки й ощадних рахунків, кожен у власній валюті. Під час збереження суми буде конвертовано в євро за останнім опублікованим довідковим курсом (це не курс у реальному часі). Інвестиції, капітал і результати відображаються в євро; використані курси зберігаються в історії. Для отримання курсів онлайн надсилаються лише коди валют, а не ваші суми. Якщо сервіс недоступний, можна вручну ввести вартість одиниці валюти в євро."
+      },
+      "Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.": {
+        de: "Fügen Sie für jede weitere Ausgabe eine Zeile hinzu und geben Sie den Namen ein. Die Beträge verwenden die oben ausgewählte Währung.",
+        uk: "Додайте окремий рядок для кожної іншої витрати та вкажіть її назву. Суми вводяться у вибраній вище валюті."
+      },
+      "Inserisci il saldo effettivo a fine mese, dopo aver ricevuto lo stipendio e pagato le spese. Il saldo è già incluso nel patrimonio: stipendio e spese non vengono aggiunti o sottratti una seconda volta. Puoi usare una valuta diversa per ciascun conto.": {
+        de: "Geben Sie den tatsächlichen Kontostand am Monatsende ein, nachdem das Gehalt eingegangen und die Ausgaben bezahlt sind. Dieser Betrag ist bereits im Vermögen enthalten: Gehalt und Ausgaben werden nicht noch einmal addiert oder abgezogen. Für jedes Konto kann eine andere Währung verwendet werden.",
+        uk: "Введіть фактичний залишок на кінець місяця після отримання зарплати та оплати витрат. Цей залишок уже враховано в капіталі: зарплата й витрати не додаються та не віднімаються повторно. Для кожного рахунку можна вибрати іншу валюту."
+      },
+      "Aggiungi ogni conto deposito e scegli la valuta del saldo.": {
+        de: "Fügen Sie jedes Sparkonto hinzu und wählen Sie die Währung des Guthabens.",
+        uk: "Додайте кожен ощадний рахунок і виберіть валюту залишку."
+      },
+      "Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.": {
+        de: "Fügen Sie für jeden ETF eine Zeile hinzu und geben Sie den Wert zum Berichtsmonat ein.",
+        uk: "Додайте окремий рядок для кожного ETF і вкажіть його вартість на звітний місяць."
+      },
+      "Aggiungi le azioni che possiedi e inserisci un nome o ticker.": {
+        de: "Fügen Sie Ihre Aktien hinzu und geben Sie einen Namen oder Ticker ein.",
+        uk: "Додайте акції, якими володієте, і вкажіть назву або тікер."
+      },
+      "Aggiungi le obbligazioni che possiedi e inserisci un nome o identificativo.": {
+        de: "Fügen Sie Ihre Anleihen hinzu und geben Sie einen Namen oder eine Kennung ein.",
+        uk: "Додайте облігації, якими володієте, і вкажіть назву або ідентифікатор."
+      },
+      "La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.": {
+        de: "Die Veränderung vergleicht die erfassten Vermögenswerte. Sie entspricht nicht der Anlageperformance, da sie auch Ersparnisse, Abhebungen und Ausgaben enthalten kann.",
+        uk: "Зміна порівнює записаний капітал і не є дохідністю інвестицій, оскільки може враховувати заощадження, зняття коштів і витрати."
+      },
+      "Il confronto mensile usa l’ultima rilevazione salvata come riferimento, anche se mancano mesi intermedi. Tutti gli importi sono in euro.": {
+        de: "Der Monatsvergleich verwendet den letzten gespeicherten Eintrag als Referenz, auch wenn Zwischenmonate fehlen. Alle Beträge sind in Euro.",
+        uk: "Для порівняння використовується останній збережений запис, навіть якщо деякі місяці пропущено. Усі суми вказано в євро."
+      },
+      "Calcolato come stipendio meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.": {
+        de: "Berechnet als Gehalt abzüglich Ausgaben; das Diagramm zeigt die Ersparnisse jedes erfassten Monats in Euro.",
+        uk: "Розраховується як зарплата мінус витрати; на графіку показано заощадження за кожен записаний місяць у євро."
+      },
+      "Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.": {
+        de: "Exportieren Sie eine Kopie Ihrer Daten oder importieren Sie eine Sicherung. Beim Import werden Monate zusammengeführt; bei doppelten Monaten wird der Eintrag aus der Sicherung verwendet. Die JSON-Datei ist nicht verschlüsselt: Bewahren Sie sie sicher und privat auf.",
+        uk: "Експортуйте копію даних або імпортуйте резервну копію. Під час імпорту місяці об’єднуються, а для дублікатів використовуються дані з копії. Файл JSON не зашифровано: зберігайте його в безпечному приватному місці."
+      }
+    });
+    integraTraduzioniLocalizzate({
+      "Euro": { fr: "Euro", es: "Euro", pl: "Euro", ru: "евро", pt: "Euro", de: "Euro", uk: "євро" },
+      "Dollaro statunitense": { fr: "dollar américain", es: "dólar estadounidense", pl: "dolar amerykański", ru: "доллар США", pt: "dólar americano", de: "US-Dollar", uk: "долар США" },
+      "Sterlina britannica": { fr: "livre sterling", es: "libra esterlina", pl: "funt szterling", ru: "британский фунт", pt: "libra esterlina", de: "Britisches Pfund", uk: "британський фунт" },
+      "Franco svizzero": { fr: "franc suisse", es: "franco suizo", pl: "frank szwajcarski", ru: "швейцарский франк", pt: "franco suíço", de: "Schweizer Franken", uk: "швейцарський франк" },
+      "Yen giapponese": { fr: "yen japonais", es: "yen japonés", pl: "jen japoński", ru: "японская иена", pt: "iene japonês", de: "Japanischer Yen", uk: "японська єна" },
+      "Dollaro canadese": { fr: "dollar canadien", es: "dólar canadiense", pl: "dolar kanadyjski", ru: "канадский доллар", pt: "dólar canadiano", de: "Kanadischer Dollar", uk: "канадський долар" },
+      "Dollaro australiano": { fr: "dollar australien", es: "dólar australiano", pl: "dolar australijski", ru: "австралийский доллар", pt: "dólar australiano", de: "Australischer Dollar", uk: "австралійський долар" },
+      "Dollaro neozelandese": { fr: "dollar néo-zélandais", es: "dólar neozelandés", pl: "dolar nowozelandzki", ru: "новозеландский доллар", pt: "dólar neozelandês", de: "Neuseeland-Dollar", uk: "новозеландський долар" },
+      "Yuan cinese": { fr: "yuan chinois", es: "yuan chino", pl: "juan chiński", ru: "китайский юань", pt: "yuan chinês", de: "Chinesischer Yuan", uk: "китайський юань" },
+      "Rupia indiana": { fr: "roupie indienne", es: "rupia india", pl: "rupia indyjska", ru: "индийская рупия", pt: "rupia indiana", de: "Indische Rupie", uk: "індійська рупія" },
+      "Dollaro di Singapore": { fr: "dollar de Singapour", es: "dólar de Singapur", pl: "dolar singapurski", ru: "сингапурский доллар", pt: "dólar de Singapura", de: "Singapur-Dollar", uk: "сінгапурський долар" },
+      "Dollaro di Hong Kong": { fr: "dollar de Hong Kong", es: "dólar de Hong Kong", pl: "dolar hongkoński", ru: "гонконгский доллар", pt: "dólar de Hong Kong", de: "Hongkong-Dollar", uk: "гонконзький долар" },
+      "Zloty polacco": { fr: "zloty polonais", es: "esloti polaco", pl: "złoty polski", ru: "польский злотый", pt: "zlóti polaco", de: "Polnischer Złoty", uk: "польський злотий" },
+      "Corona svedese": { fr: "couronne suédoise", es: "corona sueca", pl: "korona szwedzka", ru: "шведская крона", pt: "coroa sueca", de: "Schwedische Krone", uk: "шведська крона" },
+      "Corona norvegese": { fr: "couronne norvégienne", es: "corona noruega", pl: "korona norweska", ru: "норвежская крона", pt: "coroa norueguesa", de: "Norwegische Krone", uk: "норвезька крона" },
+      "Corona danese": { fr: "couronne danoise", es: "corona danesa", pl: "korona duńska", ru: "датская крона", pt: "coroa dinamarquesa", de: "Dänische Krone", uk: "данська крона" },
+      "Corona ceca": { fr: "couronne tchèque", es: "corona checa", pl: "korona czeska", ru: "чешская крона", pt: "coroa checa", de: "Tschechische Krone", uk: "чеська крона" },
+      "Fiorino ungherese": { fr: "forint hongrois", es: "florín húngaro", pl: "forint węgierski", ru: "венгерский форинт", pt: "forint húngaro", de: "Ungarischer Forint", uk: "угорський форинт" },
+      "Leu rumeno": { fr: "leu roumain", es: "leu rumano", pl: "lej rumuński", ru: "румынский лей", pt: "leu romeno", de: "Rumänischer Leu", uk: "румунський лей" },
+      "Lev bulgaro": { fr: "lev bulgare", es: "lev búlgaro", pl: "lew bułgarski", ru: "болгарский лев", pt: "lev búlgaro", de: "Bulgarischer Lew", uk: "болгарський лев" },
+      "Lira turca": { fr: "livre turque", es: "lira turca", pl: "lira turecka", ru: "турецкая лира", pt: "lira turca", de: "Türkische Lira", uk: "турецька ліра" },
+      "Real brasiliano": { fr: "réal brésilien", es: "real brasileño", pl: "real brazylijski", ru: "бразильский реал", pt: "real brasileiro", de: "Brasilianischer Real", uk: "бразильський реал" },
+      "Peso messicano": { fr: "peso mexicain", es: "peso mexicano", pl: "peso meksykańskie", ru: "мексиканское песо", pt: "peso mexicano", de: "Mexikanischer Peso", uk: "мексиканське песо" },
+      "Rand sudafricano": { fr: "rand sud-africain", es: "rand sudafricano", pl: "rand południowoafrykański", ru: "южноафриканский рэнд", pt: "rand sul-africano", de: "Südafrikanischer Rand", uk: "південноафриканський ренд" },
+      "Won sudcoreano": { fr: "won sud-coréen", es: "won surcoreano", pl: "won południowokoreański", ru: "южнокорейская вона", pt: "won sul-coreano", de: "Südkoreanischer Won", uk: "південнокорейська вона" },
+      "Peso argentino": { fr: "peso argentin", es: "peso argentino", pl: "peso argentyńskie", ru: "аргентинское песо", pt: "peso argentino", de: "Argentinischer Peso", uk: "аргентинське песо" },
+      "Peso cileno": { fr: "peso chilien", es: "peso chileno", pl: "peso chilijskie", ru: "чилийское песо", pt: "peso chileno", de: "Chilenischer Peso", uk: "чилійське песо" },
+      "Peso colombiano": { fr: "peso colombien", es: "peso colombiano", pl: "peso kolumbijskie", ru: "колумбийское песо", pt: "peso colombiano", de: "Kolumbianischer Peso", uk: "колумбійське песо" },
+      "Sol peruviano": { fr: "sol péruvien", es: "sol peruano", pl: "sol peruwiański", ru: "перуанский соль", pt: "sol peruano", de: "Peruanischer Sol", uk: "перуанський соль" },
+      "Dollaro taiwanese": { fr: "dollar taïwanais", es: "dólar taiwanés", pl: "dolar tajwański", ru: "новый тайваньский доллар", pt: "dólar taiwanês", de: "Neuer Taiwan-Dollar", uk: "новий тайванський долар" },
+      "Grivnia ucraina": { fr: "hryvnia ukrainienne", es: "grivna ucraniana", pl: "hrywna ukraińska", ru: "украинская гривна", pt: "hryvnia ucraniana", de: "Ukrainische Hrywnja", uk: "українська гривня" },
+      "Rublo russo": { fr: "rouble russe", es: "rublo ruso", pl: "rubel rosyjski", ru: "российский рубль", pt: "rublo russo", de: "Russischer Rubel", uk: "російський рубль" },
+      "Naira nigeriana": { fr: "naira nigérian", es: "naira nigeriana", pl: "naira nigeryjska", ru: "нигерийская найра", pt: "naira nigeriana", de: "Nigerianischer Naira", uk: "нігерійська найра" }
+    });
+
+    let lingua = ["it", "en", "fr", "es", "pl", "ru", "pt", "de", "uk"].includes(
+      localStorage.getItem(CHIAVE_LINGUA)
+    ) ? localStorage.getItem(CHIAVE_LINGUA) : "it";
+    function localeCorrente() {
+      return {
+        it: "it-IT", en: "en-GB", fr: "fr-FR", es: "es-ES",
+        pl: "pl-PL", ru: "ru-RU", pt: "pt-PT", de: "de-DE", uk: "uk-UA"
+      }[lingua];
+    }
+
+    function traduciTesto(testo) {
+      if (lingua === "it") return testo;
+      const localizzata = TRADUZIONI_LOCALIZZATE[testo];
+      if (localizzata && localizzata[lingua]) return localizzata[lingua];
+      if (TRADUZIONI[testo]) return TRADUZIONI[testo];
+      const valuta = testo.match(/^([A-Z]{3}) — (.+)$/);
+      if (valuta) {
+        if (typeof Intl.DisplayNames === "function") {
+          const nomeValuta = new Intl.DisplayNames([localeCorrente()], { type: "currency" })
+            .of(valuta[1]);
+          if (nomeValuta) return valuta[1] + " — " + nomeValuta;
+        }
+        const nomeTradotto = TRADUZIONI_LOCALIZZATE[valuta[2]] &&
+          TRADUZIONI_LOCALIZZATE[valuta[2]][lingua] || TRADUZIONI[valuta[2]] || valuta[2];
+        return valuta[1] + " — " + nomeTradotto;
+      }
+      if (lingua === "en") return traduciDinamicoInglese(testo);
+      return traduciDinamico(testo, lingua);
+    }
+
+    function traduciDinamicoInglese(testo) {
+      const rimuovi = testo.match(/^Rimuovi (ETF|azione|obbligazione)$/);
+      if (rimuovi) {
+        return "Remove " + {
+          ETF: "ETF",
+          azione: "stock",
+          obbligazione: "bond"
+        }[rimuovi[1]];
+      }
+      const categoria = testo.match(/^(.+) \(([^()]+)\)$/);
+      if (categoria) {
+        const nomi = {
+          "Cibo": "Food", "Benzina": "Fuel", "Taxi-Trasporti": "Taxi and transport",
+          "Affitto": "Rent", "Elettricità": "Electricity", "Gas": "Gas",
+          "Tasse": "Taxes", "Salute": "Health", "Sport": "Sports",
+          "Divertimenti": "Entertainment", "Ristoranti": "Restaurants", "Bar": "Cafes"
+        };
+        if (nomi[categoria[1]]) return nomi[categoria[1]] + " (" + categoria[2] + ")";
+      }
+      return testo
+        .replace(/^Stipendio ricevuto \((.+)\)$/, "Salary received ($1)")
+        .replace(/^Importo \((.+)\)$/, "Amount ($1)")
+        .replace(/^Euro per 1 (.+)$/, "Euros per 1 $1")
+        .replace(/^1 ([A-Z]{3}) = (.+) EUR — Tasso inserito manualmente(?: \(dato del (.+)\))?\.$/,
+          (_, valuta, valore, data) => `1 ${valuta} = ${valore} EUR — Manually entered rate${data ? ` (as of ${data})` : ""}.`)
+        .replace(/^1 ([A-Z]{3}) = (.+) EUR — Ultimo tasso Frankfurter(?: \(dato del (.+)\))?\.$/,
+          (_, valuta, valore, data) => `1 ${valuta} = ${valore} EUR — Latest Frankfurter rate${data ? ` (as of ${data})` : ""}.`)
+        .replace(/^Recupero il cambio più recente per (.+)…$/, "Fetching the latest exchange rate for $1…")
+        .replace(/^Cambio online non disponibile \((.+)\)\. Inserisci manualmente il valore in euro di 1 (.+)\.$/,
+          "Online exchange rate unavailable ($1). Enter the euro value of 1 $2 manually.")
+        .replace(/^Cambio online non disponibile \((.+)\)\. Inserisci manualmente quanti euro vale 1 (.+)\.$/,
+          "Online exchange rate unavailable ($1). Enter how many euros 1 $2 is worth.")
+        .replace(/^Cambio online non disponibile \((.+)\)\. Inserisci il tasso manualmente\.$/,
+          "Online exchange rate unavailable ($1). Enter the rate manually.")
+        .replace(/^Cambio online non disponibile \((.+)\)\. Inserisci manualmente quanti euro vale un'unità della valuta interessata\.$/,
+          "Online exchange rate unavailable ($1). Enter manually how many euros one unit of the currency is worth.")
+        .replace(/^Totale di (.+): (.+)\. Non è ancora disponibile una rilevazione precedente\.$/,
+          "Total for $1: $2. No previous entry is available yet.")
+        .replace(/^Totale di (.+): (.+) \((.+), (.+)\) rispetto a (.+) \((.+)\)\.$/,
+          "Total for $1: $2 ($3, $4) compared with $5 ($6).")
+        .replace(/^Spese mensili registrate in euro, dall'inizio dello storico\.$/,
+          "Monthly expenses in euros since the start of your history.")
+        .replace(/^Risparmio di (.+): (.+)\.$$/, "Savings for $1: $2.")
+        .replace(/^Dati di (.+) caricati\. Modifica i campi e premi Salva mese\.$/,
+          "Data for $1 loaded. Edit the fields and select Save month.")
+        .replace(/^Vuoi eliminare i dati di (.+)\? Questa azione non può essere annullata\.$/,
+          "Delete the data for $1? This action cannot be undone.")
+        .replace(/^Dati di (.+) eliminati\.$$/, "Data for $1 deleted.")
+        .replace(/^Backup importato: (.+) mesi uniti ai dati presenti\. Nei mesi duplicati è stato usato il backup\.$/,
+          "Backup imported: $1 months merged with existing data. For duplicate months, the backup was used.")
+        .replace(/^Importazione non riuscita: (.+)$/, "Import failed: $1")
+        .replace(/^Impossibile esportare il backup: (.+)$/, "Could not export backup: $1")
+        .replace(/^Impossibile eliminare i dati in questo browser: (.+)$/, "Could not delete data in this browser: $1")
+        .replace(/^Impossibile salvare i dati in questo browser: (.+)$/, "Could not save data in this browser: $1")
+        .replace(/^Non riesco a leggere i dati salvati: (.+)$/, "Could not read saved data: $1")
+        .replace(/^Impossibile salvare la lingua scelta: (.+)$/, "Could not save the selected language: $1")
+        .replace(/^Dati di (.+) caricati\. Modifica i campi e premi Salva mese\.$/,
+          "Data for $1 loaded. Edit the fields and select Save month.")
+        .replace(/^Dati di (.+) eliminati\.$$/, "Data for $1 deleted.")
+        .replace(/^Backup importato: (.+) mesi uniti ai dati presenti\. Nei mesi duplicati è stato usato il backup\.$/,
+          "Backup imported: $1 months merged with existing data. For duplicate months, the backup was used.")
+        .replace(/^Questa azione non può essere annullata\.$/, "This action cannot be undone.")
+        .replace(/^Mese salvato\. Stipendio, spese e risparmio sono stati convertiti in euro\.$/,
+          "Month saved. Salary, expenses and savings have been converted to euros.")
+        .replace(/^Mese aggiornato\. Stipendio, spese e risparmio sono stati convertiti in euro\.$/,
+          "Month updated. Salary, expenses and savings have been converted to euros.");
+    }
+
+    function traduciDinamico(testo, codiceLingua) {
+      const rimuovi = testo.match(/^Rimuovi (ETF|azione|obbligazione)$/);
+      if (rimuovi) {
+        const azioni = {
+          fr: ["ETF", "action", "obligation"],
+          es: ["ETF", "acción", "bono"],
+          pl: ["ETF", "akcję", "obligację"],
+          ru: ["ETF", "акцию", "облигацию"],
+          pt: ["ETF", "ação", "obrigação"],
+          de: ["ETF", "Aktie", "Anleihe"],
+          uk: ["ETF", "акцію", "облігацію"]
+        }[codiceLingua];
+        const indice = { ETF: 0, azione: 1, obbligazione: 2 }[rimuovi[1]];
+        const verbo = {
+          fr: "Supprimer", es: "Eliminar", pl: "Usuń", ru: "Удалить",
+          pt: "Remover", de: "Entfernen", uk: "Видалити"
+        }[codiceLingua];
+        return verbo + " " + azioni[indice];
+      }
+      const matchImporto = testo.match(/^Importo \((.+)\)$/);
+      if (matchImporto) {
+        const etichette = {
+          fr: "Montant", es: "Importe", pl: "Kwota", ru: "Сумма",
+          pt: "Valor", de: "Betrag", uk: "Сума"
+        };
+        return etichette[codiceLingua] + " (" + matchImporto[1] + ")";
+      }
+      const tassoPerUnita = testo.match(/^Euro per 1 (.+)$/);
+      if (tassoPerUnita) {
+        const etichette = {
+          fr: "Euros pour 1", es: "Euros por 1", pl: "Euro za 1",
+          ru: "Евро за 1", pt: "Euros por 1", de: "Euro pro 1", uk: "Євро за 1"
+        };
+        return etichette[codiceLingua] + " " + tassoPerUnita[1];
+      }
+      const stipendio = testo.match(/^Stipendio ricevuto \((.+)\)$/);
+      if (stipendio) {
+        const etichette = {
+          fr: "Salaire reçu", es: "Salario recibido", pl: "Otrzymane wynagrodzenie",
+          ru: "Полученная зарплата", pt: "Salário recebido", de: "Erhaltenes Gehalt",
+          uk: "Отримана зарплата"
+        };
+        return etichette[codiceLingua] + " (" + stipendio[1] + ")";
+      }
+      const categoria = testo.match(/^(.+) \(([^()]+)\)$/);
+      if (categoria) {
+        const nomi = {
+          "Cibo": { fr: "Alimentation", es: "Comida", pl: "Jedzenie", ru: "Еда", pt: "Alimentação", de: "Lebensmittel", uk: "Їжа" },
+          "Benzina": { fr: "Carburant", es: "Combustible", pl: "Paliwo", ru: "Топливо", pt: "Combustível", de: "Kraftstoff", uk: "Пальне" },
+          "Taxi-Trasporti": { fr: "Taxi et transports", es: "Taxi y transporte", pl: "Taksówki i transport", ru: "Такси и транспорт", pt: "Táxi e transportes", de: "Taxi und Transport", uk: "Таксі та транспорт" },
+          "Affitto": { fr: "Loyer", es: "Alquiler", pl: "Czynsz", ru: "Аренда", pt: "Renda", de: "Miete", uk: "Оренда" },
+          "Elettricità": { fr: "Électricité", es: "Electricidad", pl: "Prąd", ru: "Электричество", pt: "Eletricidade", de: "Strom", uk: "Електроенергія" },
+          "Gas": { fr: "Gaz", es: "Gas", pl: "Gaz", ru: "Газ", pt: "Gás", de: "Gas", uk: "Газ" },
+          "Tasse": { fr: "Impôts", es: "Impuestos", pl: "Podatki", ru: "Налоги", pt: "Impostos", de: "Steuern", uk: "Податки" },
+          "Salute": { fr: "Santé", es: "Salud", pl: "Zdrowie", ru: "Здоровье", pt: "Saúde", de: "Gesundheit", uk: "Здоров’я" },
+          "Sport": { fr: "Sport", es: "Deporte", pl: "Sport", ru: "Спорт", pt: "Desporto", de: "Sport", uk: "Спорт" },
+          "Divertimenti": { fr: "Loisirs", es: "Ocio", pl: "Rozrywka", ru: "Развлечения", pt: "Lazer", de: "Freizeit", uk: "Розваги" },
+          "Ristoranti": { fr: "Restaurants", es: "Restaurantes", pl: "Restauracje", ru: "Рестораны", pt: "Restaurantes", de: "Restaurants", uk: "Ресторани" },
+          "Bar": { fr: "Cafés", es: "Bares", pl: "Bary", ru: "Кафе", pt: "Cafés", de: "Cafés", uk: "Кафе" }
+        };
+        if (nomi[categoria[1]]) return nomi[categoria[1]][codiceLingua] + " (" + categoria[2] + ")";
+      }
+      const risparmio = testo.match(/^Risparmio di (.+): (.+)\.$/);
+      if (risparmio) {
+        const etichette = {
+          fr: "Épargne de", es: "Ahorro de", pl: "Oszczędności za",
+          ru: "Сбережения за", pt: "Poupança de", de: "Ersparnis für",
+          uk: "Заощадження за"
+        };
+        return etichette[codiceLingua] + " " + risparmio[1] + ": " + risparmio[2] + ".";
+      }
+      if (testo === "Spese mensili registrate in euro, dall'inizio dello storico.") {
+        return {
+          fr: "Dépenses mensuelles en euros depuis le début de l’historique.",
+          es: "Gastos mensuales en euros desde el inicio del historial.",
+          pl: "Wydatki miesięczne w euro od początku historii.",
+          ru: "Расходы по месяцам в евро с начала истории.",
+          pt: "Despesas mensais em euros desde o início do histórico.",
+          de: "Monatliche Ausgaben in Euro seit Beginn des Verlaufs.",
+          uk: "Щомісячні витрати в євро від початку історії."
+        }[codiceLingua];
+      }
+      const cambio = testo.match(/^Recupero il cambio più recente per (.+)…$/);
+      if (cambio) {
+        const messaggi = {
+          fr: "Récupération du dernier taux de change pour", es: "Obteniendo el último tipo de cambio para",
+          pl: "Pobieranie najnowszego kursu wymiany dla", ru: "Получение последнего курса для",
+          pt: "A obter a última taxa de câmbio para", de: "Der aktuelle Wechselkurs wird abgerufen für",
+          uk: "Отримання останнього курсу для"
+        };
+        return messaggi[codiceLingua] + " " + cambio[1] + "…";
+      }
+      const tasso = testo.match(/^1 ([A-Z]{3}) = (.+) EUR — (Tasso inserito manualmente|Ultimo tasso Frankfurter)(?: \(dato del (.+)\))?\.$/);
+      if (tasso) {
+        const origine = {
+          fr: ["taux saisi manuellement", "dernier taux Frankfurter"],
+          es: ["tipo de cambio introducido manualmente", "último tipo de cambio de Frankfurter"],
+          pl: ["kurs wpisany ręcznie", "ostatni kurs Frankfurter"],
+          ru: ["курс введён вручную", "последний курс Frankfurter"],
+          pt: ["taxa introduzida manualmente", "última taxa Frankfurter"],
+          de: ["manuell eingegebener Kurs", "letzter Frankfurter-Kurs"],
+          uk: ["курс введено вручну", "останній курс Frankfurter"]
+        }[codiceLingua][tasso[3] === "Tasso inserito manualmente" ? 0 : 1];
+        const data = tasso[4] ? {
+          fr: " (donnée du " + tasso[4] + ")",
+          es: " (dato del " + tasso[4] + ")",
+          pl: " (z dnia " + tasso[4] + ")",
+          ru: " (данные от " + tasso[4] + ")",
+          pt: " (dados de " + tasso[4] + ")",
+          de: " (Stand: " + tasso[4] + ")",
+          uk: " (дані від " + tasso[4] + ")"
+        }[codiceLingua] : "";
+        return "1 " + tasso[1] + " = " + tasso[2] + " EUR — " + origine + data + ".";
+      }
+      const erroreCambio = testo.match(/^Cambio online non disponibile \((.+)\)\. (.+)$/);
+      if (erroreCambio) {
+        const messaggi = {
+          fr: "Taux de change en ligne indisponible ($1).",
+          es: "Tipo de cambio en línea no disponible ($1).",
+          pl: "Kurs online jest niedostępny ($1).",
+          ru: "Онлайн-курс недоступен ($1).",
+          pt: "Taxa de câmbio online indisponível ($1).",
+          de: "Online-Wechselkurs nicht verfügbar ($1).",
+          uk: "Онлайн-курс недоступний ($1)."
+        };
+        const suggerimento = {
+          fr: " Saisissez le taux manuellement.",
+          es: " Introduce el tipo de cambio manualmente.",
+          pl: " Wpisz kurs ręcznie.",
+          ru: " Введите курс вручную.",
+          pt: " Introduza a taxa manualmente.",
+          de: " Geben Sie den Kurs manuell ein.",
+          uk: " Введіть курс вручну."
+        }[codiceLingua];
+        return messaggi[codiceLingua].replace("$1", erroreCambio[1]) + suggerimento;
+      }
+      const meseSenzaPrecedente = testo.match(/^Totale di (.+): (.+)\. Non è ancora disponibile una rilevazione precedente\.$/);
+      if (meseSenzaPrecedente) {
+        const etichette = {
+          fr: "Total de", es: "Total de", pl: "Suma za",
+          ru: "Итого за", pt: "Total de", de: "Summe für", uk: "Сума за"
+        };
+        const suffissi = {
+          fr: "Aucun relevé précédent n’est encore disponible.",
+          es: "Aún no hay un registro anterior disponible.",
+          pl: "Brak wcześniejszego zapisu do porównania.",
+          ru: "Предыдущая запись пока недоступна.",
+          pt: "Ainda não existe um registo anterior.",
+          de: "Es ist noch kein vorheriger Eintrag verfügbar.",
+          uk: "Попередній запис ще недоступний."
+        };
+        return etichette[codiceLingua] + " " + meseSenzaPrecedente[1] + ": " +
+          meseSenzaPrecedente[2] + ". " + suffissi[codiceLingua];
+      }
+      const comparazione = testo.match(/^Totale di (.+): (.+) \((.+), (.+)\) rispetto a (.+) \((.+)\)\.$/);
+      if (comparazione) {
+        const etichette = {
+          fr: "Total de", es: "Total de", pl: "Suma za",
+          ru: "Итого за", pt: "Total de", de: "Summe für", uk: "Сума за"
+        };
+        const confronto = {
+          fr: "par rapport à", es: "comparado con", pl: "w porównaniu z",
+          ru: "по сравнению с", pt: "em comparação com", de: "im Vergleich zu", uk: "порівняно з"
+        };
+        return etichette[codiceLingua] + " " + comparazione[1] + ": " + comparazione[2] +
+          " (" + comparazione[3] + ", " + comparazione[4] + ") " +
+          confronto[codiceLingua] + " " + comparazione[5] + " (" + comparazione[6] + ").";
+      }
+      const conferma = testo.match(/^Vuoi eliminare i dati di (.+)\? Questa azione non può essere annullata\.$/);
+      if (conferma) {
+        const messaggi = {
+          fr: "Supprimer les données de $1 ? Cette action est irréversible.",
+          es: "¿Eliminar los datos de $1? Esta acción no se puede deshacer.",
+          pl: "Usunąć dane za $1? Tej czynności nie można cofnąć.",
+          ru: "Удалить данные за $1? Это действие нельзя отменить.",
+          pt: "Eliminar os dados de $1? Esta ação não pode ser anulada.",
+          de: "Daten für $1 löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
+          uk: "Видалити дані за $1? Цю дію неможливо скасувати."
+        };
+        return messaggi[codiceLingua].replace("$1", conferma[1]);
+      }
+      const datoCaricato = testo.match(/^Dati di (.+) caricati\. Modifica i campi e premi Salva mese\.$/);
+      if (datoCaricato) {
+        const messaggi = {
+          fr: "Données de $1 chargées. Modifiez les champs et enregistrez le mois.",
+          es: "Datos de $1 cargados. Modifica los campos y guarda el mes.",
+          pl: "Wczytano dane za $1. Zmień pola i zapisz miesiąc.",
+          ru: "Данные за $1 загружены. Измените поля и сохраните месяц.",
+          pt: "Dados de $1 carregados. Edite os campos e guarde o mês.",
+          de: "Daten für $1 geladen. Bearbeiten Sie die Felder und speichern Sie den Monat.",
+          uk: "Дані за $1 завантажено. Змініть поля та збережіть місяць."
+        };
+        return messaggi[codiceLingua].replace("$1", datoCaricato[1]);
+      }
+      const datiEliminati = testo.match(/^Dati di (.+) eliminati\.$/);
+      if (datiEliminati) {
+        const messaggi = {
+          fr: "Données de $1 supprimées.", es: "Datos de $1 eliminados.",
+          pl: "Usunięto dane za $1.", ru: "Данные за $1 удалены.",
+          pt: "Dados de $1 eliminados.", de: "Daten für $1 gelöscht.",
+          uk: "Дані за $1 видалено."
+        };
+        return messaggi[codiceLingua].replace("$1", datiEliminati[1]);
+      }
+      const backupImportato = testo.match(/^Backup importato: (.+) mesi uniti ai dati presenti\. Nei mesi duplicati è stato usato il backup\.$/);
+      if (backupImportato) {
+        const messaggi = {
+          fr: "Sauvegarde importée : $1 mois fusionnés avec les données existantes. En cas de doublon, la sauvegarde a été utilisée.",
+          es: "Copia importada: $1 meses combinados con los datos existentes. En los meses duplicados se usó la copia.",
+          pl: "Zaimportowano kopię: połączono $1 miesięcy z istniejącymi danymi. W przypadku duplikatów użyto kopii.",
+          ru: "Резервная копия импортирована: объединено месяцев — $1. Для повторяющихся месяцев использованы данные из копии.",
+          pt: "Cópia importada: $1 meses unidos aos dados existentes. Nos meses duplicados foi utilizada a cópia.",
+          de: "Sicherung importiert: $1 Monate mit den vorhandenen Daten zusammengeführt. Bei doppelten Monaten wurde die Sicherung verwendet.",
+          uk: "Резервну копію імпортовано: об’єднано місяців — $1. Для дублікатів використано дані з копії."
+        };
+        return messaggi[codiceLingua].replace("$1", backupImportato[1]);
+      }
+      const erroreGenerico = testo.match(/^(Importazione non riuscita|Impossibile esportare il backup|Impossibile eliminare i dati in questo browser|Impossibile salvare i dati in questo browser|Non riesco a leggere i dati salvati|Impossibile salvare la lingua scelta): (.+)$/);
+      if (erroreGenerico) {
+        const prefissi = {
+          fr: ["Échec de l’importation", "Impossible d’exporter la sauvegarde", "Impossible de supprimer les données dans ce navigateur", "Impossible d’enregistrer les données dans ce navigateur", "Impossible de lire les données enregistrées", "Impossible d’enregistrer la langue choisie"],
+          es: ["Error al importar", "No se pudo exportar la copia", "No se pudieron eliminar los datos de este navegador", "No se pudieron guardar los datos en este navegador", "No se pudieron leer los datos guardados", "No se pudo guardar el idioma elegido"],
+          pl: ["Importowanie nie powiodło się", "Nie można wyeksportować kopii", "Nie można usunąć danych w tej przeglądarce", "Nie można zapisać danych w tej przeglądarce", "Nie można odczytać zapisanych danych", "Nie można zapisać wybranego języka"],
+          ru: ["Не удалось импортировать", "Не удалось экспортировать копию", "Не удалось удалить данные в этом браузере", "Не удалось сохранить данные в этом браузере", "Не удалось прочитать сохранённые данные", "Не удалось сохранить выбранный язык"],
+          pt: ["Falha na importação", "Não foi possível exportar a cópia", "Não foi possível eliminar os dados neste navegador", "Não foi possível guardar os dados neste navegador", "Não foi possível ler os dados guardados", "Não foi possível guardar o idioma escolhido"],
+          de: ["Import fehlgeschlagen", "Sicherung konnte nicht exportiert werden", "Daten konnten in diesem Browser nicht gelöscht werden", "Daten konnten in diesem Browser nicht gespeichert werden", "Gespeicherte Daten konnten nicht gelesen werden", "Ausgewählte Sprache konnte nicht gespeichert werden"],
+          uk: ["Не вдалося імпортувати", "Не вдалося експортувати копію", "Не вдалося видалити дані в цьому браузері", "Не вдалося зберегти дані в цьому браузері", "Не вдалося прочитати збережені дані", "Не вдалося зберегти вибрану мову"]
+        };
+        const indice = {
+          "Importazione non riuscita": 0,
+          "Impossibile esportare il backup": 1,
+          "Impossibile eliminare i dati in questo browser": 2,
+          "Impossibile salvare i dati in questo browser": 3,
+          "Non riesco a leggere i dati salvati": 4,
+          "Impossibile salvare la lingua scelta": 5
+        }[erroreGenerico[1]];
+        return prefissi[codiceLingua][indice] + ": " + erroreGenerico[2];
+      }
+      if (testo === "N/D (saldo iniziale pari a zero)") {
+        return {
+          fr: "N/D (solde initial égal à zéro)", es: "N/D (saldo inicial igual a cero)",
+          pl: "Brak (saldo początkowe wynosi zero)", ru: "Н/Д (начальный остаток равен нулю)",
+          pt: "N/D (saldo inicial igual a zero)", de: "N/V (Anfangssaldo ist null)",
+          uk: "Н/Д (початковий залишок дорівнює нулю)"
+        }[codiceLingua];
+      }
+      return testo;
+    }
+
+    const testiOriginali = new WeakMap();
+    const attributiOriginali = new WeakMap();
+    function traduzioneTestoNodo(nodo, testo) {
+      return testo === "Azioni" && nodo.parentElement &&
+        nodo.parentElement.id === "titolo-azioni" && lingua === "en"
+        ? "Stocks"
+        : traduciTesto(testo);
+    }
+
+    function traduciNodo(nodo, mutazione = false) {
+      if (nodo.nodeType === Node.TEXT_NODE) {
+        const contenuto = nodo.nodeValue.trim();
+        if (!contenuto) return;
+        const precedente = testiOriginali.get(nodo);
+        const traduzionePrecedente = precedente === undefined
+          ? null
+          : traduzioneTestoNodo(nodo, precedente);
+        if (precedente === undefined || (mutazione && contenuto !== traduzionePrecedente)) {
+          testiOriginali.set(nodo, contenuto);
+        }
+        const originale = testiOriginali.get(nodo);
+        const tradotto = traduzioneTestoNodo(nodo, originale);
+        if (tradotto !== contenuto) nodo.nodeValue = nodo.nodeValue.replace(contenuto, tradotto);
+      } else if (nodo.nodeType === Node.ELEMENT_NODE) {
+        let originali = attributiOriginali.get(nodo);
+        if (!originali) {
+          originali = new Map();
+          attributiOriginali.set(nodo, originali);
+        }
+        ["aria-label", "placeholder", "title"].forEach((attributo) => {
+          const valore = nodo.getAttribute(attributo);
+          if (valore) {
+            const precedente = originali.get(attributo);
+            if (precedente === undefined ||
+                (mutazione && valore !== traduciTesto(precedente))) {
+              originali.set(attributo, valore);
+            }
+            const tradotto = traduciTesto(originali.get(attributo));
+            if (tradotto !== valore) nodo.setAttribute(attributo, tradotto);
+          }
+        });
+        nodo.childNodes.forEach((figlio) => traduciNodo(figlio, mutazione));
+      }
+    }
+
+    const selettoreLingua = document.getElementById("selettore-lingua");
+    const observerLingua = new MutationObserver((mutazioni) => {
+      mutazioni.forEach((mutazione) => {
+        if (mutazione.type === "characterData") {
+          traduciNodo(mutazione.target, true);
+        } else if (mutazione.type === "attributes") {
+          traduciNodo(mutazione.target, true);
+        } else {
+          mutazione.addedNodes.forEach((nodo) => traduciNodo(nodo, true));
+        }
+      });
+    });
+    observerLingua.observe(document.body, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-label", "placeholder", "title"]
+    });
+
+    function applicaLingua() {
+      document.documentElement.lang = lingua;
+      selettoreLingua.value = lingua;
+      document.title = traduciTesto("Il mio patrimonio");
+      traduciNodo(document.body);
+      formatoEuro = new Intl.NumberFormat(localeCorrente(), { style: "currency", currency: "EUR" });
+      formatoMese = new Intl.DateTimeFormat(localeCorrente(), {
+        month: "short", year: "numeric", timeZone: "UTC"
+      });
+    }
+
+    selettoreLingua.addEventListener("change", () => {
+      lingua = selettoreLingua.value;
+      try {
+        localStorage.setItem(CHIAVE_LINGUA, lingua);
+      } catch (errore) {
+        messaggio.textContent = "Impossibile salvare la lingua scelta: " + errore.message;
+        messaggio.className = "errore";
+      }
+      applicaLingua();
+      aggiornaVista();
+    });
+
     const CHIAVE = "patrimonioDati";
     const CATEGORIE = ["cibo", "macchina", "taxiTrasporti", "affitto", "elettricita", "gas", "tasse", "salute", "sport", "divertimenti", "ristoranti", "bar", "altreSpese"];
     const VOCI_ETF = [
@@ -570,15 +1657,16 @@
         campo.value = "0";
       }
     });
-    const formatoEuro = new Intl.NumberFormat("it-IT", {
+    let formatoEuro = new Intl.NumberFormat(localeCorrente(), {
       style: "currency",
       currency: "EUR"
     });
-    const formatoMese = new Intl.DateTimeFormat("it-IT", {
+    let formatoMese = new Intl.DateTimeFormat(localeCorrente(), {
       month: "short",
       year: "numeric",
       timeZone: "UTC"
     });
+    applicaLingua();
     const selettoreValuta = document.getElementById("valuta");
     const informazioneCambio = document.getElementById("informazione-cambio");
     const campoTassoManuale = document.getElementById("campo-tasso-manuale");
@@ -601,6 +1689,9 @@
         if (etichetta) etichetta.textContent = NOMI_CATEGORIE[categoria] + " (" + codice + ")";
       });
       document.querySelectorAll(".importo-spesa-personalizzata").forEach((etichetta) => {
+        etichetta.textContent = "Importo (" + codice + ")";
+      });
+      document.querySelectorAll(".importo-entrata-personalizzata").forEach((etichetta) => {
         etichetta.textContent = "Importo (" + codice + ")";
       });
     }
@@ -640,7 +1731,7 @@
       const dataTasso = data ? " (dato del " + data + ")" : "";
       const origine = fonte === "manuale" ? "Tasso inserito manualmente" : "Ultimo tasso Frankfurter";
       informazioneCambio.textContent = "1 " + valuta + " = " +
-        tasso.toLocaleString("it-IT", { maximumFractionDigits: 6 }) +
+        tasso.toLocaleString(localeCorrente(), { maximumFractionDigits: 6 }) +
         " EUR — " + origine + dataTasso + ".";
     }
 
@@ -736,6 +1827,10 @@
       pulito.speseOriginali.altreSpese = pulito.spesePersonalizzate.reduce(
         (totale, spesa) => totale + spesa.importoOriginale, 0
       );
+      pulito.entratePersonalizzate = Array.isArray(record.entratePersonalizzate)
+        ? normalizzaEntratePersonalizzate(record.entratePersonalizzate)
+        : [];
+      pulito.altreEntrate = totaleSaldi(pulito.entratePersonalizzate);
 
       if (Array.isArray(record.posizioniEtf) ||
           Array.isArray(record.posizioniAzionarie) ||
@@ -888,6 +1983,30 @@
       });
     }
 
+    function normalizzaEntratePersonalizzate(entrate) {
+      if (!Array.isArray(entrate)) {
+        throw new Error("Le righe delle altre entrate non hanno un formato valido.");
+      }
+      return entrate.map((entrata) => {
+        if (!entrata || typeof entrata.nome !== "string" || !entrata.nome.trim() ||
+            !VALUTE.some(([codice]) => codice === entrata.valuta) ||
+            !Number.isFinite(entrata.importoOriginale) || entrata.importoOriginale < 0 ||
+            !Number.isFinite(entrata.tassoCambio) || entrata.tassoCambio <= 0 ||
+            !Number.isFinite(entrata.valore) || entrata.valore < 0) {
+          throw new Error("Un'altra entrata contiene nome, valuta o importo non valido.");
+        }
+        return {
+          nome: entrata.nome.trim(),
+          valuta: entrata.valuta,
+          importoOriginale: entrata.importoOriginale,
+          tassoCambio: entrata.tassoCambio,
+          tassoCambioData: typeof entrata.tassoCambioData === "string" ? entrata.tassoCambioData : "",
+          tassoCambioFonte: entrata.tassoCambioFonte === "manuale" ? "manuale" : "Frankfurter",
+          valore: entrata.valore
+        };
+      });
+    }
+
     function totaleSaldi(posizioni) {
       return (posizioni || []).reduce((totale, posizione) => totale + posizione.valore, 0);
     }
@@ -929,6 +2048,10 @@
       return CATEGORIE.reduce((totale, categoria) => totale + record[categoria], 0);
     }
 
+    function totaleEntrate(record) {
+      return record.stipendio + (record.altreEntrate || 0);
+    }
+
     function totaleComponenti(record) {
       return totaleInvestimenti(record) +
         (Array.isArray(record.posizioniLiquidita)
@@ -949,7 +2072,7 @@
     }
 
     function risparmio(record) {
-      return record.stipendio - totaleSpese(record);
+      return record.stipendio + (record.altreEntrate || 0) - totaleSpese(record);
     }
 
     function formattaVariazione(valore) {
@@ -980,7 +2103,7 @@
       valorePercento.textContent = riferimento.patrimonio === 0
         ? "N/D (saldo iniziale pari a zero)"
         : (differenza > 0 ? "+" : "") +
-          ((differenza / riferimento.patrimonio) * 100).toLocaleString("it-IT", {
+          ((differenza / riferimento.patrimonio) * 100).toLocaleString(localeCorrente(), {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }) + "%";
@@ -1119,7 +2242,7 @@
     function etichettaCambio(tasso, valuta, data, fonte) {
       const descrizione = fonte === "manuale" ? "Cambio manuale" : "Ultimo tasso Frankfurter";
       return "1 " + valuta + " = " +
-        tasso.toLocaleString("it-IT", { maximumFractionDigits: 6 }) +
+        tasso.toLocaleString(localeCorrente(), { maximumFractionDigits: 6 }) +
         " EUR — " + descrizione + (data ? " (dato del " + data + ")" : "") + ".";
     }
 
@@ -1312,8 +2435,62 @@
       }));
     }
 
+    function creaRigaEntrata(entrata = {}) {
+      const riga = document.createElement("div");
+      riga.className = "riga-posizione";
+      const etichettaNome = document.createElement("label");
+      etichettaNome.textContent = "Voce di entrata";
+      const inputNome = document.createElement("input");
+      inputNome.className = "nome-entrata-personalizzata";
+      inputNome.type = "text";
+      inputNome.maxLength = 40;
+      inputNome.required = true;
+      inputNome.placeholder = "Es. Regalo";
+      inputNome.value = entrata.nome || "";
+      etichettaNome.append(inputNome);
+
+      const etichettaImporto = document.createElement("label");
+      const testoImporto = document.createElement("span");
+      testoImporto.className = "importo-entrata-personalizzata";
+      testoImporto.textContent = "Importo (" + selettoreValuta.value + ")";
+      const inputImporto = document.createElement("input");
+      inputImporto.className = "valore-entrata-personalizzata";
+      inputImporto.type = "number";
+      inputImporto.min = "0";
+      inputImporto.step = "0.01";
+      inputImporto.inputMode = "decimal";
+      inputImporto.required = true;
+      inputImporto.value = entrata.importoOriginale === undefined ? "0" : String(entrata.importoOriginale);
+      etichettaImporto.append(testoImporto, inputImporto);
+
+      const rimuovi = document.createElement("button");
+      rimuovi.type = "button";
+      rimuovi.className = "rimuovi-posizione azione azione-elimina";
+      rimuovi.textContent = "Rimuovi";
+      rimuovi.setAttribute("aria-label", "Rimuovi altra entrata");
+      rimuovi.addEventListener("click", () => riga.remove());
+      riga.append(etichettaNome, etichettaImporto, rimuovi);
+      return riga;
+    }
+
+    function mostraEntratePersonalizzate(entrate = []) {
+      document.getElementById("righe-altre-entrate").replaceChildren(
+        ...entrate.map((entrata) => creaRigaEntrata(entrata))
+      );
+    }
+
+    function leggiEntratePersonalizzate() {
+      return Array.from(document.querySelectorAll("#righe-altre-entrate .riga-posizione")).map((riga) => ({
+        nome: riga.querySelector(".nome-entrata-personalizzata").value.trim(),
+        importoOriginale: riga.querySelector(".valore-entrata-personalizzata").valueAsNumber
+      }));
+    }
+
     document.getElementById("aggiungi-altra-spesa").addEventListener("click", () => {
       document.getElementById("righe-altre-spese").append(creaRigaSpesa());
+    });
+    document.getElementById("aggiungi-altra-entrata").addEventListener("click", () => {
+      document.getElementById("righe-altre-entrate").append(creaRigaEntrata());
     });
 
     async function convertiSaldi(saldi, containerId) {
@@ -1536,7 +2713,7 @@
       const variazione = totalePrecedente === 0
         ? "variazione percentuale non disponibile (mese precedente pari a zero)"
         : ((differenza > 0 ? "+" : "") +
-          (differenza / totalePrecedente * 100).toLocaleString("it-IT", {
+          (differenza / totalePrecedente * 100).toLocaleString(localeCorrente(), {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }) + "%");
@@ -1744,7 +2921,7 @@
           });
           fetta.append(creaElemento("title", {}, componente.nome + ": " +
             formatoEuro.format(componente.valore) + " (" +
-            (componente.valore / totale * 100).toLocaleString("it-IT", {
+            (componente.valore / totale * 100).toLocaleString(localeCorrente(), {
               maximumFractionDigits: 1
             }) + "%)"));
           svg.append(fetta);
@@ -1762,7 +2939,7 @@
         nome.textContent = componente.nome;
         const valore = document.createElement("span");
         valore.textContent = formatoEuro.format(componente.valore) + " · " +
-          percentuale.toLocaleString("it-IT", { maximumFractionDigits: 1 }) + "%";
+          percentuale.toLocaleString(localeCorrente(), { maximumFractionDigits: 1 }) + "%";
         voce.append(colore, nome, valore);
         legenda.append(voce);
       });
@@ -1912,7 +3089,7 @@
             ? "—"
             : formatoEuro.format(record.contoDeposito),
           formatoEuro.format(record.patrimonio),
-          formatoEuro.format(record.stipendio),
+          formatoEuro.format(totaleEntrate(record)),
           formatoEuro.format(totaleSpese(record)),
           formatoEuro.format(risparmio(record))
         ];
@@ -1954,7 +3131,9 @@
         pulsanteElimina.textContent = "Elimina";
         pulsanteElimina.setAttribute("aria-label", "Elimina " + meseVisualizzato);
         pulsanteElimina.addEventListener("click", () => {
-          if (!window.confirm("Vuoi eliminare i dati di " + meseVisualizzato + "? Questa azione non può essere annullata.")) {
+          if (!window.confirm(traduciTesto(
+            "Vuoi eliminare i dati di " + meseVisualizzato + "? Questa azione non può essere annullata."
+          ))) {
             return;
           }
 
@@ -2004,6 +3183,7 @@
       document.getElementById("stipendio").value = record
         ? String(record.stipendioOriginale)
         : "0";
+      mostraEntratePersonalizzate(record ? record.entratePersonalizzate : []);
       CATEGORIE.forEach((categoria) => {
         if (categoria !== "altreSpese") {
           document.getElementById(categoria).value = record
@@ -2118,6 +3298,7 @@
         record.posizioniEtf = leggiPosizioni("righe-etf", "etf");
         record.posizioniAzionarie = leggiPosizioni("righe-azioni", "azione");
         record.posizioniObbligazionarie = leggiPosizioni("righe-obbligazioni", "obbligazione");
+        const altreEntrateOriginali = leggiEntratePersonalizzate();
         const altreSpeseOriginali = leggiSpesePersonalizzate();
         CATEGORIE.forEach((categoria) => {
           if (categoria === "altreSpese") return;
@@ -2133,12 +3314,14 @@
               !Number.isFinite(saldo.importoOriginale) || saldo.importoOriginale < 0) ||
             altreSpeseOriginali.some((spesa) =>
               !spesa.nome || !Number.isFinite(spesa.importoOriginale) || spesa.importoOriginale < 0) ||
+            altreEntrateOriginali.some((entrata) =>
+              !entrata.nome || !Number.isFinite(entrata.importoOriginale) || entrata.importoOriginale < 0) ||
             [...record.posizioniEtf, ...record.posizioniAzionarie, ...record.posizioniObbligazionarie]
               .some((posizione) => !posizione.nome || !Number.isFinite(posizione.valore) || posizione.valore < 0) ||
             CATEGORIE.filter((categoria) => categoria !== "altreSpese").some((categoria) =>
               !Number.isFinite(record.valoriOriginali.spese[categoria]) ||
               record.valoriOriginali.spese[categoria] < 0)) {
-          messaggio.textContent = "Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.";
+          messaggio.textContent = "Controlla nomi e importi: stipendio, altre entrate, investimenti, saldi e spese devono essere validi e non negativi.";
           messaggio.className = "errore";
           return;
         }
@@ -2167,6 +3350,16 @@
         record.tassoCambioData = cambio.data;
         record.tassoCambioFonte = cambio.fonte;
         record.stipendio = Math.round((record.stipendioOriginale * cambio.tasso + Number.EPSILON) * 100) / 100;
+        record.entratePersonalizzate = altreEntrateOriginali.map((entrata) => ({
+          nome: entrata.nome,
+          valuta: record.valuta,
+          importoOriginale: entrata.importoOriginale,
+          tassoCambio: cambio.tasso,
+          tassoCambioData: cambio.data,
+          tassoCambioFonte: cambio.fonte,
+          valore: Math.round((entrata.importoOriginale * cambio.tasso + Number.EPSILON) * 100) / 100
+        }));
+        record.altreEntrate = totaleSaldi(record.entratePersonalizzate);
         record.speseOriginali = record.valoriOriginali.spese;
         CATEGORIE.filter((categoria) => categoria !== "altreSpese").forEach((categoria) => {
           record[categoria] = Math.round(
@@ -2196,6 +3389,7 @@
         record.patrimonio = totaleComponenti(record);
 
         if (!Number.isFinite(record.patrimonio) || !Number.isFinite(record.stipendio) ||
+            !Number.isFinite(record.altreEntrate) ||
             CATEGORIE.some((categoria) => !Number.isFinite(record[categoria]))) {
           messaggio.textContent = "La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.";
           messaggio.className = "errore";
@@ -2213,7 +3407,7 @@
         aggiornaVista();
         mostraTassoCambio(cambio.tasso, cambio.data, cambio.fonte);
         messaggio.textContent = (meseEsistente ? "Mese aggiornato." : "Mese salvato.") +
-          " Stipendio, spese e risparmio sono stati convertiti in euro.";
+          " Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.";
         messaggio.className = "successo";
       } catch (errore) {
         messaggio.textContent = "Impossibile salvare i dati in questo browser: " + errore.message;
