@@ -2605,9 +2605,25 @@
         massimo += scarto;
       }
 
-      for (let indice = 0; indice <= 4; indice += 1) {
-        const valore = massimo - ((massimo - minimo) * indice / 4);
-        const y = margine.alto + areaAltezza * indice / 4;
+      const passoGrezzo = (massimo - minimo) / 4;
+      const ordineGrandezza = Math.pow(10, Math.floor(Math.log10(passoGrezzo)));
+      const frazione = passoGrezzo / ordineGrandezza;
+      const passoTacca = (frazione <= 1 ? 1 : frazione <= 2 ? 2 : frazione <= 5 ? 5 : 10) *
+        ordineGrandezza;
+      minimo = Math.floor(minimo / passoTacca) * passoTacca;
+      massimo = Math.ceil(massimo / passoTacca) * passoTacca;
+      const numeroTacche = Math.round((massimo - minimo) / passoTacca);
+      const decimaliTacca = Math.max(0, Math.min(2, Math.ceil(-Math.log10(passoTacca))));
+      const formatoTacca = new Intl.NumberFormat(localeCorrente(), {
+        style: "currency",
+        currency: "EUR",
+        minimumFractionDigits: decimaliTacca,
+        maximumFractionDigits: decimaliTacca
+      });
+
+      for (let indice = 0; indice <= numeroTacche; indice += 1) {
+        const valore = massimo - passoTacca * indice;
+        const y = margine.alto + areaAltezza * indice / numeroTacche;
         svg.append(creaElemento("line", {
           x1: margine.sinistra, y1: y, x2: larghezza - margine.destra, y2: y,
           stroke: "#e1e9e5", "stroke-width": "1"
@@ -2615,7 +2631,7 @@
         svg.append(creaElemento("text", {
           x: margine.sinistra - 10, y: y + 4, "text-anchor": "end",
           fill: "#49615b", "font-size": "12"
-        }, formatoEuro.format(valore)));
+        }, formatoTacca.format(valore)));
       }
 
       const punti = dati.map((record, indice) => {
