@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Il mio patrimonio",
-  "short_name": "Patrimonio",
+  "name": "MyPig",
+  "short_name": "MyPig",
   "description": "Un riepilogo mensile del patrimonio, degli investimenti e delle spese.",
   "lang": "it-IT",
   "start_url": "./",

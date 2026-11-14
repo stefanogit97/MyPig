@@ -7,7 +7,8 @@
   <meta name="description" content="Un riepilogo mensile del patrimonio, degli investimenti e delle spese.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Il mio patrimonio</title>
+  <title>MyPig</title>
+  <meta name="apple-mobile-web-app-title" content="MyPig">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -248,6 +249,14 @@
       gap: 12px;
     }
 
+    .storico-azioni {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .storico-azioni button { margin-top: 0; }
     .backup-azioni button { margin-top: 0; }
     .backup-messaggio { min-height: 1.5em; margin-bottom: 0; }
     .backup-messaggio.errore { color: #a12121; }
@@ -267,6 +276,7 @@
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
+      .storico-azioni { grid-template-columns: 1fr; }
       .hero { flex-wrap: wrap; }
       .selettore-lingua { order: 3; flex: 1 1 100%; max-width: 220px; }
     }
@@ -276,7 +286,7 @@
   <header>
     <div class="hero">
       <div>
-        <h1>Il mio patrimonio</h1>
+        <h1>MyPig</h1>
         <p class="intro">Un riepilogo mensile semplice della tua situazione finanziaria.</p>
       </div>
       <label class="selettore-lingua" for="selettore-lingua"><span>Lingua / Language</span>
@@ -286,6 +296,7 @@
           <option value="en">English</option>
           <option value="es">Español</option>
           <option value="fr">Français</option>
+          <option value="el">Ελληνικά</option>
           <option value="pl">Polski</option>
           <option value="pt">Português</option>
           <option value="ru">Русский</option>
@@ -511,6 +522,11 @@
 
     <section class="card" aria-labelledby="titolo-storico">
       <h2 id="titolo-storico">Storico mensile</h2>
+      <div class="storico-azioni">
+        <button id="copia-storico" type="button">Copia elenco</button>
+        <button id="scarica-storico" type="button">Scarica elenco</button>
+      </div>
+      <p id="storico-messaggio" class="backup-messaggio" role="status" aria-live="polite"></p>
       <div class="tabella-scroll">
         <table>
           <thead>
@@ -548,7 +564,6 @@
   <script>
     const CHIAVE_LINGUA = "patrimonioLingua";
     const TRADUZIONI = {
-      "Il mio patrimonio": "My Net Worth",
       "Un riepilogo mensile semplice della tua situazione finanziaria.": "A simple monthly overview of your finances.",
       "Un maialino salvadanaio sorridente sopra una montagna di monete": "A smiling piggy bank on a pile of coins",
       "Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.": "A smiling pink piggy bank with two eyes and a coin in the slot on its back, above a pile of gold coins.",
@@ -622,6 +637,12 @@
       "Esporta backup": "Export backup",
       "Seleziona un backup da importare": "Select a backup to import",
       "Storico mensile": "Monthly history",
+      "Copia elenco": "Copy list",
+      "Scarica elenco": "Download list",
+      "Elenco copiato. Puoi incollarlo in WhatsApp.": "List copied. You can paste it into WhatsApp.",
+      "Elenco scaricato.": "List downloaded.",
+      "Copia non riuscita.": "Could not copy the list.",
+      "Download non riuscito.": "Could not download the list.",
       "Mese": "Month",
       "ETF, azioni e obbligazioni": "ETFs, stocks and bonds",
       "Liquidità": "Cash",
@@ -889,7 +910,13 @@
       ["Controlla nomi e importi: stipendio, investimenti, saldi e spese devono essere validi e non negativi.", "Vérifiez les noms et les montants : le salaire, les investissements, les soldes et les dépenses doivent être valides et positifs ou nuls.", "Revisa los nombres y los importes: el salario, las inversiones, los saldos y los gastos deben ser válidos y no negativos.", "Sprawdź nazwy i kwoty: wynagrodzenie, inwestycje, salda i wydatki muszą być prawidłowe i nieujemne.", "Проверьте названия и суммы: зарплата, инвестиции, остатки и расходы должны быть корректными и неотрицательными.", "Verifique os nomes e os valores: o salário, os investimentos, os saldos e as despesas têm de ser válidos e não negativos."],
       ["La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.", "La conversion en euros a produit un montant invalide. Vérifiez les valeurs saisies.", "La conversión a euros ha producido un importe no válido. Revisa los valores introducidos.", "Przeliczenie na euro dało nieprawidłową kwotę. Sprawdź wprowadzone wartości.", "При пересчёте в евро получена недопустимая сумма. Проверьте введённые значения.", "A conversão para euros produziu um valor inválido. Verifique os valores introduzidos."],
       ["Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.", "Cette donnée historique n’est pas ventilée par composant. Si vous l’enregistrez, l’ancien total sera remplacé par les valeurs saisies.", "Este dato histórico no está desglosado por componentes. Si lo guardas, el total anterior se sustituirá por los valores que introduzcas.", "Ten historyczny zapis nie jest podzielony na składniki. Po zapisaniu poprzednia suma zostanie zastąpiona wprowadzonymi wartościami.", "Эта историческая запись не разбита на составляющие. При сохранении прежняя сумма будет заменена введёнными значениями.", "Este registo histórico não está dividido por componentes. Se o guardar, o total anterior será substituído pelos valores introduzidos."],
-      ["Registra un mese per visualizzare il risparmio.", "Enregistrez un mois pour afficher l’épargne.", "Registra un mes para ver el ahorro.", "Zapisz miesiąc, aby zobaczyć oszczędności.", "Запишите месяц, чтобы увидеть сбережения.", "Registe um mês para ver a poupança."]
+      ["Registra un mese per visualizzare il risparmio.", "Enregistrez un mois pour afficher l’épargne.", "Registra un mes para ver el ahorro.", "Zapisz miesiąc, aby zobaczyć oszczędności.", "Запишите месяц, чтобы увидеть сбережения.", "Registe um mês para ver a poupança."],
+      ["Copia elenco", "Copier la liste", "Copiar lista", "Kopiuj listę", "Скопировать список", "Copiar lista"],
+      ["Scarica elenco", "Télécharger la liste", "Descargar lista", "Pobierz listę", "Скачать список", "Transferir lista"],
+      ["Elenco copiato. Puoi incollarlo in WhatsApp.", "Liste copiée. Vous pouvez la coller dans WhatsApp.", "Lista copiada. Puedes pegarla en WhatsApp.", "Lista skopiowana. Możesz wkleić ją w WhatsAppie.", "Список скопирован. Его можно вставить в WhatsApp.", "Lista copiada. Pode colá-la no WhatsApp."],
+      ["Elenco scaricato.", "Liste téléchargée.", "Lista descargada.", "Lista pobrana.", "Список скачан.", "Lista transferida."],
+      ["Copia non riuscita.", "Impossible de copier la liste.", "No se pudo copiar la lista.", "Nie udało się skopiować listy.", "Не удалось скопировать список.", "Não foi possível copiar a lista."],
+      ["Download non riuscito.", "Téléchargement impossible.", "No se pudo descargar la lista.", "Nie udało się pobrać listy.", "Не удалось скачать список.", "Não foi possível transferir a lista."]
     ];
     const TRADUZIONI_LOCALIZZATE = Object.fromEntries(TRADUZIONI_RIGHE.map(
       ([it, fr, es, pl, ru, pt]) => [it, { fr, es, pl, ru, pt }]
@@ -1175,14 +1202,235 @@
       "Rublo russo": { fr: "rouble russe", es: "rublo ruso", pl: "rubel rosyjski", ru: "российский рубль", pt: "rublo russo", de: "Russischer Rubel", uk: "російський рубль" },
       "Naira nigeriana": { fr: "naira nigérian", es: "naira nigeriana", pl: "naira nigeryjska", ru: "нигерийская найра", pt: "naira nigeriana", de: "Nigerianischer Naira", uk: "нігерійська найра" }
     });
+    integraTraduzioniLocalizzate({
+      "Il mio patrimonio": { el: "Η περιουσία μου" },
+      "Un riepilogo mensile semplice della tua situazione finanziaria.": {
+        el: "Μια απλή μηνιαία επισκόπηση της οικονομικής σας κατάστασης."
+      },
+      "Un maialino salvadanaio sorridente sopra una montagna di monete": {
+        el: "Ένα χαμογελαστό κουμπαράς-γουρουνάκι πάνω σε ένα βουνό από κέρματα"
+      },
+      "Un maialino rosa sorridente con due occhi e una moneta nella fessura sul dorso, sopra una montagna di monete dorate.": {
+        el: "Ένα χαμογελαστό ροζ γουρουνάκι με δύο μάτια και ένα νόμισμα στη σχισμή της ράχης του, πάνω σε ένα βουνό από χρυσά νομίσματα."
+      },
+      "Lingua / Language": { el: "Γλώσσα" },
+      "Inserisci un mese": { el: "Καταχώριση μήνα" },
+      "Inserisci stipendio, altre entrate e spese nella valuta selezionata. Puoi aggiungere più saldi di liquidità e conti deposito, ciascuno nella propria valuta. Al salvataggio saranno convertiti in euro con il tasso di riferimento più recente pubblicato (non è una quotazione in tempo reale). Investimenti, patrimonio e risultati restano in euro; i cambi usati vengono conservati nello storico. Per cercare i cambi viene inviata online solo la sigla delle valute, non i tuoi importi. Se il servizio non è raggiungibile, puoi inserire manualmente quanti euro vale un'unità della valuta interessata.": {
+        el: "Καταχωρίστε τον μισθό, τα άλλα έσοδα και τα έξοδα στο επιλεγμένο νόμισμα. Μπορείτε να προσθέσετε πολλαπλά υπόλοιπα μετρητών και λογαριασμούς αποταμίευσης, καθένα στο δικό του νόμισμα. Κατά την αποθήκευση, τα ποσά μετατρέπονται σε ευρώ με την πιο πρόσφατη δημοσιευμένη ισοτιμία αναφοράς (δεν είναι ισοτιμία σε πραγματικό χρόνο). Οι επενδύσεις, η περιουσία και τα αποτελέσματα παραμένουν σε ευρώ· οι ισοτιμίες που χρησιμοποιούνται αποθηκεύονται στο ιστορικό. Για την αναζήτηση ισοτιμιών αποστέλλονται online μόνο οι κωδικοί νομισμάτων, ποτέ τα ποσά σας. Αν η υπηρεσία δεν είναι διαθέσιμη, μπορείτε να καταχωρίσετε χειροκίνητα πόσα ευρώ αξίζει μία μονάδα του νομίσματος."
+      },
+      "Mese del rilevamento": { el: "Μήνας καταγραφής" },
+      "Valuta di stipendio, altre entrate e spese": { el: "Νόμισμα μισθού, άλλων εσόδων και εξόδων" },
+      "Per EUR il cambio è 1:1.": { el: "Η ισοτιμία για το EUR είναι 1:1." },
+      "Euro per un'unità di valuta": { el: "Ευρώ ανά μονάδα νομίσματος" },
+      "Stipendio ricevuto (EUR)": { el: "Μισθός που λήφθηκε (EUR)" },
+      "Cibo (EUR)": { el: "Τρόφιμα (EUR)" },
+      "Benzina (EUR)": { el: "Καύσιμα (EUR)" },
+      "Taxi-Trasporti (EUR)": { el: "Ταξί και μεταφορές (EUR)" },
+      "Affitto (EUR)": { el: "Ενοίκιο (EUR)" },
+      "Elettricità (EUR)": { el: "Ηλεκτρικό ρεύμα (EUR)" },
+      "Gas (EUR)": { el: "Φυσικό αέριο (EUR)" },
+      "Tasse (EUR)": { el: "Φόροι (EUR)" },
+      "Salute (EUR)": { el: "Υγεία (EUR)" },
+      "Sport (EUR)": { el: "Αθλητισμός (EUR)" },
+      "Divertimenti (EUR)": { el: "Ψυχαγωγία (EUR)" },
+      "Ristoranti (EUR)": { el: "Εστιατόρια (EUR)" },
+      "Bar (EUR)": { el: "Καφέ και μπαρ (EUR)" },
+      "Altre spese": { el: "Άλλα έξοδα" },
+      "Aggiungi una riga per ogni altra spesa e indica il nome. Gli importi usano la valuta selezionata sopra.": {
+        el: "Προσθέστε μία γραμμή για κάθε άλλο έξοδο και ορίστε το όνομά του. Τα ποσά χρησιμοποιούν το παραπάνω επιλεγμένο νόμισμα."
+      },
+      "Aggiungi altra spesa": { el: "Προσθήκη άλλου εξόδου" },
+      "Altre entrate": { el: "Άλλα έσοδα" },
+      "Aggiungi una riga per ogni altra entrata e indica il nome. Gli importi usano la valuta selezionata sopra.": {
+        el: "Προσθέστε μία γραμμή για κάθε άλλο έσοδο και ορίστε το όνομά του. Τα ποσά χρησιμοποιούν το παραπάνω επιλεγμένο νόμισμα."
+      },
+      "Aggiungi altra entrata": { el: "Προσθήκη άλλου εσόδου" },
+      "Voce di entrata": { el: "Περιγραφή εσόδου" },
+      "Es. Regalo": { el: "π.χ. Δώρο" },
+      "Rimuovi altra entrata": { el: "Αφαίρεση άλλου εσόδου" },
+      "Liquidità corrente": { el: "Μετρητά" },
+      "Inserisci il saldo effettivo a fine mese, dopo aver ricevuto stipendio e altre entrate e pagato le spese. Il saldo è già incluso nel patrimonio: entrate e spese non vengono aggiunte o sottratte una seconda volta. Puoi usare una valuta diversa per ciascun conto.": {
+        el: "Καταχωρίστε το πραγματικό υπόλοιπο στο τέλος του μήνα, αφού λάβετε τον μισθό και τα άλλα έσοδα και πληρώσετε τα έξοδα. Το υπόλοιπο περιλαμβάνεται ήδη στην περιουσία: τα έσοδα και τα έξοδα δεν προστίθενται ούτε αφαιρούνται δεύτερη φορά. Μπορείτε να χρησιμοποιήσετε διαφορετικό νόμισμα για κάθε λογαριασμό."
+      },
+      "Aggiungi liquidità": { el: "Προσθήκη μετρητών" },
+      "Conti deposito": { el: "Λογαριασμοί αποταμίευσης" },
+      "Aggiungi ogni conto deposito e scegli la valuta del saldo.": {
+        el: "Προσθέστε κάθε λογαριασμό αποταμίευσης και επιλέξτε το νόμισμα του υπολοίπου."
+      },
+      "Aggiungi conto deposito": { el: "Προσθήκη λογαριασμού αποταμίευσης" },
+      "Investimenti": { el: "Επενδύσεις" },
+      "ETF": { el: "ETF" },
+      "Aggiungi una riga per ogni ETF e inserisci il valore al mese del rilevamento.": {
+        el: "Προσθέστε μία γραμμή για κάθε ETF και καταχωρίστε την αξία του για τον μήνα καταγραφής."
+      },
+      "Aggiungi ETF": { el: "Προσθήκη ETF" },
+      "Azioni": { el: "Ενέργειες" },
+      "Altro ETF": { el: "Άλλο ETF" },
+      "S&P 500 (storico)": { el: "S&P 500 (ιστορικό)" },
+      "NASDAQ (storico)": { el: "NASDAQ (ιστορικό)" },
+      "Azioni (storico)": { el: "Μετοχές (ιστορικό)" },
+      "Obbligazioni (storico)": { el: "Ομόλογα (ιστορικό)" },
+      "Altre spese (storico)": { el: "Άλλα έξοδα (ιστορικό)" },
+      "Aggiungi le azioni che possiedi e inserisci un nome o ticker.": {
+        el: "Προσθέστε τις μετοχές που κατέχετε και καταχωρίστε όνομα ή σύμβολο διαπραγμάτευσης."
+      },
+      "Aggiungi azione": { el: "Προσθήκη μετοχής" },
+      "Obbligazioni": { el: "Ομόλογα" },
+      "Aggiungi le obbligazioni che possiedi e inserisci un nome o identificativo.": {
+        el: "Προσθέστε τα ομόλογα που κατέχετε και καταχωρίστε όνομα ή αναγνωριστικό."
+      },
+      "Aggiungi obbligazione": { el: "Προσθήκη ομολόγου" },
+      "Salva mese": { el: "Αποθήκευση μήνα" },
+      "Andamento del patrimonio": { el: "Εξέλιξη περιουσίας" },
+      "La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.": {
+        el: "Η μεταβολή συγκρίνει τις καταγεγραμμένες αξίες περιουσίας· δεν αποτελεί απόδοση επενδύσεων, καθώς μπορεί να περιλαμβάνει αποταμιεύσεις, αναλήψεις και έξοδα."
+      },
+      "Dal mese precedente": { el: "Από τον προηγούμενο μήνα" },
+      "Da inizio anno": { el: "Από την αρχή του έτους" },
+      "Da sempre": { el: "Συνολικά" },
+      "Grafico dell'andamento mensile del patrimonio": { el: "Γράφημα μηνιαίας εξέλιξης περιουσίας" },
+      "Andamento delle spese": { el: "Εξέλιξη εξόδων" },
+      "Il confronto mensile usa l’ultima rilevazione salvata come riferimento, anche se mancano mesi intermedi. Tutti gli importi sono in euro.": {
+        el: "Η μηνιαία σύγκριση χρησιμοποιεί ως σημείο αναφοράς την πιο πρόσφατη αποθηκευμένη καταγραφή, ακόμη κι αν λείπουν ενδιάμεσοι μήνες. Όλα τα ποσά είναι σε ευρώ."
+      },
+      "Mese da analizzare": { el: "Μήνας προς ανάλυση" },
+      "Mese per i grafici delle spese": { el: "Μήνας για τα γραφήματα εξόδων" },
+      "Grafico di confronto": { el: "Γράφημα σύγκρισης" },
+      "Confronto con il mese precedente": { el: "Σύγκριση με τον προηγούμενο μήνα" },
+      "Spese mensili da sempre": { el: "Μηνιαία έξοδα από την αρχή" },
+      "Grafico di confronto delle spese mensili": { el: "Γράφημα σύγκρισης μηνιαίων εξόδων" },
+      "Ripartizione delle spese del mese": { el: "Κατανομή εξόδων του μήνα" },
+      "Grafico a torta delle spese del mese": { el: "Κυκλικό γράφημα εξόδων του μήνα" },
+      "Risparmio mensile": { el: "Μηνιαία αποταμίευση" },
+      "Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.": {
+        el: "Υπολογίζεται ως μισθός συν άλλα έσοδα μείον έξοδα· το γράφημα παρουσιάζει την αποταμίευση κάθε καταγεγραμμένου μήνα σε ευρώ."
+      },
+      "Grafico a barre del risparmio mensile": { el: "Ραβδόγραμμα μηνιαίας αποταμίευσης" },
+      "Backup dei dati": { el: "Αντίγραφο ασφαλείας δεδομένων" },
+      "Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.": {
+        el: "Εξαγάγετε ένα αντίγραφο των δεδομένων σας ή εισαγάγετε ένα αντίγραφο ασφαλείας. Η εισαγωγή συγχωνεύει τους μήνες και, αν υπάρχει διπλότυπος μήνας, χρησιμοποιεί τα δεδομένα του αντιγράφου ασφαλείας. Το αρχείο JSON δεν είναι κρυπτογραφημένο· φυλάξτε το σε ιδιωτικό και ασφαλές μέρος."
+      },
+      "Esporta backup": { el: "Εξαγωγή αντιγράφου ασφαλείας" },
+      "Seleziona un backup da importare": { el: "Επιλογή αντιγράφου ασφαλείας για εισαγωγή" },
+      "Storico mensile": { el: "Μηνιαίο ιστορικό" },
+      "Mese": { el: "Μήνας" },
+      "ETF, azioni e obbligazioni": { el: "ETF, μετοχές και ομόλογα" },
+      "Liquidità": { el: "Μετρητά" },
+      "Conto deposito": { el: "Λογαριασμός αποταμίευσης" },
+      "Patrimonio": { el: "Περιουσία" },
+      "Entrate totali": { el: "Συνολικά έσοδα" },
+      "Spese totali": { el: "Συνολικά έξοδα" },
+      "Risparmio": { el: "Αποταμίευση" },
+      "I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.": {
+        el: "Τα δεδομένα αποθηκεύονται μόνο σε αυτό το πρόγραμμα περιήγησης και σε αυτήν τη συσκευή· δεν αποστέλλονται σε διακομιστή."
+      },
+      "Nome": { el: "Όνομα" },
+      "Valuta": { el: "Νόμισμα" },
+      "Importo": { el: "Ποσό" },
+      "Voce di spesa": { el: "Περιγραφή εξόδου" },
+      "Valore (€)": { el: "Αξία (€)" },
+      "Nome del saldo": { el: "Όνομα λογαριασμού" },
+      "Valuta del saldo": { el: "Νόμισμα υπολοίπου" },
+      "Importo del saldo": { el: "Ποσό υπολοίπου" },
+      "Rimuovi saldo": { el: "Αφαίρεση υπολοίπου" },
+      "Rimuovi altra spesa": { el: "Αφαίρεση άλλου εξόδου" },
+      "Tipo di ETF": { el: "Τύπος ETF" },
+      "Nome personalizzato dell'ETF": { el: "Προσαρμοσμένο όνομα ETF" },
+      "Valore dell'investimento in euro": { el: "Αξία επένδυσης σε ευρώ" },
+      "Nome o ticker dell'azione": { el: "Όνομα ή σύμβολο μετοχής" },
+      "Azione o ticker": { el: "Μετοχή ή σύμβολο" },
+      "Nome obbligazione": { el: "Όνομα ομολόγου" },
+      "Nome ETF": { el: "Όνομα ETF" },
+      "Rimuovi": { el: "Αφαίρεση" },
+      "Nessun mese salvato": { el: "Δεν υπάρχουν αποθηκευμένοι μήνες" },
+      "Nessun dato": { el: "Δεν υπάρχουν δεδομένα" },
+      "Nessuna spesa": { el: "Δεν υπάρχουν έξοδα" },
+      "Altre voci minori": { el: "Άλλα μικρότερα στοιχεία" },
+      "Aggiungi il primo mese per vedere il grafico": { el: "Προσθέστε τον πρώτο μήνα για να δείτε το γράφημα" },
+      "Aggiungi il primo mese per confrontare le spese.": { el: "Προσθέστε τον πρώτο μήνα για να συγκρίνετε τα έξοδα." },
+      "Aggiungi il primo mese per vedere il grafico.": { el: "Προσθέστε τον πρώτο μήνα για να δείτε το γράφημα." },
+      "Non risultano spese registrate per questo mese.": { el: "Δεν έχουν καταγραφεί έξοδα για αυτόν τον μήνα." },
+      "Salva un mese per visualizzare il confronto delle spese.": { el: "Αποθηκεύστε έναν μήνα για να δείτε τη σύγκριση εξόδων." },
+      "Salva i mesi per visualizzare l'andamento delle spese.": { el: "Αποθηκεύστε μήνες για να δείτε την εξέλιξη των εξόδων." },
+      "Registra un mese per visualizzare il risparmio.": { el: "Καταγράψτε έναν μήνα για να δείτε την αποταμίευση." },
+      "N/D": { el: "Μ/Δ" },
+      "Riferimento non disponibile": { el: "Δεν υπάρχουν διαθέσιμα στοιχεία αναφοράς" },
+      "Confronto con fine anno:": { el: "Σύγκριση με το τέλος του έτους:" },
+      "Prima rilevazione dell'anno:": { el: "Πρώτη καταγραφή του έτους:" },
+      "Prima rilevazione:": { el: "Πρώτη καταγραφή:" },
+      "Ultimo mese registrato:": { el: "Τελευταίος καταγεγραμμένος μήνας:" },
+      "Cambio manuale": { el: "Χειροκίνητη ισοτιμία" },
+      "Tasso inserito manualmente": { el: "Ισοτιμία που καταχωρίστηκε χειροκίνητα" },
+      "Ultimo tasso Frankfurter": { el: "Τελευταία ισοτιμία Frankfurter" },
+      "Tasso di cambio manuale": { el: "Χειροκίνητη ισοτιμία" },
+      "Es. 0,92": { el: "π.χ. 0,92" },
+      "Es. conto corrente": { el: "π.χ. τρεχούμενος λογαριασμός" },
+      "Es. conto deposito": { el: "π.χ. λογαριασμός αποταμίευσης" },
+      "Es. Abbonamenti": { el: "π.χ. Συνδρομές" },
+      "Es. nome o ticker ETF": { el: "π.χ. όνομα ή σύμβολο ETF" },
+      "Es. ENI o Apple": { el: "π.χ. ENI ή Apple" },
+      "Es. BTP o obbligazione": { el: "π.χ. κρατικό ή εταιρικό ομόλογο" },
+      "Non hai ancora inserito dati.": { el: "Δεν έχετε καταχωρίσει ακόμη δεδομένα." },
+      "Mese salvato.": { el: "Ο μήνας αποθηκεύτηκε." },
+      "Mese aggiornato.": { el: "Ο μήνας ενημερώθηκε." },
+      "Mese salvato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": {
+        el: "Ο μήνας αποθηκεύτηκε. Ο μισθός, τα άλλα έσοδα, τα έξοδα και η αποταμίευση μετατράπηκαν σε ευρώ."
+      },
+      "Mese aggiornato. Stipendio, altre entrate, spese e risparmio sono stati convertiti in euro.": {
+        el: "Ο μήνας ενημερώθηκε. Ο μισθός, τα άλλα έσοδα, τα έξοδα και η αποταμίευση μετατράπηκαν σε ευρώ."
+      },
+      "Controlla nomi e importi: stipendio, altre entrate, investimenti, saldi e spese devono essere validi e non negativi.": {
+        el: "Ελέγξτε τα ονόματα και τα ποσά: ο μισθός, τα άλλα έσοδα, οι επενδύσεις, τα υπόλοιπα και τα έξοδα πρέπει να είναι έγκυρα και μη αρνητικά."
+      },
+      "La conversione in euro ha prodotto un importo non valido. Controlla i valori inseriti.": {
+        el: "Η μετατροπή σε ευρώ έδωσε μη έγκυρο ποσό. Ελέγξτε τις τιμές που καταχωρίσατε."
+      },
+      "Questo è un dato storico non suddiviso in componenti. Se lo salvi, il vecchio totale sarà sostituito dai valori che inserisci.": {
+        el: "Αυτή η ιστορική καταχώριση δεν είναι κατανεμημένη σε επιμέρους στοιχεία. Αν την αποθηκεύσετε, το παλιό σύνολο θα αντικατασταθεί από τις τιμές που καταχωρίζετε."
+      },
+      "Modifica": { el: "Επεξεργασία" },
+      "Elimina": { el: "Διαγραφή" },
+      "Backup esportato. Conservalo in un luogo sicuro.": {
+        el: "Το αντίγραφο ασφαλείας εξήχθη. Φυλάξτε το σε ασφαλές μέρος."
+      },
+      "Formato del backup non riconosciuto.": { el: "Δεν αναγνωρίζεται η μορφή του αντιγράφου ασφαλείας." },
+      "Euro": { el: "ευρώ" }
+    });
+    integraTraduzioniLocalizzate({
+      "Copia elenco": {
+        de: "Liste kopieren", uk: "Скопіювати список", el: "Αντιγραφή λίστας"
+      },
+      "Scarica elenco": {
+        de: "Liste herunterladen", uk: "Завантажити список", el: "Λήψη λίστας"
+      },
+      "Elenco copiato. Puoi incollarlo in WhatsApp.": {
+        de: "Liste kopiert. Sie können sie in WhatsApp einfügen.",
+        uk: "Список скопійовано. Його можна вставити у WhatsApp.",
+        el: "Η λίστα αντιγράφηκε. Μπορείτε να την επικολλήσετε στο WhatsApp."
+      },
+      "Elenco scaricato.": {
+        de: "Liste heruntergeladen.", uk: "Список завантажено.", el: "Η λίστα λήφθηκε."
+      },
+      "Copia non riuscita.": {
+        de: "Die Liste konnte nicht kopiert werden.",
+        uk: "Не вдалося скопіювати список.",
+        el: "Δεν ήταν δυνατή η αντιγραφή της λίστας."
+      },
+      "Download non riuscito.": {
+        de: "Die Liste konnte nicht heruntergeladen werden.",
+        uk: "Не вдалося завантажити список.",
+        el: "Δεν ήταν δυνατή η λήψη της λίστας."
+      }
+    });
 
-    let lingua = ["it", "en", "fr", "es", "pl", "ru", "pt", "de", "uk"].includes(
+    let lingua = ["it", "en", "fr", "es", "el", "pl", "ru", "pt", "de", "uk"].includes(
       localStorage.getItem(CHIAVE_LINGUA)
     ) ? localStorage.getItem(CHIAVE_LINGUA) : "it";
     function localeCorrente() {
       return {
         it: "it-IT", en: "en-GB", fr: "fr-FR", es: "es-ES",
-        pl: "pl-PL", ru: "ru-RU", pt: "pt-PT", de: "de-DE", uk: "uk-UA"
+        pl: "pl-PL", ru: "ru-RU", pt: "pt-PT", de: "de-DE", uk: "uk-UA",
+        el: "el-GR"
       }[lingua];
     }
 
@@ -1275,6 +1523,7 @@
     }
 
     function traduciDinamico(testo, codiceLingua) {
+      if (codiceLingua === "el") return traduciDinamicoGreco(testo);
       const rimuovi = testo.match(/^Rimuovi (ETF|azione|obbligazione)$/);
       if (rimuovi) {
         const azioni = {
@@ -1523,12 +1772,120 @@
       return testo;
     }
 
+    function traduciDinamicoGreco(testo) {
+      const errori = {
+        "Un record ha una data o uno stipendio non valido.": "Μια εγγραφή έχει μη έγκυρη ημερομηνία ή μισθό.",
+        "Una spesa contiene un importo non valido.": "Ένα έξοδο έχει μη έγκυρο ποσό.",
+        "La valuta o il tasso di cambio di un record non è valido.": "Το νόμισμα ή η ισοτιμία μιας εγγραφής δεν είναι έγκυρα.",
+        "Lo stipendio originale contiene un importo non valido.": "Ο αρχικός μισθός έχει μη έγκυρο ποσό.",
+        "Una spesa originale contiene un importo non valido.": "Ένα αρχικό έξοδο έχει μη έγκυρο ποσό.",
+        "Un vecchio valore di investimento non è valido.": "Μια παλιά αξία επένδυσης δεν είναι έγκυρη.",
+        "Il vecchio valore delle azioni non è valido.": "Η παλιά αξία των μετοχών δεν είναι έγκυρη.",
+        "Il vecchio valore delle obbligazioni non è valido.": "Η παλιά αξία των ομολόγων δεν είναι έγκυρη.",
+        "Un vecchio valore di patrimonio non è valido.": "Μια παλιά αξία περιουσίας δεν είναι έγκυρη.",
+        "Un record non contiene un patrimonio leggibile.": "Μια εγγραφή δεν περιέχει αναγνώσιμη αξία περιουσίας.",
+        "Le righe degli investimenti non hanno un formato valido.": "Οι γραμμές επενδύσεων έχουν μη έγκυρη μορφή.",
+        "Una riga di investimento contiene nome o importo non valido.": "Μια γραμμή επένδυσης έχει μη έγκυρο όνομα ή ποσό.",
+        "Un saldo storico contiene un importo non valido.": "Ένα ιστορικό υπόλοιπο έχει μη έγκυρο ποσό.",
+        "Le righe dei saldi non hanno un formato valido.": "Οι γραμμές υπολοίπων έχουν μη έγκυρη μορφή.",
+        "Un saldo contiene nome, valuta o importo non valido.": "Ένα υπόλοιπο έχει μη έγκυρο όνομα, νόμισμα ή ποσό.",
+        "Le righe delle altre spese non hanno un formato valido.": "Οι γραμμές άλλων εξόδων έχουν μη έγκυρη μορφή.",
+        "Un'altra spesa contiene nome, valuta o importo non valido.": "Ένα άλλο έξοδο έχει μη έγκυρο όνομα, νόμισμα ή ποσό.",
+        "Le righe delle altre entrate non hanno un formato valido.": "Οι γραμμές άλλων εσόδων έχουν μη έγκυρη μορφή.",
+        "Un'altra entrata contiene nome, valuta o importo non valido.": "Ένα άλλο έσοδο έχει μη έγκυρο όνομα, νόμισμα ή ποσό.",
+        "Il backup non contiene un elenco di mesi valido.": "Το αντίγραφο ασφαλείας δεν περιέχει έγκυρη λίστα μηνών.",
+        "Il backup contiene più righe per lo stesso mese.": "Το αντίγραφο ασφαλείας περιέχει πολλές εγγραφές για τον ίδιο μήνα.",
+        "Il servizio cambi ha restituito dati non validi.": "Η υπηρεσία ισοτιμιών επέστρεψε μη έγκυρα δεδομένα.",
+        "Il tasso di cambio non è valido.": "Η ισοτιμία δεν είναι έγκυρη.",
+        "Formato del backup non riconosciuto.": "Δεν αναγνωρίζεται η μορφή του αντιγράφου ασφαλείας."
+      };
+      if (errori[testo]) return errori[testo];
+
+      const categorie = {
+        "Cibo": "Τρόφιμα",
+        "Benzina": "Καύσιμα",
+        "Taxi-Trasporti": "Ταξί και μεταφορές",
+        "Affitto": "Ενοίκιο",
+        "Elettricità": "Ηλεκτρικό ρεύμα",
+        "Gas": "Φυσικό αέριο",
+        "Tasse": "Φόροι",
+        "Salute": "Υγεία",
+        "Sport": "Αθλητισμός",
+        "Divertimenti": "Ψυχαγωγία",
+        "Ristoranti": "Εστιατόρια",
+        "Bar": "Καφέ και μπαρ"
+      };
+      const categoria = testo.match(/^(.+) \(([^()]+)\)$/);
+      if (categoria) {
+        if (categorie[categoria[1]]) return categorie[categoria[1]] + " (" + categoria[2] + ")";
+        if (categoria[1] === "Stipendio ricevuto") return "Μισθός που λήφθηκε (" + categoria[2] + ")";
+        if (categoria[1] === "Importo") return "Ποσό (" + categoria[2] + ")";
+      }
+
+      const dinamiche = [
+        [/^Rimuovi (ETF|azione|obbligazione)$/, (_, tipo) =>
+          "Αφαίρεση " + { ETF: "ETF", azione: "μετοχής", obbligazione: "ομολόγου" }[tipo]],
+        [/^Euro per 1 (.+)$/, (_, valuta) => "Ευρώ ανά 1 " + valuta],
+        [/^Risparmio di (.+): (.+)\.$$/, (_, mese, valore) =>
+          "Αποταμίευση για τον μήνα " + mese + ": " + valore + "."],
+        [/^Spese mensili registrate in euro, dall'inizio dello storico\.$/,
+          () => "Μηνιαία έξοδα σε ευρώ από την αρχή του ιστορικού."],
+        [/^Totale di (.+): (.+)\. Non è ancora disponibile una rilevazione precedente\.$/,
+          (_, mese, totale) => "Σύνολο για τον μήνα " + mese + ": " + totale +
+            ". Δεν υπάρχει ακόμη προηγούμενη καταγραφή."],
+        [/^Totale di (.+): (.+) \((.+), (.+)\) rispetto a (.+) \((.+)\)\.$/,
+          (_, mese, totale, differenza, variazione, precedente, totalePrecedente) =>
+            "Σύνολο για τον μήνα " + mese + ": " + totale + " (" + differenza + ", " +
+              variazione + ") σε σύγκριση με τον μήνα " + precedente + " (" +
+              totalePrecedente + ")."],
+        [/^Recupero il cambio più recente per (.+)…$/,
+          (_, valuta) => "Ανάκτηση της πιο πρόσφατης ισοτιμίας για " + valuta + "…"],
+        [/^Il servizio cambi ha risposto con errore (.+)\.$/,
+          (_, stato) => "Η υπηρεσία ισοτιμιών απάντησε με σφάλμα " + stato + "."],
+        [/^Tasso di cambio mancante per il saldo '(.+)'\.$/,
+          (_, nome) => "Λείπει η ισοτιμία για το υπόλοιπο «" + nome + "»."],
+        [/^1 ([A-Z]{3}) = (.+) EUR — (Tasso inserito manualmente|Ultimo tasso Frankfurter)(?: \(dato del (.+)\))?\.$/,
+          (_, valuta, valore, origine, data) => "1 " + valuta + " = " + valore +
+            " EUR — " + (origine === "Tasso inserito manualmente"
+              ? "Χειροκίνητη ισοτιμία"
+              : "Τελευταία ισοτιμία Frankfurter") + (data ? " (στοιχεία " + data + ")" : "") + "."],
+        [/^Cambio online non disponibile \((.+)\)\. (.+)$/,
+          (_, errore, suggerimento) => "Η online ισοτιμία δεν είναι διαθέσιμη (" +
+            traduciDinamicoGreco(errore) + "). Καταχωρίστε την ισοτιμία χειροκίνητα."],
+        [/^Dati di (.+) caricati\. Modifica i campi e premi Salva mese\.$/,
+          (_, mese) => "Τα δεδομένα του μήνα " + mese +
+            " φορτώθηκαν. Επεξεργαστείτε τα πεδία και επιλέξτε «Αποθήκευση μήνα»."],
+        [/^Vuoi eliminare i dati di (.+)\? Questa azione non può essere annullata\.$/,
+          (_, mese) => "Να διαγραφούν τα δεδομένα του μήνα " + mese +
+            "; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί."],
+        [/^Dati di (.+) eliminati\.$/, (_, mese) => "Τα δεδομένα του μήνα " + mese + " διαγράφηκαν."],
+        [/^Backup importato: (.+) mesi uniti ai dati presenti\. Nei mesi duplicati è stato usato il backup\.$/,
+          (_, mesi) => "Το αντίγραφο ασφαλείας εισήχθη: συγχωνεύτηκαν " + mesi +
+            " μήνες με τα υπάρχοντα δεδομένα. Για τους διπλότυπους μήνες χρησιμοποιήθηκαν τα δεδομένα του αντιγράφου."],
+        [/^(Importazione non riuscita|Impossibile esportare il backup|Impossibile eliminare i dati in questo browser|Impossibile salvare i dati in questo browser|Non riesco a leggere i dati salvati|Impossibile salvare la lingua scelta): (.+)$/,
+          (_, prefisso, errore) => ({
+            "Importazione non riuscita": "Αποτυχία εισαγωγής",
+            "Impossibile esportare il backup": "Δεν ήταν δυνατή η εξαγωγή του αντιγράφου ασφαλείας",
+            "Impossibile eliminare i dati in questo browser": "Δεν ήταν δυνατή η διαγραφή των δεδομένων από αυτό το πρόγραμμα περιήγησης",
+            "Impossibile salvare i dati in questo browser": "Δεν ήταν δυνατή η αποθήκευση των δεδομένων σε αυτό το πρόγραμμα περιήγησης",
+            "Non riesco a leggere i dati salvati": "Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων δεδομένων",
+            "Impossibile salvare la lingua scelta": "Δεν ήταν δυνατή η αποθήκευση της επιλεγμένης γλώσσας"
+          })[prefisso] + ": " + traduciDinamicoGreco(errore)]
+      ];
+      for (const [pattern, traduzione] of dinamiche) {
+        const corrispondenza = testo.match(pattern);
+        if (corrispondenza) return traduzione(...corrispondenza);
+      }
+      if (testo === "N/D (saldo iniziale pari a zero)") return "Μ/Δ (το αρχικό υπόλοιπο είναι μηδέν)";
+      return testo;
+    }
+
     const testiOriginali = new WeakMap();
     const attributiOriginali = new WeakMap();
     function traduzioneTestoNodo(nodo, testo) {
       return testo === "Azioni" && nodo.parentElement &&
-        nodo.parentElement.id === "titolo-azioni" && lingua === "en"
-        ? "Stocks"
+        nodo.parentElement.id === "titolo-azioni" && (lingua === "en" || lingua === "el")
+        ? (lingua === "en" ? "Stocks" : "Μετοχές")
         : traduciTesto(testo);
     }
 
@@ -1591,7 +1948,7 @@
     function applicaLingua() {
       document.documentElement.lang = lingua;
       selettoreLingua.value = lingua;
-      document.title = traduciTesto("Il mio patrimonio");
+      document.title = "MyPig";
       traduciNodo(document.body);
       formatoEuro = new Intl.NumberFormat(localeCorrente(), { style: "currency", currency: "EUR" });
       formatoMese = new Intl.DateTimeFormat(localeCorrente(), {
@@ -3206,6 +3563,64 @@
         corpo.append(riga);
       });
     }
+
+    function creaElencoStorico() {
+      const intestazioni = Array.from(
+        document.querySelectorAll(".tabella-scroll thead th")
+      ).slice(0, -1).map((cella) => cella.textContent.trim());
+      const righe = Array.from(document.querySelectorAll("#righe-storico tr"))
+        .filter((riga) => !riga.querySelector(".vuoto"))
+        .map((riga) => Array.from(riga.cells).slice(0, intestazioni.length)
+          .map((cella, indice) => intestazioni[indice] + ": " + cella.textContent.trim())
+          .join("\n"));
+      const vuoto = document.querySelector("#righe-storico .vuoto");
+      const contenuto = righe.length ? righe.join("\n\n") : vuoto.textContent.trim();
+      return document.getElementById("titolo-storico").textContent.trim() +
+        "\n\n" + contenuto;
+    }
+
+    const messaggioStorico = document.getElementById("storico-messaggio");
+    document.getElementById("copia-storico").addEventListener("click", async () => {
+      messaggioStorico.textContent = "";
+      messaggioStorico.className = "backup-messaggio";
+      try {
+        await navigator.clipboard.writeText(creaElencoStorico());
+        messaggioStorico.textContent = traduciTesto(
+          "Elenco copiato. Puoi incollarlo in WhatsApp."
+        );
+        messaggioStorico.className = "backup-messaggio successo";
+      } catch (errore) {
+        console.error("Impossibile copiare lo storico mensile.", errore);
+        messaggioStorico.textContent = traduciTesto("Copia non riuscita.") +
+          " " + errore.message;
+        messaggioStorico.className = "backup-messaggio errore";
+      }
+    });
+
+    document.getElementById("scarica-storico").addEventListener("click", () => {
+      messaggioStorico.textContent = "";
+      messaggioStorico.className = "backup-messaggio";
+      let url;
+      try {
+        url = URL.createObjectURL(new Blob([creaElencoStorico()], {
+          type: "text/plain;charset=utf-8"
+        }));
+        const collegamento = document.createElement("a");
+        collegamento.href = url;
+        collegamento.download = "mypig-storico-" +
+          new Date().toISOString().slice(0, 10) + ".txt";
+        collegamento.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        messaggioStorico.textContent = traduciTesto("Elenco scaricato.");
+        messaggioStorico.className = "backup-messaggio successo";
+      } catch (errore) {
+        if (url) URL.revokeObjectURL(url);
+        console.error("Impossibile scaricare lo storico mensile.", errore);
+        messaggioStorico.textContent = traduciTesto("Download non riuscito.") +
+          " " + errore.message;
+        messaggioStorico.className = "backup-messaggio errore";
+      }
+    });
 
     function aggiornaVista() {
       disegnaGrafico();
