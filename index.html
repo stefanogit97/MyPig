@@ -140,9 +140,15 @@
       margin-bottom: 12px;
     }
 
-    .riepilogo-spese { min-height: 1.5em; color: #49615b; }
+    .riepilogo-confronto {
+      display: grid;
+      gap: 4px;
+      margin: 0 0 12px;
+      color: #49615b;
+    }
+    .riepilogo-confronto p { margin: 0; }
+    .riepilogo-confronto .valore-corrente { color: #172b27; font-weight: 700; }
     .titolo-ripartizione { margin: 24px 0 12px; font-size: 1.05rem; }
-    .riepilogo-risparmio { margin: 0 0 12px; font-weight: 700; }
     .grafico-patrimonio-scroll, .grafico-spese-scroll { overflow-x: auto; }
     .grafico-risparmio-scroll { overflow-x: auto; }
     #grafico-risparmio { display: block; height: auto; max-width: none; }
@@ -512,7 +518,7 @@
           </select>
         </label>
       </div>
-      <p id="riepilogo-confronto-spese" class="riepilogo-spese" aria-live="polite"></p>
+      <div id="riepilogo-confronto-spese" class="riepilogo-confronto" aria-live="polite"></div>
       <div class="grafico-spese-scroll">
         <svg id="grafico-spese" viewBox="0 0 800 360" role="img" aria-label="Grafico di confronto delle spese mensili"></svg>
       </div>
@@ -526,7 +532,7 @@
     <section class="card" aria-labelledby="titolo-risparmio-mensile">
       <h2 id="titolo-risparmio-mensile">Risparmio mensile</h2>
       <p class="nota-metriche">Calcolato come stipendio più altre entrate meno spese; il grafico mostra il risparmio di ogni mese registrato, in euro.</p>
-      <p id="risparmio-mese-selezionato" class="riepilogo-risparmio" aria-live="polite"></p>
+      <div id="risparmio-mese-selezionato" class="riepilogo-confronto" aria-live="polite"></div>
       <div class="grafico-risparmio-scroll">
         <svg id="grafico-risparmio" viewBox="0 0 800 360" role="img" aria-label="Grafico a barre del risparmio mensile"></svg>
       </div>
@@ -629,6 +635,8 @@
       "Andamento del patrimonio": "Net worth over time",
       "La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.": "The change compares recorded net worth: it is not investment performance, as it can include savings, withdrawals and expenses.",
       "Dal mese precedente": "Since previous month",
+      "Variazione assoluta": "Absolute change",
+      "Variazione percentuale": "Percentage change",
       "Da inizio anno": "Year to date",
       "Da sempre": "All time",
       "Grafico dell'andamento mensile del patrimonio": "Monthly net worth chart",
@@ -835,6 +843,8 @@
       ["Andamento del patrimonio", "Évolution du patrimoine", "Evolución del patrimonio", "Zmiany majątku", "Динамика капитала", "Evolução do património"],
       ["La variazione confronta i patrimoni registrati: non rappresenta il rendimento degli investimenti, perché può includere risparmi, prelievi e spese.", "La variation compare les patrimoines enregistrés : elle ne représente pas le rendement des investissements, car elle peut inclure l’épargne, les retraits et les dépenses.", "La variación compara los patrimonios registrados: no representa el rendimiento de las inversiones, ya que puede incluir ahorros, retiradas y gastos.", "Zmiana porównuje zapisany majątek: nie oznacza stopy zwrotu z inwestycji, ponieważ może uwzględniać oszczędności, wypłaty i wydatki.", "Изменение сравнивает записанный капитал и не является доходностью инвестиций, так как может включать сбережения, снятия и расходы.", "A variação compara os patrimónios registados: não representa o rendimento dos investimentos, pois pode incluir poupanças, levantamentos e despesas."],
       ["Dal mese precedente", "Depuis le mois précédent", "Desde el mes anterior", "Od poprzedniego miesiąca", "С прошлого месяца", "Desde o mês anterior"],
+      ["Variazione assoluta", "Variation absolue", "Variación absoluta", "Zmiana bezwzględna", "Абсолютное изменение", "Variação absoluta"],
+      ["Variazione percentuale", "Variation en pourcentage", "Variación porcentual", "Zmiana procentowa", "Процентное изменение", "Variação percentual"],
       ["Da inizio anno", "Depuis le début de l’année", "Desde principios de año", "Od początku roku", "С начала года", "Desde o início do ano"],
       ["Da sempre", "Depuis le début", "Desde el inicio", "Od początku", "За всё время", "Desde o início"],
       ["Andamento delle spese", "Évolution des dépenses", "Evolución de los gastos", "Zmiany wydatków", "Динамика расходов", "Evolução das despesas"],
@@ -1086,6 +1096,8 @@
       "Salva mese": { de: "Monat speichern", uk: "Зберегти місяць" },
       "Andamento del patrimonio": { de: "Vermögensentwicklung", uk: "Динаміка капіталу" },
       "Dal mese precedente": { de: "Seit dem Vormonat", uk: "З попереднього місяця" },
+      "Variazione assoluta": { de: "Absolute Veränderung", uk: "Абсолютна зміна" },
+      "Variazione percentuale": { de: "Prozentuale Veränderung", uk: "Відсоткова зміна" },
       "Mese precedente": { de: "Vormonat", uk: "Попередній місяць" },
       "Da inizio anno": { de: "Seit Jahresbeginn", uk: "З початку року" },
       "Da sempre": { de: "Gesamtzeitraum", uk: "За весь час" },
@@ -1309,6 +1321,8 @@
         el: "Η μεταβολή συγκρίνει τις καταγεγραμμένες αξίες περιουσίας· δεν αποτελεί απόδοση επενδύσεων, καθώς μπορεί να περιλαμβάνει αποταμιεύσεις, αναλήψεις και έξοδα."
       },
       "Dal mese precedente": { el: "Από τον προηγούμενο μήνα" },
+      "Variazione assoluta": { el: "Απόλυτη μεταβολή" },
+      "Variazione percentuale": { el: "Ποσοστιαία μεταβολή" },
       "Mese precedente": { el: "Προηγούμενος μήνας" },
       "Da inizio anno": { el: "Από την αρχή του έτους" },
       "Da sempre": { el: "Συνολικά" },
@@ -3154,38 +3168,65 @@
         : dati[dati.length - 1].mese;
     }
 
-    function mostraRiepilogoConfronto(mese, precedente) {
-      const riepilogo = document.getElementById("riepilogo-confronto-spese");
+    function aggiungiRigaRiepilogo(contenitore, testo, classe) {
+      const riga = document.createElement("p");
+      if (classe) riga.className = classe;
+      riga.textContent = testo;
+      contenitore.append(riga);
+    }
+
+    function mostraConfrontoMensile(contenitore, mese, precedente, metrica, messaggioVuoto) {
+      contenitore.replaceChildren();
       if (!mese) {
-        riepilogo.textContent = "Salva un mese per visualizzare il confronto delle spese.";
+        aggiungiRigaRiepilogo(contenitore, traduciTesto(messaggioVuoto));
         return;
       }
-      const totale = totaleSpese(mese);
+
+      const isSpese = metrica === "spese";
+      const valoreCorrente = isSpese ? totaleSpese(mese) : risparmio(mese);
+      const etichettaCorrente = traduciTesto(isSpese ? "Spese totali" : "Risparmio");
+      const testoCorrente = etichettaCorrente + " (" + meseEtichetta(mese) + "): " +
+        formatoEuro.format(valoreCorrente);
+      aggiungiRigaRiepilogo(contenitore, traduciTesto(testoCorrente), "valore-corrente");
+
       if (!precedente) {
-        riepilogo.textContent = "Totale di " + meseEtichetta(mese) + ": " +
-          formatoEuro.format(totale) + ". Non è ancora disponibile una rilevazione precedente.";
+        aggiungiRigaRiepilogo(contenitore, traduciTesto("Riferimento non disponibile"));
         return;
       }
-      const totalePrecedente = totaleSpese(precedente);
-      const differenza = totale - totalePrecedente;
-      const variazione = totalePrecedente === 0
-        ? "variazione percentuale non disponibile (mese precedente pari a zero)"
+
+      const valorePrecedente = isSpese ? totaleSpese(precedente) : risparmio(precedente);
+      const differenza = valoreCorrente - valorePrecedente;
+      const percentualeNonDisponibile = valorePrecedente === 0 ||
+        (!isSpese && valorePrecedente < 0);
+      const variazionePercentuale = percentualeNonDisponibile
+        ? traduciTesto("N/D")
         : ((differenza > 0 ? "+" : "") +
-          (differenza / totalePrecedente * 100).toLocaleString(localeCorrente(), {
+          (differenza / valorePrecedente * 100).toLocaleString(localeCorrente(), {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           }) + "%");
-      riepilogo.textContent = "Totale di " + meseEtichetta(mese) + ": " +
-        formatoEuro.format(totale) + " (" + (differenza > 0 ? "+" : "") +
-        formatoEuro.format(differenza) + ", " + variazione + ") rispetto a " +
-        meseEtichetta(precedente) + " (" + formatoEuro.format(totalePrecedente) + ").";
+
+      aggiungiRigaRiepilogo(contenitore,
+        traduciTesto("Mese precedente") + " (" + meseEtichetta(precedente) + "): " +
+          formatoEuro.format(valorePrecedente));
+      aggiungiRigaRiepilogo(contenitore,
+        traduciTesto("Variazione assoluta") + ": " +
+          (differenza > 0 ? "+" : "") + formatoEuro.format(differenza));
+      aggiungiRigaRiepilogo(contenitore,
+        traduciTesto("Variazione percentuale") + ": " + variazionePercentuale);
     }
 
     function disegnaConfrontoSpese(mese) {
       const svg = document.getElementById("grafico-spese");
       const meseIndice = mese ? dati.findIndex((record) => record.mese === mese.mese) : -1;
       const precedente = meseIndice > 0 ? dati[meseIndice - 1] : null;
-      mostraRiepilogoConfronto(mese, precedente);
+      mostraConfrontoMensile(
+        document.getElementById("riepilogo-confronto-spese"),
+        mese,
+        precedente,
+        "spese",
+        "Salva un mese per visualizzare il confronto delle spese."
+      );
       svg.replaceChildren();
       if (!mese) {
         svg.setAttribute("viewBox", "0 0 800 100");
@@ -3445,12 +3486,17 @@
       document.querySelector(".grafico-risparmio-scroll").scrollLeft = 0;
       svg.replaceChildren();
 
-      if (recordSelezionato) {
-        riepilogo.textContent = "Risparmio di " + meseEtichetta(recordSelezionato) + ": " +
-          formatoEuro.format(risparmio(recordSelezionato)) + ".";
-      } else {
-        riepilogo.textContent = "Registra un mese per visualizzare il risparmio.";
-      }
+      const meseIndice = recordSelezionato
+        ? dati.findIndex((record) => record.mese === recordSelezionato.mese)
+        : -1;
+      const precedente = meseIndice > 0 ? dati[meseIndice - 1] : null;
+      mostraConfrontoMensile(
+        riepilogo,
+        recordSelezionato,
+        precedente,
+        "risparmio",
+        "Registra un mese per visualizzare il risparmio."
+      );
 
       if (dati.length === 0) {
         svg.setAttribute("viewBox", "0 0 800 100");
