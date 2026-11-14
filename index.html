@@ -206,6 +206,17 @@
       color: #49615b;
       font-size: .88rem;
     }
+    .etichetta-cambio {
+      align-self: end;
+      margin: 0;
+      color: #49615b;
+      font-weight: 700;
+    }
+    td.tassi-cambio {
+      min-width: 220px;
+      white-space: pre-line;
+      font-size: .88rem;
+    }
     #campo-tasso-manuale[hidden] { display: none; }
     button {
       width: 100%;
@@ -366,6 +377,7 @@
           <label for="valuta">Valuta di stipendio, altre entrate e spese
             <select id="valuta" name="valuta"></select>
           </label>
+          <p class="etichetta-cambio">Tasso di cambio</p>
           <p id="informazione-cambio" class="informazione-cambio" role="status" aria-live="polite">Per EUR il cambio è 1:1.</p>
           <label id="campo-tasso-manuale" for="tasso-manuale" hidden>Euro per un'unità di valuta
             <input id="tasso-manuale" name="tasso-manuale" type="number" min="0.000001" step="0.000001" inputmode="decimal" placeholder="Es. 0,92">
@@ -532,6 +544,7 @@
           <thead>
             <tr>
               <th scope="col">Mese</th>
+              <th scope="col">Tassi di cambio applicati</th>
               <th scope="col" class="numero">ETF, azioni e obbligazioni</th>
               <th scope="col" class="numero">Liquidità</th>
               <th scope="col" class="numero">Conto deposito</th>
@@ -645,6 +658,8 @@
       "Copia non riuscita.": "Could not copy the list.",
       "Download non riuscito.": "Could not download the list.",
       "Mese": "Month",
+      "Tasso di cambio": "Exchange rate",
+      "Tassi di cambio applicati": "Applied exchange rates",
       "ETF, azioni e obbligazioni": "ETFs, stocks and bonds",
       "Liquidità": "Cash",
       "Conto deposito": "Savings account",
@@ -838,6 +853,8 @@
       ["Seleziona un backup da importare", "Sélectionner une sauvegarde à importer", "Seleccionar una copia para importar", "Wybierz kopię do zaimportowania", "Выберите копию для импорта", "Selecionar uma cópia para importar"],
       ["Storico mensile", "Historique mensuel", "Historial mensual", "Historia miesięczna", "История по месяцам", "Histórico mensal"],
       ["Mese", "Mois", "Mes", "Miesiąc", "Месяц", "Mês"],
+      ["Tasso di cambio", "Taux de change", "Tipo de cambio", "Kurs wymiany", "Обменный курс", "Taxa de câmbio"],
+      ["Tassi di cambio applicati", "Taux de change appliqués", "Tipos de cambio aplicados", "Zastosowane kursy wymiany", "Применённые обменные курсы", "Taxas de câmbio aplicadas"],
       ["ETF, azioni e obbligazioni", "ETF, actions et obligations", "ETF, acciones y bonos", "ETF-y, akcje i obligacje", "ETF, акции и облигации", "ETF, ações e obrigações"],
       ["Liquidità", "Liquidités", "Efectivo", "Gotówka", "Денежные средства", "Dinheiro"],
       ["Conto deposito", "Compte d’épargne", "Cuenta de ahorro", "Konto oszczędnościowe", "Сберегательный счёт", "Conta poupança"],
@@ -1083,6 +1100,8 @@
       "Esporta backup": { de: "Sicherung exportieren", uk: "Експортувати копію" },
       "Storico mensile": { de: "Monatsübersicht", uk: "Історія за місяцями" },
       "Mese": { de: "Monat", uk: "Місяць" },
+      "Tasso di cambio": { de: "Wechselkurs", uk: "Обмінний курс" },
+      "Tassi di cambio applicati": { de: "Angewandte Wechselkurse", uk: "Застосовані обмінні курси" },
       "ETF, azioni e obbligazioni": { de: "ETFs, Aktien und Anleihen", uk: "ETF, акції та облігації" },
       "Liquidità": { de: "Bargeld", uk: "Готівка" },
       "Conto deposito": { de: "Sparkonto", uk: "Ощадний рахунок" },
@@ -1319,6 +1338,8 @@
       "Seleziona un backup da importare": { el: "Επιλογή αντιγράφου ασφαλείας για εισαγωγή" },
       "Storico mensile": { el: "Μηνιαίο ιστορικό" },
       "Mese": { el: "Μήνας" },
+      "Tasso di cambio": { el: "Συναλλαγματική ισοτιμία" },
+      "Tassi di cambio applicati": { el: "Εφαρμοσμένες συναλλαγματικές ισοτιμίες" },
       "ETF, azioni e obbligazioni": { el: "ETF, μετοχές και ομόλογα" },
       "Liquidità": { el: "Μετρητά" },
       "Conto deposito": { el: "Λογαριασμός αποταμίευσης" },
@@ -2119,15 +2140,7 @@
       inputTassoManuale.value = "";
       inputTassoManuale.required = false;
       campoTassoManuale.hidden = true;
-      if (valuta === "EUR") {
-        informazioneCambio.textContent = "Per EUR il cambio è 1:1.";
-        return;
-      }
-      const dataTasso = data ? " (dato del " + data + ")" : "";
-      const origine = fonte === "manuale" ? "Tasso inserito manualmente" : "Ultimo tasso Frankfurter";
-      informazioneCambio.textContent = "1 " + valuta + " = " +
-        tasso.toLocaleString(localeCorrente(), { maximumFractionDigits: 6 }) +
-        " EUR — " + origine + dataTasso + ".";
+      informazioneCambio.textContent = testoTassoCambio(tasso, valuta, data, fonte);
     }
 
     async function aggiornaTassoCambio() {
@@ -2634,11 +2647,37 @@
       });
     }
 
-    function etichettaCambio(tasso, valuta, data, fonte) {
-      const descrizione = fonte === "manuale" ? "Cambio manuale" : "Ultimo tasso Frankfurter";
-      return "1 " + valuta + " = " +
+    function testoTassoCambio(tasso, valuta, data, fonte) {
+      if (valuta === "EUR") return traduciTesto("Per EUR il cambio è 1:1.");
+      const origine = fonte === "manuale"
+        ? "Tasso inserito manualmente"
+        : "Ultimo tasso Frankfurter";
+      const dataTasso = data ? " (dato del " + data + ")" : "";
+      const testo = "1 " + valuta + " = " +
         tasso.toLocaleString(localeCorrente(), { maximumFractionDigits: 6 }) +
-        " EUR — " + descrizione + (data ? " (dato del " + data + ")" : "") + ".";
+        " EUR — " + origine + dataTasso + ".";
+      return traduciTesto(testo);
+    }
+
+    function etichettaCambio(tasso, valuta, data, fonte) {
+      return testoTassoCambio(tasso, valuta, data, fonte);
+    }
+
+    function tassiCambioStorico(record) {
+      if (record.legacyNonSuddiviso) return "—";
+
+      const tassi = new Set();
+      const aggiungi = (valuta, tasso, data, fonte) => {
+        if (typeof valuta === "string" && Number.isFinite(tasso) && tasso > 0) {
+          tassi.add(testoTassoCambio(tasso, valuta, data, fonte));
+        }
+      };
+      aggiungi(record.valuta, record.tassoCambio, record.tassoCambioData, record.tassoCambioFonte);
+      [...(record.posizioniLiquidita || []), ...(record.contiDeposito || [])]
+        .forEach((saldo) => aggiungi(
+          saldo.valuta, saldo.tassoCambio, saldo.tassoCambioData, saldo.tassoCambioFonte
+        ));
+      return tassi.size ? Array.from(tassi).join("\n") : "—";
     }
 
     function creaRigaSaldo(tipo, saldo = {}) {
@@ -3542,7 +3581,7 @@
       if (dati.length === 0) {
         const riga = document.createElement("tr");
         const cella = document.createElement("td");
-        cella.colSpan = 9;
+        cella.colSpan = 10;
         cella.className = "vuoto";
         cella.textContent = "Non hai ancora inserito dati.";
         riga.append(cella);
@@ -3558,6 +3597,7 @@
         );
         const valori = [
           meseVisualizzato,
+          tassiCambioStorico(record),
           record.legacyNonSuddiviso
             ? "—"
             : formatoEuro.format(totaleInvestimenti(record)),
@@ -3575,7 +3615,11 @@
         valori.forEach((valore, indice) => {
           const cella = document.createElement("td");
           cella.textContent = valore;
-          if (indice > 0) cella.className = "numero";
+          if (indice === 1) {
+            cella.className = "tassi-cambio";
+          } else if (indice > 1) {
+            cella.className = "numero";
+          }
           riga.append(cella);
         });
 
