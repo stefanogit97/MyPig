@@ -264,7 +264,6 @@
       .metriche-patrimonio { grid-template-columns: 1fr; }
       .controlli-grafico-spese, .grafico-torta-contenitore { grid-template-columns: 1fr; }
       .grafico-torta-contenitore svg { max-width: 260px; margin: 0 auto; }
-      #grafico, #grafico-spese { width: 800px; max-width: none; }
       h1 { font-size: 1.55rem; }
       .mascotte { flex-basis: 110px; width: 110px; }
       .backup-azioni { grid-template-columns: 1fr; }
@@ -2587,17 +2586,22 @@
       svg.replaceChildren();
 
       if (dati.length === 0) {
+        svg.style.width = "800px";
         svg.append(creaElemento("text", {
           x: "400", y: "150", "text-anchor": "middle", fill: "#49615b"
         }, "Aggiungi il primo mese per vedere il grafico"));
         return;
       }
 
-      const larghezza = 800;
       const altezza = 300;
       const margine = { alto: 20, destra: 24, basso: 56, sinistra: 88 };
+      const passoMese = 64;
+      const distanzaMesi = (dati.length - 1) * passoMese;
+      const larghezza = Math.max(800, margine.sinistra + margine.destra + distanzaMesi);
       const areaLarghezza = larghezza - margine.sinistra - margine.destra;
+      const inizioPunti = margine.sinistra + (areaLarghezza - distanzaMesi) / 2;
       const areaAltezza = altezza - margine.alto - margine.basso;
+      svg.style.width = larghezza + "px";
       const valori = dati.map((record) => record.patrimonio);
       let minimo = Math.min(...valori);
       let massimo = Math.max(...valori);
@@ -2638,7 +2642,7 @@
       const punti = dati.map((record, indice) => {
         const x = dati.length === 1
           ? margine.sinistra + areaLarghezza / 2
-          : margine.sinistra + areaLarghezza * indice / (dati.length - 1);
+          : inizioPunti + passoMese * indice;
         const y = margine.alto + areaAltezza * (massimo - record.patrimonio) / (massimo - minimo);
         return { x, y, record };
       });
@@ -2752,6 +2756,7 @@
       svg.replaceChildren();
       if (!mese) {
         svg.setAttribute("viewBox", "0 0 800 100");
+        svg.style.width = "800px";
         svg.append(creaElemento("text", {
           x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
         }, "Aggiungi il primo mese per confrontare le spese."));
@@ -2768,6 +2773,7 @@
       }));
       if (righe.length === 0) {
         svg.setAttribute("viewBox", "0 0 800 100");
+        svg.style.width = "800px";
         svg.append(creaElemento("text", {
           x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
         }, "Non risultano spese registrate per questo mese."));
@@ -2780,6 +2786,7 @@
       const larghezzaBarra = 480;
       const massimo = Math.max(1, ...righe.map((riga) => Math.max(riga.corrente, riga.precedente)));
       svg.setAttribute("viewBox", "0 0 800 " + altezza);
+      svg.style.width = "800px";
       svg.append(creaElemento("rect", {
         x: 230, y: 8, width: 12, height: 12, rx: 2, fill: "#9fc9bd"
       }));
@@ -2833,17 +2840,22 @@
         : "Salva i mesi per visualizzare l'andamento delle spese.";
       if (dati.length === 0) {
         svg.setAttribute("viewBox", "0 0 800 100");
+        svg.style.width = "800px";
         svg.append(creaElemento("text", {
           x: "400", y: "55", "text-anchor": "middle", fill: "#49615b"
         }, "Aggiungi il primo mese per vedere il grafico."));
         return;
       }
 
-      const larghezza = 800;
       const altezza = 330;
       const margine = { alto: 20, destra: 24, basso: 56, sinistra: 88 };
+      const passoMese = 64;
+      const distanzaMesi = (dati.length - 1) * passoMese;
+      const larghezza = Math.max(800, margine.sinistra + margine.destra + distanzaMesi);
       const areaLarghezza = larghezza - margine.sinistra - margine.destra;
+      const inizioPunti = margine.sinistra + (areaLarghezza - distanzaMesi) / 2;
       const areaAltezza = altezza - margine.alto - margine.basso;
+      svg.style.width = larghezza + "px";
       const valori = dati.map(totaleSpese);
       const massimo = Math.max(1, ...valori) * 1.12;
       for (let indice = 0; indice <= 4; indice += 1) {
@@ -2861,7 +2873,7 @@
       const punti = dati.map((record, indice) => {
         const x = dati.length === 1
           ? margine.sinistra + areaLarghezza / 2
-          : margine.sinistra + areaLarghezza * indice / (dati.length - 1);
+          : inizioPunti + passoMese * indice;
         const totale = totaleSpese(record);
         const y = margine.alto + areaAltezza * (1 - totale / massimo);
         return { x, y, record, totale };
@@ -2988,9 +3000,14 @@
         return;
       }
 
-      const larghezzaPasso = 100;
-      const larghezza = Math.max(800, dati.length * larghezzaPasso + 96);
       const margine = { alto: 48, destra: 24, basso: 66, sinistra: 88 };
+      const larghezzaPasso = 64;
+      const larghezza = Math.max(
+        800,
+        margine.sinistra + margine.destra + dati.length * larghezzaPasso
+      );
+      const inizioBarre = margine.sinistra +
+        (larghezza - margine.sinistra - margine.destra - dati.length * larghezzaPasso) / 2;
       const valori = dati.map(risparmio);
       let minimo = Math.min(0, ...valori);
       let massimo = Math.max(0, ...valori);
@@ -3031,11 +3048,10 @@
         }, formatoTacca.format(valore)));
       }
 
-      const spazio = (larghezza - margine.sinistra - margine.destra) / dati.length;
-      const larghezzaBarra = Math.min(58, spazio * 0.58);
+      const larghezzaBarra = Math.min(58, larghezzaPasso * 0.75);
       dati.forEach((record, indice) => {
         const valore = risparmio(record);
-        const centroX = margine.sinistra + spazio * (indice + .5);
+        const centroX = inizioBarre + larghezzaPasso * (indice + .5);
         const yValore = yPerValore(valore);
         const yBarra = Math.min(yZero, yValore);
         const altezzaBarra = Math.max(2, Math.abs(yZero - yValore));
