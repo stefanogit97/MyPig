@@ -504,18 +504,6 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="titolo-backup">
-      <h2 id="titolo-backup">Backup dei dati</h2>
-      <p class="hint">Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.</p>
-      <div class="backup-azioni">
-        <button id="esporta-backup" type="button">Esporta backup</button>
-        <label for="file-backup">Seleziona un backup da importare
-          <input id="file-backup" type="file" accept=".json,application/json">
-        </label>
-      </div>
-      <p id="backup-messaggio" class="backup-messaggio" role="status" aria-live="polite"></p>
-    </section>
-
     <section class="card" aria-labelledby="titolo-storico">
       <h2 id="titolo-storico">Storico mensile</h2>
       <div class="tabella-scroll">
@@ -537,6 +525,18 @@
         </table>
       </div>
       <p class="nota-privacy">I dati sono salvati solo in questo browser e su questo dispositivo; non vengono inviati a un server.</p>
+    </section>
+
+    <section class="card" aria-labelledby="titolo-backup">
+      <h2 id="titolo-backup">Backup dei dati</h2>
+      <p class="hint">Esporta una copia dei tuoi dati oppure importa un backup. L'importazione unisce i mesi e, in caso di mese duplicato, usa il dato del backup. Il file JSON non è cifrato: conservalo in un luogo privato e sicuro.</p>
+      <div class="backup-azioni">
+        <button id="esporta-backup" type="button">Esporta backup</button>
+        <label for="file-backup">Seleziona un backup da importare
+          <input id="file-backup" type="file" accept=".json,application/json">
+        </label>
+      </div>
+      <p id="backup-messaggio" class="backup-messaggio" role="status" aria-live="polite"></p>
     </section>
   </main>
 
